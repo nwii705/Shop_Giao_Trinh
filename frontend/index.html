@@ -191,17 +191,22 @@
                 
                 <!-- Right Column: QR Code -->
                 <div class="payment-right">
-                    <div class="qr-box">
-                        <img src="https://img.vietqr.io/image/MB-0938888335-compact.png" 
-                             alt="QR Code MB Bank" 
+                    <div class="qr-box momo-qr">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=2%7C99%7C0938888335%7CPHAM%20MANH%20CUONG%7C%7C0%7C0%7C0" 
+                             alt="QR Code MoMo" 
                              id="paymentQRCode"
                              class="qr-code-img">
                     </div>
-                    <div class="bank-details">
-                        <p>Ngân hàng: <strong>MB Bank</strong></p>
-                        <p>Số TK: <strong class="copy-text" onclick="copyToClipboard('0938888335')">0938888335</strong></p>
-                        <p>Tên: <strong>Phạm Mạnh Cường</strong></p>
-                        <p>Số tiền: <strong class="amount" id="paymentAmount">400.000đ</strong></p>
+                    <div class="momo-details">
+                        <div class="momo-header">
+                            <span class="momo-logo-icon">💳</span>
+                            <strong class="momo-brand">MoMo</strong>
+                        </div>
+                        <div class="momo-info">
+                            <p><span>Số ĐT:</span> <strong onclick="copyToClipboard('0938888335')" class="copy-text">0938888335</strong></p>
+                            <p><span>Tên:</span> <strong>PHẠM MẠNH CƯỜNG</strong></p>
+                            <p><span>Số tiền:</span> <strong class="amount" id="paymentAmount">400.000đ</strong></p>
+                        </div>
                     </div>
                 </div>
             </div>
