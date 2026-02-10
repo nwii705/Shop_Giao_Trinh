@@ -163,7 +163,7 @@ function renderProducts() {
                     <span class="price-original">${formatPrice(product.originalPrice)}</span>
                     <span class="price-current">${formatPrice(product.price)}</span>
                 </div>
-                <button class="btn-buy" onclick="openPurchaseModal('${product.id}')">
+                <button class="btn-buy" onclick="openPaymentModalById('${product.id}')">
                     <span>🛒</span> Mua ngay
                 </button>
             </div>
@@ -583,3 +583,145 @@ document.addEventListener('keydown', (e) => {
 });
 
 window.selectSearchResult = selectSearchResult;
+
+// ===== PAYMENT FLOW =====
+const paymentModalOverlay = document.getElementById('paymentModalOverlay');
+const paymentModalClose = document.getElementById('paymentModalClose');
+const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+
+// Open payment modal by product ID (called from "Mua ngay" button)
+function openPaymentModalById(productId) {
+    selectedProduct = productsData.find(p => p.id === productId);
+    if (!selectedProduct) return;
+    
+    // Setup payment amount
+    document.getElementById('paymentAmount').textContent = formatPrice(selectedProduct.price);
+    
+    // Generate order code and store it
+    const orderCode = 'EDU' + Date.now().toString().slice(-6);
+    paymentModalOverlay.dataset.orderCode = orderCode;
+    paymentModalOverlay.dataset.productId = selectedProduct.id;
+    paymentModalOverlay.dataset.productTitle = selectedProduct.title;
+    paymentModalOverlay.dataset.productPrice = selectedProduct.price;
+    
+    // Reset form and show main content
+    document.getElementById('buyerInfoForm').reset();
+    document.getElementById('paymentMainContent').style.display = 'flex';
+    document.getElementById('paymentSuccess').style.display = 'none';
+    
+    // Show modal
+    paymentModalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Close payment modal
+function closePaymentModal() {
+    paymentModalOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+    document.getElementById('buyerInfoForm').reset();
+}
+
+// Validate buyer info
+function validateBuyerInfo() {
+    const name = document.getElementById('buyerName').value.trim();
+    const email = document.getElementById('buyerEmail').value.trim();
+    const phone = document.getElementById('buyerPhone').value.trim();
+    
+    if (!name) {
+        alert('Vui lòng nhập họ tên');
+        document.getElementById('buyerName').focus();
+        return false;
+    }
+    
+    if (!email || !email.includes('@')) {
+        alert('Vui lòng nhập email hợp lệ');
+        document.getElementById('buyerEmail').focus();
+        return false;
+    }
+    
+    if (!phone || phone.length < 9) {
+        alert('Vui lòng nhập số điện thoại hợp lệ');
+        document.getElementById('buyerPhone').focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// Confirm payment
+async function confirmPayment() {
+    if (!validateBuyerInfo()) return;
+    
+    const name = document.getElementById('buyerName').value.trim();
+    const email = document.getElementById('buyerEmail').value.trim();
+    const phone = document.getElementById('buyerPhone').value.trim();
+    const orderCode = paymentModalOverlay.dataset.orderCode;
+    const productId = paymentModalOverlay.dataset.productId;
+    const productTitle = paymentModalOverlay.dataset.productTitle;
+    const productPrice = paymentModalOverlay.dataset.productPrice;
+    
+    const order = {
+        id: orderCode,
+        productId: productId,
+        productTitle: productTitle,
+        productPrice: productPrice,
+        buyerName: name,
+        buyerEmail: email,
+        buyerPhone: phone,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+    };
+    
+    // Try to send to backend
+    try {
+        await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(order)
+        });
+    } catch (e) {
+        console.log('Backend not available, order logged');
+    }
+    
+    // Show success
+    document.getElementById('orderCode').textContent = orderCode;
+    document.getElementById('orderProduct').textContent = productTitle;
+    document.getElementById('orderEmail').textContent = email;
+    
+    // Switch to success view
+    document.getElementById('paymentMainContent').style.display = 'none';
+    document.getElementById('paymentSuccess').style.display = 'block';
+}
+
+// Copy to clipboard
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Đã copy: ' + text);
+    });
+}
+
+// Payment event listeners
+if (paymentModalClose) {
+    paymentModalClose.addEventListener('click', closePaymentModal);
+}
+
+if (paymentModalOverlay) {
+    paymentModalOverlay.addEventListener('click', (e) => {
+        if (e.target === paymentModalOverlay) {
+            closePaymentModal();
+        }
+    });
+}
+
+if (confirmPaymentBtn) {
+    confirmPaymentBtn.addEventListener('click', confirmPayment);
+}
+
+if (closeSuccessBtn) {
+    closeSuccessBtn.addEventListener('click', closePaymentModal);
+}
+
+// Expose functions globally
+window.openPaymentModalById = openPaymentModalById;
+window.copyToClipboard = copyToClipboard;

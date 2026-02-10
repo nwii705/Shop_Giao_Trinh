@@ -161,6 +161,67 @@
         </div>
     </div>
 
+    <!-- Payment Modal - 2 Column Layout -->
+    <div class="modal-overlay" id="paymentModalOverlay">
+        <div class="modal payment-modal" id="paymentModal">
+            <button class="modal-close" id="paymentModalClose">&times;</button>
+            
+            <!-- Main Payment Content - 2 Columns -->
+            <div class="payment-content" id="paymentMainContent">
+                <!-- Left Column: Form -->
+                <div class="payment-left">
+                    <form id="buyerInfoForm">
+                        <div class="form-group">
+                            <label for="buyerName">Họ và tên:</label>
+                            <input type="text" id="buyerName" class="form-control" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerEmail">Email:</label>
+                            <input type="email" id="buyerEmail" class="form-control" placeholder="email@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerPhone">Số điện thoại:</label>
+                            <input type="tel" id="buyerPhone" class="form-control" placeholder="0912 345 678" required>
+                        </div>
+                    </form>
+                    <button class="btn-confirm-payment" id="confirmPaymentBtn">
+                        XÁC NHẬN ĐÃ THANH TOÁN
+                    </button>
+                </div>
+                
+                <!-- Right Column: QR Code -->
+                <div class="payment-right">
+                    <div class="qr-box">
+                        <img src="https://img.vietqr.io/image/MB-0938888335-compact.png" 
+                             alt="QR Code MB Bank" 
+                             id="paymentQRCode"
+                             class="qr-code-img">
+                    </div>
+                    <div class="bank-details">
+                        <p>Ngân hàng: <strong>MB Bank</strong></p>
+                        <p>Số TK: <strong class="copy-text" onclick="copyToClipboard('0938888335')">0938888335</strong></p>
+                        <p>Tên: <strong>Phạm Mạnh Cường</strong></p>
+                        <p>Số tiền: <strong class="amount" id="paymentAmount">400.000đ</strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Success Screen (hidden by default) -->
+            <div class="payment-success" id="paymentSuccess" style="display: none;">
+                <div class="success-icon-large">🎉</div>
+                <h3>Đã ghi nhận thanh toán!</h3>
+                <p>Cảm ơn bạn đã mua hàng! Admin sẽ kiểm tra và gửi tài liệu qua email trong vòng <strong>24 giờ</strong>.</p>
+                <div class="order-summary">
+                    <p>Mã đơn hàng: <strong id="orderCode">EDU123456</strong></p>
+                    <p>Sản phẩm: <strong id="orderProduct">Tên sản phẩm</strong></p>
+                    <p>Email nhận: <strong id="orderEmail">email@example.com</strong></p>
+                </div>
+                <p class="contact-note">Nếu sau 24h chưa nhận được, vui lòng liên hệ: <strong>0938888335</strong></p>
+                <button class="btn-primary" id="closeSuccessBtn">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Search Floating Box -->
     <div class="search-overlay" id="searchOverlay">
         <div class="search-box" id="searchBox">
