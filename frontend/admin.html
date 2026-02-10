@@ -1342,54 +1342,63 @@
         }
         
         function buildPart1Prompt(topic, role, subject, wordCount) {
-            return `Bạn là ${role} chuyên viết SKKN giáo dục, môn ${subject}.
+            return `Bạn là ${role} giàu kinh nghiệm, đang viết SKKN chia sẻ trải nghiệm thực tế trong giảng dạy môn ${subject}.
 
 VIẾT PHẦN I - MỞ ĐẦU cho SKKN với đề tài: "${topic}"
 
-YÊU CẦU: Viết đầy đủ ${wordCount.toLocaleString()} từ, theo cấu trúc QĐ 658/QĐ-SGDĐT:
+YÊU CẦU VĂN PHONG:
+- Viết như đang kể chuyện, chia sẻ kinh nghiệm cá nhân, KHÔNG khô cứng như văn bản hành chính
+- TRÁNH lặp lại tên đề tài "${topic}" - chỉ nhắc 1-2 lần, sau đó dùng đại từ "đề tài này", "giải pháp", "phương pháp"...
+- Thêm cảm xúc sư phạm: mô tả ánh mắt học sinh, sự hào hứng, những khoảnh khắc "aha" trong lớp
+- Chia sẻ những khó khăn THỰC TẾ bạn gặp phải và cách bạn "vượt khó"
+- Câu văn ngắn gọn, dễ đọc, TRÁNH câu quá dài nhiều vế
+- KHÔNG dùng emoji, ký hiệu đặc biệt trong văn bản
+- KHÔNG dùng ---, ===, ***
+
+YÊU CẦU: Viết đầy đủ ${wordCount.toLocaleString()} từ, theo cấu trúc:
 
 **I. PHẦN MỞ ĐẦU**
 
 **1. Lý do chọn đề tài**
 
-a) Cơ sở pháp lý: (viết chi tiết 400-500 từ)
-   - Trích dẫn Nghị quyết 29-NQ/TW ngày 04/11/2013 về đổi mới căn bản, toàn diện GD-ĐT
-   - Chương trình GDPT 2018, Thông tư 32/2018/TT-BGDĐT
-   - Các văn bản liên quan đến "${topic}"
+a) Cơ sở pháp lý: (viết NGẮN GỌN 200-250 từ)
+   - Chỉ trích dẫn 2-3 văn bản quan trọng nhất: Nghị quyết 29-NQ/TW, Chương trình GDPT 2018
+   - KHÔNG liệt kê dài dòng, chỉ lấy ý chính
 
-b) Cơ sở thực tiễn: (viết chi tiết 500-600 từ)
-   - Thực trạng tại đơn vị công tác
-   - Những khó khăn, hạn chế cần khắc phục
-   - Yêu cầu cấp thiết từ thực tế
+b) Cơ sở thực tiễn: (viết chi tiết 600-700 từ - ĐÂY LÀ PHẦN QUAN TRỌNG)
+   - Kể về những khó khăn CỤ THỂ bạn gặp khi giảng dạy
+   - Mô tả phản ứng của học sinh: "Các em thường ngáp ngủ khi...", "Tôi nhận thấy ánh mắt các em trở nên xa xăm..."
+   - Chia sẻ trăn trở cá nhân: tại sao bạn muốn thay đổi?
+   - Kể 1-2 tình huống thực tế khiến bạn quyết định tìm giải pháp mới
 
-c) Lý do cá nhân: (100-150 từ)
-   - Động lực của tác giả khi chọn đề tài
+c) Lý do cá nhân: (150-200 từ)
+   - Viết chân thành về động lực, đam mê
+   - Kể về hành trình tìm tòi, học hỏi của bạn
 
-**2. Mục tiêu, nhiệm vụ của đề tài** (300-400 từ)
-   a) Mục tiêu: 4-5 mục tiêu cụ thể, đo lường được
-   b) Nhiệm vụ: Các nhiệm vụ cần thực hiện
+**2. Mục tiêu, nhiệm vụ của đề tài** (250-300 từ)
+   a) Mục tiêu: 4-5 mục tiêu cụ thể, viết thành câu hoàn chỉnh
+   b) Nhiệm vụ: Liên kết logic với mục tiêu
 
-**3. Đối tượng, phạm vi nghiên cứu** (200-250 từ)
-   - Đối tượng nghiên cứu
-   - Phạm vi: Không gian, Thời gian, Nội dung
+**3. Đối tượng, phạm vi nghiên cứu** (150-200 từ)
 
-**4. Giới hạn của đề tài** (100-150 từ)
+**4. Giới hạn của đề tài** (80-100 từ)
 
-**5. Phương pháp nghiên cứu** (300-400 từ)
-   - PP nghiên cứu lý luận
-   - PP nghiên cứu thực tiễn (quan sát, điều tra, thực nghiệm, thống kê)
-
-CHÚ Ý:
-- Viết đầy đủ, chi tiết, không tóm tắt
-- Văn phong học thuật, mạch lạc
-- KHÔNG dùng ---, ===, ***
-- Viết liền mạch ngay từ đầu`;
+**5. Phương pháp nghiên cứu** (250-300 từ)
+   - Viết ngắn gọn, súc tích`;
         }
         
         function buildPart2aPrompt(topic, role, subject, lyLuanWords, thucTrangWords) {
-            return `Bạn là ${role} chuyên viết SKKN giáo dục, môn ${subject}.
+            return `Bạn là ${role} giàu kinh nghiệm, đang viết SKKN chia sẻ trải nghiệm thực tế.
 
 TIẾP TỤC VIẾT PHẦN II.1 và II.2 cho SKKN với đề tài: "${topic}"
+
+YÊU CẦU VĂN PHONG:
+- TRÁNH lặp lại tên đề tài - dùng "phương pháp này", "giải pháp", "cách tiếp cận"...
+- Viết tự nhiên như đang giải thích cho đồng nghiệp, KHÔNG khô khan
+- Câu văn ngắn gọn, rõ ràng
+- Kết nối lý thuyết với thực tế giảng dạy của bạn
+- KHÔNG dùng emoji, ký hiệu đặc biệt
+- KHÔNG dùng ---, ===, ***
 
 YÊU CẦU: Viết đầy đủ ${(lyLuanWords + thucTrangWords).toLocaleString()} từ
 
@@ -1397,96 +1406,108 @@ YÊU CẦU: Viết đầy đủ ${(lyLuanWords + thucTrangWords).toLocaleString(
 
 **1. Cơ sở lý luận** (~${lyLuanWords.toLocaleString()} từ)
 
-1.1. Các khái niệm cốt lõi (định nghĩa chi tiết từng khái niệm liên quan đến "${topic}")
+1.1. Các khái niệm cốt lõi
+   - Định nghĩa ngắn gọn, dễ hiểu
+   - Liên hệ với thực tế giảng dạy
 
 1.2. Cơ sở tâm lý học, giáo dục học
-   - Lý thuyết học tập liên quan
-   - Đặc điểm tâm sinh lý học sinh
+   - Lý thuyết học tập liên quan (viết ngắn gọn, chọn lọc)
+   - Đặc điểm học sinh: kể về những gì bạn QUAN SÁT được ở học sinh
 
-1.3. Cơ sở khoa học của đề tài
-   - Các nghiên cứu trong và ngoài nước
-   - Lý thuyết nền tảng cho giải pháp
+1.3. Cơ sở khoa học
+   - Trích 2-3 nghiên cứu quan trọng
+   - Giải thích tại sao bạn tin giải pháp này sẽ hiệu quả
 
 **2. Thực trạng vấn đề nghiên cứu** (~${thucTrangWords.toLocaleString()} từ)
 
-2.1. Thực trạng vấn đề
-   - Mô tả chi tiết thực trạng hiện tại
-   - Những vấn đề đang tồn tại
+2.1. Thực trạng vấn đề (VIẾT SINH ĐỘNG)
+   - Kể về những tiết học "thất bại" bạn từng trải qua
+   - Mô tả cụ thể: học sinh làm gì? nói gì? phản ứng như thế nào?
+   - Chia sẻ cảm xúc của bạn khi đối mặt với khó khăn
 
 2.2. Kết quả khảo sát đầu vào
 
-📊 BẢNG 1: KHẢO SÁT THỰC TRẠNG BAN ĐẦU
-| Tiêu chí đánh giá | Tốt | Khá | TB | Yếu | Tổng |
-|-------------------|-----|-----|-----|-----|------|
-| Mức độ hứng thú học tập | 12% | 25% | 38% | 25% | 100% |
-| Kết quả học tập | 15% | 28% | 35% | 22% | 100% |
-| Khả năng vận dụng | 10% | 22% | 40% | 28% | 100% |
-| Kỹ năng thực hành | 8% | 20% | 42% | 30% | 100% |
+Bảng 1: Khảo sát thực trạng ban đầu (N = 120 học sinh)
+| Tiêu chí đánh giá | Tốt | Khá | TB | Yếu |
+|-------------------|-----|-----|-----|-----|
+| Mức độ hứng thú học tập | 12% | 25% | 38% | 25% |
+| Kết quả học tập | 15% | 28% | 35% | 22% |
+| Khả năng vận dụng | 10% | 22% | 40% | 28% |
+| Kỹ năng thực hành | 8% | 20% | 42% | 30% |
 
-(Ghi chú: Số liệu khảo sát N = 120 học sinh, trước khi áp dụng giải pháp)
+(Phân tích số liệu: viết 2-3 câu nhận xét cho mỗi tiêu chí, kết nối với quan sát thực tế)
 
 2.3. Phân tích nguyên nhân
-   a) Nguyên nhân khách quan: (điều kiện, môi trường, chính sách...)
-   b) Nguyên nhân chủ quan: (nhận thức, năng lực, thái độ...)
-
-CHÚ Ý:
-- Viết đầy đủ, chi tiết
-- Số liệu thực tế, có độ biến thiên hợp lý
-- KHÔNG dùng ---, ===, ***`;
+   a) Nguyên nhân khách quan: cơ sở vật chất, thời gian, chương trình...
+   b) Nguyên nhân chủ quan: thói quen học tập, phương pháp giảng dạy cũ...
+   
+(Viết thành đoạn văn, KHÔNG liệt kê khô khan)`;
         }
         
         function buildSolutionsPrompt(topic, role, subject, startNum, endNum, wordsPerSolution) {
             let solutionsDetail = '';
             for (let i = startNum; i <= endNum; i++) {
                 solutionsDetail += `
-**3.${i}. Giải pháp ${i}: [Đặt tên giải pháp cụ thể, sáng tạo liên quan đến "${topic}"]**
+**3.${i}. Giải pháp ${i}: [Đặt tên SÁNG TẠO, GỢI CẢM, như tiêu đề bài báo hấp dẫn]**
 
-a) Mục tiêu của giải pháp: (150-200 từ)
-   - Giải pháp nhằm giải quyết vấn đề gì?
-   - Kết quả mong đợi là gì?
+a) Mục tiêu của giải pháp: (100-150 từ)
+   - Viết ngắn gọn, rõ ràng
 
-b) Nội dung và cách thức thực hiện: (${Math.round(wordsPerSolution * 0.6)} từ)
-   - Mô tả chi tiết nội dung giải pháp
-   - Các bước thực hiện cụ thể:
-     + Bước 1: [Chi tiết]
-     + Bước 2: [Chi tiết]
-     + Bước 3: [Chi tiết]
-     + Bước 4: [Chi tiết]
+b) Nội dung và cách thức thực hiện: (${Math.round(wordsPerSolution * 0.5)} từ)
+   - Mô tả TRẢI NGHIỆM THỰC TẾ của bạn khi áp dụng
+   - Kể về phản ứng của học sinh: "Khi tôi..., các em đã...", "Tôi bất ngờ khi thấy..."
+   - Các bước thực hiện viết tự nhiên, có chi tiết sinh động
 
-c) Điều kiện thực hiện: (100-150 từ)
-   - Về nhân lực, cơ sở vật chất
-   - Về thời gian, kinh phí
+c) Điều kiện thực hiện: (80-100 từ)
 
-d) Ví dụ minh họa cụ thể: (300-400 từ)
-   - Mô tả chi tiết một trường hợp áp dụng thực tế
-   - Kết quả đạt được từ ví dụ
+d) Ví dụ minh họa CỤ THỂ: (400-500 từ)
+   - Kể về MỘT TIẾT DẠY CỤ THỂ bạn đã thực hiện
+   - Mô tả chi tiết: bạn làm gì? học sinh phản ứng thế nào?
+   - Kể về những khoảnh khắc đáng nhớ: em học sinh yếu bỗng giơ tay, cả lớp ồ lên khi...
+   - Chia sẻ cảm xúc của bạn khi thấy học sinh tiến bộ
 
 `;
             }
             
             const totalWords = wordsPerSolution * (endNum - startNum + 1);
             
-            return `Bạn là ${role} chuyên viết SKKN giáo dục, môn ${subject}.
+            return `Bạn là ${role} giàu kinh nghiệm, đang chia sẻ các giải pháp đã áp dụng thành công.
 
-TIẾP TỤC VIẾT PHẦN CÁC GIẢI PHÁP (từ GP ${startNum} đến GP ${endNum}) cho SKKN: "${topic}"
+TIẾP TỤC VIẾT PHẦN CÁC GIẢI PHÁP (từ GP ${startNum} đến GP ${endNum}) cho SKKN về: "${topic}"
+
+YÊU CẦU VĂN PHONG QUAN TRỌNG:
+- TRÁNH lặp lại tên đề tài "${topic}" - mỗi giải pháp chỉ nhắc 1 lần trong tên, sau đó dùng "phương pháp này", "cách làm", "hoạt động"...
+- Viết như đang KỂ CHUYỆN về trải nghiệm giảng dạy của bạn
+- Thêm CHI TIẾT SINH ĐỘNG: mô tả biểu cảm học sinh, lời nói của các em, không khí lớp học
+- Chia sẻ cả THẤT BẠI và cách bạn điều chỉnh
+- Mỗi giải pháp phải có "màu sắc" riêng, tên giải pháp hấp dẫn như tiêu đề bài báo
+- Câu văn ngắn gọn, TRÁNH câu dài lê thê nhiều vế
+- KHÔNG dùng emoji, ký hiệu đặc biệt
+- KHÔNG dùng ---, ===, ***
 
 YÊU CẦU: Viết đầy đủ ${totalWords.toLocaleString()} từ cho ${endNum - startNum + 1} giải pháp
 
 **3. Các giải pháp**
 ${solutionsDetail}
 
-CHÚ Ý QUAN TRỌNG:
-- Mỗi giải pháp viết đủ ~${wordsPerSolution.toLocaleString()} từ
-- Tên giải pháp phải CỤ THỂ, SÁNG TẠO, liên quan trực tiếp đến "${topic}"
-- Nội dung chi tiết, có ví dụ minh họa thực tế
-- KHÔNG tóm tắt, KHÔNG rút gọn
-- KHÔNG dùng ---, ===, ***`;
+VÍ DỤ TÊN GIẢI PHÁP HAY:
+- "Biến học sinh thành nhà nghiên cứu nhí"
+- "Khi sách giáo khoa bước ra khỏi trang giấy"
+- "Phòng thí nghiệm trong túi áo"
+- "Từ thụ động đến chủ động chỉ sau 15 phút"`;
         }
         
         function buildPart3Prompt(topic, role, subject, ketQuaWords, ketLuanWords) {
-            return `Bạn là ${role} chuyên viết SKKN giáo dục, môn ${subject}.
+            return `Bạn là ${role} giàu kinh nghiệm, đang tổng kết kết quả áp dụng giải pháp.
 
-TIẾP TỤC VIẾT PHẦN KẾT QUẢ VÀ KẾT LUẬN cho SKKN: "${topic}"
+TIẾP TỤC VIẾT PHẦN KẾT QUẢ VÀ KẾT LUẬN cho SKKN về: "${topic}"
+
+YÊU CẦU VĂN PHONG:
+- Viết tự nhiên, chân thành
+- Kết hợp số liệu với NHỮNG CÂU CHUYỆN CỤ THỂ về học sinh
+- Trích dẫn ý kiến phản hồi SINH ĐỘNG, có cá tính
+- KHÔNG dùng emoji, ký hiệu đặc biệt
+- KHÔNG dùng ---, ===, ***
 
 YÊU CẦU: Viết đầy đủ ${(ketQuaWords + ketLuanWords + 200).toLocaleString()} từ
 
@@ -1494,57 +1515,55 @@ YÊU CẦU: Viết đầy đủ ${(ketQuaWords + ketLuanWords + 200).toLocaleStr
 
 4.1. Kết quả định lượng
 
-📊 BẢNG 2: SO SÁNH TRƯỚC VÀ SAU KHI ÁP DỤNG GIẢI PHÁP
-| Tiêu chí | TRƯỚC | SAU | Tăng/Giảm |
-|----------|-------|-----|-----------|
+Bảng 2: So sánh trước và sau khi áp dụng giải pháp
+| Tiêu chí | Trước | Sau | Tăng |
+|----------|-------|-----|------|
 | Mức độ hứng thú (Tốt+Khá) | 37% | 82% | +45% |
 | Kết quả học tập (Tốt+Khá) | 43% | 85% | +42% |
 | Khả năng vận dụng (Tốt+Khá) | 32% | 78% | +46% |
 | Kỹ năng thực hành (Tốt+Khá) | 28% | 76% | +48% |
 
-📊 BẢNG 3: ĐÁNH GIÁ HIỆU QUẢ TỪNG GIẢI PHÁP
-| Giải pháp | Rất hiệu quả | Hiệu quả | Bình thường | Không HQ |
-|-----------|--------------|----------|-------------|----------|
-| GP 3.1 | 45% | 38% | 12% | 5% |
-| GP 3.2 | 42% | 40% | 13% | 5% |
-| GP 3.3 | 48% | 35% | 12% | 5% |
-| GP 3.4 | 40% | 42% | 14% | 4% |
-| GP 3.5 | 44% | 39% | 13% | 4% |
+Bảng 3: Đánh giá hiệu quả từng giải pháp
+| Giải pháp | Rất hiệu quả | Hiệu quả | Bình thường | Chưa hiệu quả |
+|-----------|--------------|----------|-------------|---------------|
+| Giải pháp 1 | 45% | 38% | 12% | 5% |
+| Giải pháp 2 | 42% | 40% | 13% | 5% |
+| Giải pháp 3 | 48% | 35% | 12% | 5% |
+| Giải pháp 4 | 40% | 42% | 14% | 4% |
+| Giải pháp 5 | 44% | 39% | 13% | 4% |
 
-4.2. Kết quả định tính
-   - Nhận xét của đồng nghiệp (3-4 ý kiến cụ thể)
-   - Phản hồi từ học sinh (3-4 ý kiến)
-   - Đánh giá từ Ban Giám hiệu
+(Phân tích số liệu: viết thành đoạn văn, giải thích ý nghĩa của sự thay đổi)
 
-4.3. Giá trị khoa học
-   - Đóng góp về mặt lý luận
-   - Đóng góp về mặt thực tiễn
+4.2. Kết quả định tính (VIẾT SINH ĐỘNG)
+   
+   Nhận xét của đồng nghiệp:
+   - Trích dẫn 2-3 ý kiến CỤ THỂ, có tên giáo viên (giả định)
+   - Ví dụ: "Cô Nguyễn Thị A, tổ trưởng chuyên môn, chia sẻ: 'Tôi thấy học sinh của lớp thầy/cô dạy...'"
+   
+   Phản hồi từ học sinh:
+   - Trích 2-3 ý kiến học sinh, viết tự nhiên như lời nói của trẻ
+   - Ví dụ: "Em Minh, lớp 8A, hào hứng kể: 'Trước đây em rất sợ môn này, nhưng bây giờ...'"
+   
+   Đánh giá từ Ban Giám hiệu:
+   - 1 đoạn ngắn về sự ghi nhận của nhà trường
 
-4.4. Phạm vi và hiệu quả ứng dụng
-   - Khả năng nhân rộng
-   - Điều kiện áp dụng
+4.3. Giá trị khoa học (viết ngắn gọn 150-200 từ)
+
+4.4. Phạm vi và hiệu quả ứng dụng (150-200 từ)
 
 **III. PHẦN KẾT LUẬN, KIẾN NGHỊ** (~${ketLuanWords.toLocaleString()} từ)
 
 **1. Kết luận**
-   - Tóm tắt các nội dung đã thực hiện
-   - Khẳng định tính hiệu quả, khả thi
+   - Tóm tắt hành trình: từ vấn đề ban đầu đến kết quả đạt được
+   - Chia sẻ bài học kinh nghiệm quý giá nhất
 
-**2. Kiến nghị**
+**2. Kiến nghị** (viết ngắn gọn, thực tế)
    a) Đối với Sở GD&ĐT
    b) Đối với Phòng GD&ĐT
    c) Đối với nhà trường
    d) Đối với giáo viên
 
-**TÀI LIỆU THAM KHẢO** (10-12 tài liệu)
-1. Ban Chấp hành TW (2013), Nghị quyết 29-NQ/TW...
-2. Bộ GD&ĐT (2018), Thông tư 32/2018/TT-BGDĐT...
-3-12. [Thêm 10 tài liệu liên quan đến ${subject} và "${topic}"]
-
-CHÚ Ý:
-- Viết đầy đủ, chi tiết
-- Số liệu SAU hợp lý (75-85%, không 100%)
-- KHÔNG dùng ---, ===, ***`;
+**TÀI LIỆU THAM KHẢO** (10-12 tài liệu, format chuẩn)`;
         }
         
         function downloadAsWord(title, content) {
@@ -1581,38 +1600,49 @@ CHÚ Ý:
                 formattedContent = formattedContent.replace(/(<tr>[\s\S]*?<\/tr>)+/g, '<table style="border-collapse:collapse; width:100%; margin:12pt 0;">$&</table>');
             }
             
+            // Loại bỏ emoji trong nội dung
+            formattedContent = formattedContent.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '');
+            formattedContent = formattedContent.replace(/📊|📋|📈|📉|✅|❌|⚠️|💡|🎯|🔑|📌|🔬|📚|🎓|👨‍🏫|👩‍🏫|👨‍🎓|👩‍🎓/g, '');
+            
             // Wrap paragraphs
             const lines = formattedContent.split('\n');
             let htmlBody = '';
             let inList = false;
+            let emptyLineCount = 0;
             
             for (let line of lines) {
                 line = line.trim();
                 if (!line) {
-                    if (inList) {
-                        htmlBody += '</ul>';
-                        inList = false;
+                    emptyLineCount++;
+                    // Chỉ cho phép tối đa 1 dòng trống liên tiếp
+                    if (emptyLineCount <= 1) {
+                        if (inList) {
+                            htmlBody += '</ul>';
+                            inList = false;
+                        }
                     }
-                    htmlBody += '<p style="margin:0;">&nbsp;</p>';
-                } else if (line.startsWith('<h') || line.startsWith('<table') || line.startsWith('<tr>')) {
-                    if (inList) {
-                        htmlBody += '</ul>';
-                        inList = false;
-                    }
-                    htmlBody += line;
-                } else if (line.startsWith('<li')) {
-                    if (!inList) {
-                        htmlBody += '<ul style="margin:6pt 0;">';
-                        inList = true;
-                    }
-                    htmlBody += line;
                 } else {
-                    if (inList) {
-                        htmlBody += '</ul>';
-                        inList = false;
+                    emptyLineCount = 0;
+                    if (line.startsWith('<h') || line.startsWith('<table') || line.startsWith('<tr>')) {
+                        if (inList) {
+                            htmlBody += '</ul>';
+                            inList = false;
+                        }
+                        htmlBody += line;
+                    } else if (line.startsWith('<li')) {
+                        if (!inList) {
+                            htmlBody += '<ul style="margin:6pt 0;">';
+                            inList = true;
+                        }
+                        htmlBody += line;
+                    } else {
+                        if (inList) {
+                            htmlBody += '</ul>';
+                            inList = false;
+                        }
+                        // Thụt đầu dòng cho đoạn văn thường
+                        htmlBody += `<p style="font-family:'Times New Roman',Times,serif; text-align:justify; text-indent:1.27cm; margin-top:6pt; margin-bottom:6pt; line-height:150%;">${line}</p>`;
                     }
-                    // Thụt đầu dòng cho đoạn văn thường
-                    htmlBody += `<p style="font-family:'Times New Roman',Times,serif; text-align:justify; text-indent:1.27cm; margin-top:6pt; margin-bottom:6pt; line-height:150%;">${line}</p>`;
                 }
             }
             if (inList) htmlBody += '</ul>';
