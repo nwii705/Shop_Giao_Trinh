@@ -592,39 +592,28 @@ function openPaymentModal() {
     // Close product modal
     closeModal();
     
-    // Setup payment modal
-    document.getElementById('paymentProductInfo').innerHTML = `
-        <p class="product-name">${selectedProduct.categoryIcon} ${selectedProduct.title}</p>
-        <p class="product-price">${formatPrice(selectedProduct.price)}</p>
-    `;
+    // Setup payment amount
     document.getElementById('paymentAmount').textContent = formatPrice(selectedProduct.price);
     
-    // Generate transfer content
+    // Generate order code and store it
     const orderCode = 'EDU' + Date.now().toString().slice(-6);
-    const shortTitle = selectedProduct.title.slice(0, 20).replace(/\s+/g, '');
-    document.getElementById('transferContent').textContent = `${orderCode}_${shortTitle}`;
-    document.getElementById('transferContent').dataset.code = orderCode;
+    paymentModalOverlay.dataset.orderCode = orderCode;
+    paymentModalOverlay.dataset.productId = selectedProduct.id;
+    paymentModalOverlay.dataset.productTitle = selectedProduct.title;
+    paymentModalOverlay.dataset.productPrice = selectedProduct.price;
     
-    // Reset to step 1
-    showPaymentStep(1);
+    // Reset form and show main content
+    document.getElementById('buyerInfoForm').reset();
+    document.getElementById('paymentMainContent').style.display = 'flex';
+    document.getElementById('paymentSuccess').style.display = 'none';
     
     // Show modal
     paymentModalOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
-
-// Show payment step
-function showPaymentStep(step) {
-    document.getElementById('paymentStep1').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('paymentStep2').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('paymentStep3').style.display = step === 3 ? 'block' : 'none';
-    
-    // Update step indicators
-    document.querySelectorAll('.payment-steps .step').forEach((el, idx) => {
-        el.classList.remove('active', 'completed');
-        if (idx + 1 < step) el.classList.add('completed');
-        if (idx + 1 === step) el.classList.add('active');
-    });
+    // Show modal
+    paymentModalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
 // Close payment modal
@@ -665,21 +654,25 @@ function validateBuyerInfo() {
 
 // Confirm payment
 async function confirmPayment() {
+    if (!validateBuyerInfo()) return;
+    
     const name = document.getElementById('buyerName').value.trim();
     const email = document.getElementById('buyerEmail').value.trim();
     const phone = document.getElementById('buyerPhone').value.trim();
-    const note = document.getElementById('buyerNote').value.trim();
-    const orderCode = document.getElementById('transferContent').dataset.code;
+    const orderCode = paymentModalOverlay.dataset.orderCode;
+    const productId = paymentModalOverlay.dataset.productId;
+    const productTitle = paymentModalOverlay.dataset.productTitle;
+    const productPrice = paymentModalOverlay.dataset.productPrice;
     
     const order = {
         id: orderCode,
-        productId: selectedProduct.id,
-        productTitle: selectedProduct.title,
-        productPrice: selectedProduct.price,
+        productId: productId,
+        productTitle: productTitle,
+        productPrice: productPrice,
         buyerName: name,
         buyerEmail: email,
         buyerPhone: phone,
-        buyerNote: note,
+        buyerNote: '',
         status: 'pending',
         createdAt: new Date().toISOString()
     };
@@ -708,9 +701,12 @@ async function confirmPayment() {
     
     // Show success
     document.getElementById('orderCode').textContent = orderCode;
-    document.getElementById('orderProduct').textContent = selectedProduct.title;
+    document.getElementById('orderProduct').textContent = productTitle;
     document.getElementById('orderEmail').textContent = email;
-    showPaymentStep(3);
+    
+    // Switch to success view
+    document.getElementById('paymentMainContent').style.display = 'none';
+    document.getElementById('paymentSuccess').style.display = 'block';
     
     // Update UI
     renderProducts();
@@ -722,11 +718,6 @@ function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
         showToast('Đã copy!');
     });
-}
-
-function copyTransferContent() {
-    const content = document.getElementById('transferContent').textContent;
-    copyToClipboard(content);
 }
 
 // Event listeners
@@ -746,29 +737,6 @@ if (paymentModalOverlay) {
     });
 }
 
-if (backToProductBtn) {
-    backToProductBtn.addEventListener('click', () => {
-        closePaymentModal();
-        if (selectedProduct) {
-            openPurchaseModal(selectedProduct.id);
-        }
-    });
-}
-
-if (toPaymentBtn) {
-    toPaymentBtn.addEventListener('click', () => {
-        if (validateBuyerInfo()) {
-            showPaymentStep(2);
-        }
-    });
-}
-
-if (backToInfoBtn) {
-    backToInfoBtn.addEventListener('click', () => {
-        showPaymentStep(1);
-    });
-}
-
 if (confirmPaymentBtn) {
     confirmPaymentBtn.addEventListener('click', confirmPayment);
 }
@@ -781,5 +749,3 @@ if (closeSuccessBtn) {
 
 // Expose functions globally
 window.copyToClipboard = copyToClipboard;
-window.copyTransferContent = copyTransferContent;
-
