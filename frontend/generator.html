@@ -141,25 +141,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            resize: horizontal;
             position: relative;
-        }
-        
-        .sidebar::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 50px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            cursor: ew-resize;
-        }
-        
-        .sidebar:hover::after {
-            background: var(--primary);
         }
         
         .sidebar-header {
@@ -530,6 +512,282 @@
         
         .toast.show { transform: translateX(0); }
         .toast.error { border-left-color: var(--danger); }
+        
+        /* ========== Outline Preview Modal ========== */
+        .outline-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .outline-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .outline-modal {
+            background: var(--bg-sidebar);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .outline-modal-overlay.show .outline-modal {
+            transform: scale(1) translateY(0);
+        }
+        
+        .outline-modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-glass);
+        }
+        
+        .outline-modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .outline-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+        
+        .outline-modal-close:hover {
+            color: var(--danger);
+        }
+        
+        .outline-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        
+        .outline-section {
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-glass);
+        }
+        
+        .outline-section-header {
+            padding: 1rem 1.25rem;
+            background: rgba(139, 92, 246, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.2s;
+        }
+        
+        .outline-section-header:hover {
+            background: rgba(139, 92, 246, 0.15);
+        }
+        
+        .outline-section-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .outline-section-toggle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            transition: transform 0.2s;
+        }
+        
+        .outline-section.expanded .outline-section-toggle {
+            transform: rotate(180deg);
+        }
+        
+        .outline-section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .outline-section.expanded .outline-section-content {
+            max-height: 1000px;
+        }
+        
+        .outline-item {
+            padding: 0.75rem 1.25rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        
+        .outline-item-label {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        
+        .outline-item-words {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .outline-word-input {
+            width: 70px;
+            padding: 0.4rem 0.6rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .outline-word-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .outline-word-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .outline-progress-bar {
+            width: 60px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .outline-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+        
+        .outline-total {
+            padding: 1rem 1.25rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .outline-total-label {
+            font-weight: 600;
+            color: var(--success);
+        }
+        
+        .outline-total-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+        
+        .outline-modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .outline-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .outline-btn-cancel {
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .outline-btn-cancel:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .outline-btn-confirm {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .outline-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        
+        /* ========== Sidebar Resize Handle ========== */
+        .resize-handle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            cursor: ew-resize;
+            background: transparent;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+        
+        .resize-handle:hover,
+        .resize-handle.dragging {
+            background: var(--primary);
+        }
+        
+        .resize-handle::after {
+            content: '';
+            position: absolute;
+            right: 1px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            transition: background 0.2s;
+        }
+        
+        .resize-handle:hover::after {
+            background: rgba(255,255,255,0.5);
+        }
         
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -982,6 +1240,9 @@
                     </div>
                 </form>
             </div>
+            
+            <!-- Resize Handle -->
+            <div class="resize-handle" id="sidebarResizeHandle"></div>
         </aside>
         
         <!-- Canvas Area -->
@@ -4025,6 +4286,231 @@ D. [Đáp án D]
             renderKHBD(demoData, meta, true); // true = isDemo
         }
 
+        // ========== SKKN Outline Preview ==========
+        let skknOutlineData = null;
+        let skknPendingMeta = null;
+        let skknPendingApiKey = null;
+        
+        function getSKKNOutlineStructure(targetWords) {
+            // Cấu trúc theo PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT
+            const structure = {
+                sections: [
+                    {
+                        id: 'phan1',
+                        title: 'I. PHẦN MỞ ĐẦU',
+                        percentage: 15,
+                        items: [
+                            { id: 'lydo', label: '1.1. Lý do chọn đề tài', percentage: 5 },
+                            { id: 'muctieu', label: '1.2. Mục tiêu, nhiệm vụ', percentage: 3 },
+                            { id: 'doituong', label: '1.3. Đối tượng, phạm vi', percentage: 3 },
+                            { id: 'gioihan', label: '1.4. Giới hạn nghiên cứu', percentage: 2 },
+                            { id: 'phuongphap', label: '1.5. Phương pháp nghiên cứu', percentage: 2 }
+                        ]
+                    },
+                    {
+                        id: 'phan2',
+                        title: 'II. PHẦN NỘI DUNG',
+                        percentage: 77,
+                        items: [
+                            { id: 'cosoly', label: '2.1. Cơ sở lý luận', percentage: 10 },
+                            { id: 'thuctrang', label: '2.2. Thực trạng vấn đề', percentage: 15 },
+                            { id: 'giaiphap', label: '2.3. Các giải pháp thực hiện', percentage: 40 },
+                            { id: 'ketqua', label: '2.4. Kết quả khảo nghiệm', percentage: 12 }
+                        ]
+                    },
+                    {
+                        id: 'phan3',
+                        title: 'III. KẾT LUẬN, KIẾN NGHỊ',
+                        percentage: 6,
+                        items: [
+                            { id: 'ketluan', label: '3.1. Kết luận', percentage: 3 },
+                            { id: 'kiennghi', label: '3.2. Kiến nghị', percentage: 3 }
+                        ]
+                    },
+                    {
+                        id: 'tailieu',
+                        title: 'TÀI LIỆU THAM KHẢO',
+                        percentage: 2,
+                        items: [
+                            { id: 'thamkhao', label: 'Danh mục tài liệu', percentage: 2 }
+                        ]
+                    }
+                ]
+            };
+            
+            // Tính số từ cho từng phần
+            structure.sections.forEach(section => {
+                section.words = Math.round(targetWords * section.percentage / 100);
+                section.items.forEach(item => {
+                    item.words = Math.round(targetWords * item.percentage / 100);
+                });
+            });
+            
+            return structure;
+        }
+        
+        function showSKKNOutlinePreview(meta, apiKey) {
+            skknPendingMeta = meta;
+            skknPendingApiKey = apiKey;
+            skknOutlineData = getSKKNOutlineStructure(meta.targetWords);
+            
+            let sectionsHtml = '';
+            skknOutlineData.sections.forEach((section, sIdx) => {
+                let itemsHtml = '';
+                section.items.forEach((item, iIdx) => {
+                    const pct = Math.round(item.words / meta.targetWords * 100);
+                    itemsHtml += `
+                        <div class="outline-item">
+                            <span class="outline-item-label">${item.label}</span>
+                            <div class="outline-item-words">
+                                <input type="number" class="outline-word-input" 
+                                    data-section="${sIdx}" data-item="${iIdx}" 
+                                    value="${item.words}" min="100" step="50"
+                                    onchange="updateOutlineWords(this)">
+                                <span class="outline-word-label">từ</span>
+                                <div class="outline-progress-bar">
+                                    <div class="outline-progress-fill" style="width: ${pct}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                sectionsHtml += `
+                    <div class="outline-section ${sIdx === 1 ? 'expanded' : ''}" data-section="${sIdx}">
+                        <div class="outline-section-header" onclick="toggleOutlineSection(${sIdx})">
+                            <div class="outline-section-title">
+                                <span>${section.title}</span>
+                                <span style="color: var(--text-secondary); font-weight: 400; font-size: 0.85rem;">
+                                    (~${section.words} từ - ${section.percentage}%)
+                                </span>
+                            </div>
+                            <span class="outline-section-toggle">▼</span>
+                        </div>
+                        <div class="outline-section-content">
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            const modalHtml = `
+                <div class="outline-modal-overlay" id="outlineModalOverlay">
+                    <div class="outline-modal">
+                        <div class="outline-modal-header">
+                            <div class="outline-modal-title">
+                                <span>📋</span>
+                                <span>Đề xuất Dàn ý & Phân bổ số từ</span>
+                            </div>
+                            <button class="outline-modal-close" onclick="closeOutlineModal()">&times;</button>
+                        </div>
+                        
+                        <div class="outline-modal-body">
+                            <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px; font-size: 0.9rem;">
+                                <strong>📝 Đề tài:</strong> ${meta.title}<br>
+                                <span style="color: var(--text-secondary);">Bạn có thể điều chỉnh số từ cho từng phần trước khi AI bắt đầu soạn.</span>
+                            </div>
+                            
+                            ${sectionsHtml}
+                            
+                            <div class="outline-total">
+                                <span class="outline-total-label">📊 TỔNG SỐ TỪ DỰ KIẾN</span>
+                                <span class="outline-total-value" id="outlineTotalWords">${meta.targetWords.toLocaleString()} từ</span>
+                            </div>
+                        </div>
+                        
+                        <div class="outline-modal-footer">
+                            <button class="outline-btn outline-btn-cancel" onclick="closeOutlineModal()">
+                                ❌ Hủy bỏ
+                            </button>
+                            <button class="outline-btn outline-btn-confirm" onclick="confirmOutlineAndGenerate()">
+                                ✅ Đồng ý - Bắt đầu soạn
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show with animation
+            setTimeout(() => {
+                document.getElementById('outlineModalOverlay').classList.add('show');
+            }, 10);
+        }
+        
+        function toggleOutlineSection(sIdx) {
+            const section = document.querySelector(`.outline-section[data-section="${sIdx}"]`);
+            if (section) {
+                section.classList.toggle('expanded');
+            }
+        }
+        
+        function updateOutlineWords(input) {
+            const sIdx = parseInt(input.dataset.section);
+            const iIdx = parseInt(input.dataset.item);
+            const newValue = parseInt(input.value) || 100;
+            
+            if (skknOutlineData && skknOutlineData.sections[sIdx]) {
+                skknOutlineData.sections[sIdx].items[iIdx].words = newValue;
+                
+                // Recalculate section total
+                let sectionTotal = 0;
+                skknOutlineData.sections[sIdx].items.forEach(item => {
+                    sectionTotal += item.words;
+                });
+                skknOutlineData.sections[sIdx].words = sectionTotal;
+                
+                // Recalculate grand total
+                let total = 0;
+                skknOutlineData.sections.forEach(section => {
+                    total += section.words;
+                });
+                
+                // Update progress bar
+                const totalWords = total;
+                const pct = Math.round(newValue / totalWords * 100);
+                const progressBar = input.parentElement.querySelector('.outline-progress-fill');
+                if (progressBar) {
+                    progressBar.style.width = pct + '%';
+                }
+                
+                // Update total display
+                document.getElementById('outlineTotalWords').textContent = total.toLocaleString() + ' từ';
+                
+                // Update pending meta
+                if (skknPendingMeta) {
+                    skknPendingMeta.targetWords = total;
+                }
+            }
+        }
+        
+        function closeOutlineModal() {
+            const modal = document.getElementById('outlineModalOverlay');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.remove(), 300);
+            }
+            skknOutlineData = null;
+            skknPendingMeta = null;
+            skknPendingApiKey = null;
+        }
+        
+        async function confirmOutlineAndGenerate() {
+            if (!skknPendingMeta || !skknPendingApiKey) {
+                showToast('Lỗi: Thiếu thông tin', true);
+                return;
+            }
+            
+            // Lưu outline vào meta để sử dụng trong prompt
+            skknPendingMeta.customOutline = skknOutlineData;
+            
+            closeOutlineModal();
+            
+            // Bắt đầu generate với outline đã customize
+            await generateSKKNWithGemini(skknPendingMeta, skknPendingApiKey);
+        }
+
         // ========== Generate SKKN ==========
         async function generateSKKN() {
             const position = document.getElementById('skkn_position').value || 'Giáo viên bộ môn';
@@ -4076,8 +4562,8 @@ D. [Đáp án D]
                     localStorage.setItem('tavily_api_key', tavilyKey);
                 }
                 
-                // Use Gemini API with streaming
-                await generateSKKNWithGemini(meta, apiKey);
+                // Hiển thị outline preview trước khi generate
+                showSKKNOutlinePreview(meta, apiKey);
             } else {
                 // No API key - show prompt modal
                 showToast('Vui lòng nhập API Key trước', true);
@@ -4488,20 +4974,45 @@ KHI VIẾT, BẠN PHẢI:
         
         // Build SKKN Prompt - Master Version 2.1
         function buildSKKNPrompt(meta) {
-            const { position, title, subject, level, digital, problem, solution, result, author, year, unit, targetWords = 7000 } = meta;
+            const { position, title, subject, level, digital, problem, solution, result, author, year, unit, targetWords = 7000, customOutline } = meta;
             const roleTone = getRoleTone(position);
             
-            // Calculate word distribution based on target (14-40 trang A4 ~ 5000-14000 từ)
-            // Theo PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT ngày 28/10/2022 của Sở GDĐT Đắk Lắk
-            const wordDistribution = {
-                phanMoDau: Math.round(targetWords * 0.15),      // 15% - Phần mở đầu
-                coSoLyLuan: Math.round(targetWords * 0.10),     // 10% - Cơ sở lý luận
-                thucTrang: Math.round(targetWords * 0.15),      // 15% - Thực trạng vấn đề
-                cacGiaiPhap: Math.round(targetWords * 0.40),    // 40% - Các giải pháp (phần chính)
-                ketQuaKhaoNghiem: Math.round(targetWords * 0.12), // 12% - Kết quả khảo nghiệm
-                ketLuanKienNghi: Math.round(targetWords * 0.06), // 6% - Kết luận kiến nghị
-                taiLieu: Math.round(targetWords * 0.02)          // 2% - Tài liệu tham khảo
-            };
+            // Nếu có customOutline từ preview, sử dụng số từ đã được user customize
+            let wordDistribution;
+            if (customOutline && customOutline.sections) {
+                // Lấy số từ từ customOutline
+                const sections = customOutline.sections;
+                const getItemWords = (sectionId, itemId) => {
+                    const section = sections.find(s => s.id === sectionId);
+                    if (section) {
+                        const item = section.items.find(i => i.id === itemId);
+                        return item ? item.words : 0;
+                    }
+                    return 0;
+                };
+                
+                wordDistribution = {
+                    phanMoDau: sections.find(s => s.id === 'phan1')?.words || Math.round(targetWords * 0.15),
+                    coSoLyLuan: getItemWords('phan2', 'cosoly'),
+                    thucTrang: getItemWords('phan2', 'thuctrang'),
+                    cacGiaiPhap: getItemWords('phan2', 'giaiphap'),
+                    ketQuaKhaoNghiem: getItemWords('phan2', 'ketqua'),
+                    ketLuanKienNghi: sections.find(s => s.id === 'phan3')?.words || Math.round(targetWords * 0.06),
+                    taiLieu: sections.find(s => s.id === 'tailieu')?.words || Math.round(targetWords * 0.02)
+                };
+            } else {
+                // Calculate word distribution based on target (14-40 trang A4 ~ 5000-14000 từ)
+                // Theo PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT ngày 28/10/2022 của Sở GDĐT Đắk Lắk
+                wordDistribution = {
+                    phanMoDau: Math.round(targetWords * 0.15),      // 15% - Phần mở đầu
+                    coSoLyLuan: Math.round(targetWords * 0.10),     // 10% - Cơ sở lý luận
+                    thucTrang: Math.round(targetWords * 0.15),      // 15% - Thực trạng vấn đề
+                    cacGiaiPhap: Math.round(targetWords * 0.40),    // 40% - Các giải pháp (phần chính)
+                    ketQuaKhaoNghiem: Math.round(targetWords * 0.12), // 12% - Kết quả khảo nghiệm
+                    ketLuanKienNghi: Math.round(targetWords * 0.06), // 6% - Kết luận kiến nghị
+                    taiLieu: Math.round(targetWords * 0.02)          // 2% - Tài liệu tham khảo
+                };
+            }
             
             const numSolutions = targetWords >= 7000 ? 5 : (targetWords >= 5000 ? 4 : 3);
             const wordsPerSolution = Math.round(wordDistribution.cacGiaiPhap / numSolutions);
@@ -5980,6 +6491,44 @@ ${content}
                 }
             };
             setTimeout(checkReady, 1000);
+            
+            // ========== Sidebar Resize Handle ==========
+            const sidebar = document.querySelector('.sidebar');
+            const resizeHandle = document.getElementById('sidebarResizeHandle');
+            
+            if (resizeHandle && sidebar) {
+                let isResizing = false;
+                let startX, startWidth;
+                
+                resizeHandle.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    startX = e.clientX;
+                    startWidth = parseInt(getComputedStyle(sidebar).width, 10);
+                    resizeHandle.classList.add('dragging');
+                    document.body.style.cursor = 'ew-resize';
+                    document.body.style.userSelect = 'none';
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isResizing) return;
+                    const width = startWidth + (e.clientX - startX);
+                    const minWidth = 350;
+                    const maxWidth = 700;
+                    if (width >= minWidth && width <= maxWidth) {
+                        sidebar.style.width = width + 'px';
+                    }
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    if (isResizing) {
+                        isResizing = false;
+                        resizeHandle.classList.remove('dragging');
+                        document.body.style.cursor = '';
+                        document.body.style.userSelect = '';
+                    }
+                });
+            }
         });
     </script>
 </body>
