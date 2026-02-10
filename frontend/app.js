@@ -725,3 +725,30 @@ if (closeSuccessBtn) {
 // Expose functions globally
 window.openPaymentModalById = openPaymentModalById;
 window.copyToClipboard = copyToClipboard;
+
+// ===== CHAT WIDGET =====
+const chatToggle = document.getElementById('chatToggle');
+const chatBox = document.getElementById('chatBox');
+const chatClose = document.getElementById('chatClose');
+
+if (chatToggle) {
+    chatToggle.addEventListener('click', () => {
+        chatBox.classList.toggle('active');
+    });
+}
+
+if (chatClose) {
+    chatClose.addEventListener('click', () => {
+        chatBox.classList.remove('active');
+    });
+}
+
+// Close chat when clicking outside
+document.addEventListener('click', (e) => {
+    if (chatBox && chatBox.classList.contains('active')) {
+        if (!e.target.closest('.chat-widget')) {
+            chatBox.classList.remove('active');
+        }
+    }
+});
+

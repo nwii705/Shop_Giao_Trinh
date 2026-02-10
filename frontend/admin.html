@@ -6,6 +6,111 @@
     <title>Admin Dashboard - EduShop</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-overlay.hidden {
+            display: none;
+        }
+        
+        .login-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .login-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .login-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .login-form .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+        
+        .login-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .login-form input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .login-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .login-error.show {
+            display: block;
+        }
+        
         .admin-container {
             display: flex;
             min-height: 100vh;
@@ -477,6 +582,27 @@
     </style>
 </head>
 <body>
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div class="login-icon">🔐</div>
+            <h2 class="login-title">Admin Login</h2>
+            <p class="login-subtitle">Vui lòng đăng nhập để tiếp tục</p>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="adminUsername">Tên đăng nhập</label>
+                    <input type="text" id="adminUsername" placeholder="admin" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Mật khẩu</label>
+                    <input type="password" id="adminPassword" placeholder="••••••" required>
+                </div>
+                <button type="submit" class="login-btn">Đăng nhập</button>
+                <p class="login-error" id="loginError">❌ Sai tên đăng nhập hoặc mật khẩu!</p>
+            </form>
+        </div>
+    </div>
+
     <div class="admin-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -498,8 +624,14 @@
                     💬 Chat
                     <span class="unread-badge" id="unreadCount" style="display:none;">0</span>
                 </a>
+                <a href="#orders" class="nav-item" onclick="showSection('orders')">
+                    📦 Đơn hàng
+                </a>
                 <a href="#settings" class="nav-item" onclick="showSection('settings')">
                     ⚙️ Cài đặt
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    🚪 Đăng xuất
                 </a>
                 <a href="index.html" class="nav-item">
                     🏪 Xem Shop
@@ -977,7 +1109,40 @@
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
         }
         
+        // ===== LOGIN SYSTEM =====
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'edushop2026'
+        };
+        
+        function checkAuth() {
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            if (isLoggedIn === 'true') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+            }
+        }
+        
+        function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            location.reload();
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('loginError').classList.remove('show');
+            } else {
+                document.getElementById('loginError').classList.add('show');
+            }
+        });
+        
         // Init
+        checkAuth();
         loadStats();
         loadChats();
     </script>

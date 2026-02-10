@@ -40,12 +40,6 @@
                 <a href="profile.html" class="btn-profile" title="Trang cá nhân">
                     👤
                 </a>
-                <a href="admin.html" class="btn-admin" title="Admin Dashboard">
-                    ⚙️
-                </a>
-                <button class="btn-reset" id="resetBtn" title="Khôi phục tất cả">
-                    <span>🔄</span> Reset
-                </button>
             </div>
         </div>
     </header>
@@ -291,6 +285,39 @@
             </div>
         </div>
     </footer>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget" id="chatWidget">
+        <button class="chat-toggle" id="chatToggle" title="Chat hỗ trợ">
+            💬
+        </button>
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">
+                <span>💬 Hỗ trợ khách hàng</span>
+                <button class="chat-close" id="chatClose">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message bot">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>Xin chào! Chào mừng bạn đến với EduShop! 👋</p>
+                    </div>
+                </div>
+                <div class="chat-message bot">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>📱 <strong>Liên hệ hỗ trợ:</strong></p>
+                        <p>• Lỗi website, vấn đề kỹ thuật: <strong>Zalo 0865063436</strong></p>
+                        <p>• Vấn đề đơn hàng, thanh toán: <strong>...</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" placeholder="Nhập tin nhắn..." disabled>
+                <button class="chat-send" disabled>📤</button>
+            </div>
+        </div>
+    </div>
 
     <script src="data.js"></script>
     <script src="app.js"></script>
