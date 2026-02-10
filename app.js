@@ -200,7 +200,7 @@ function renderProducts() {
                     <span class="price-original">${formatPrice(product.originalPrice)}</span>
                     <span class="price-current">${formatPrice(product.price)}</span>
                 </div>
-                <button class="btn-buy ${isPending ? 'disabled' : ''}" onclick="${isPending ? '' : 'openPurchaseModal(' + product.id + ')'}" ${isPending ? 'disabled' : ''}>
+                <button class="btn-buy ${isPending ? 'disabled' : ''}" onclick="${isPending ? '' : 'openPaymentModalById(' + product.id + ')'}" ${isPending ? 'disabled' : ''}>
                     <span>${isPending ? '⏳' : '🛒'}</span> ${isPending ? 'Đang chờ' : 'Mua ngay'}
                 </button>
             </div>
@@ -585,7 +585,32 @@ function checkExpiredOrders() {
 // Run check on load
 checkExpiredOrders();
 
-// Open payment modal
+// Open payment modal by product ID (called from "Mua ngay" button)
+function openPaymentModalById(productId) {
+    selectedProduct = productsData.find(p => p.id === productId);
+    if (!selectedProduct) return;
+    
+    // Setup payment amount
+    document.getElementById('paymentAmount').textContent = formatPrice(selectedProduct.price);
+    
+    // Generate order code and store it
+    const orderCode = 'EDU' + Date.now().toString().slice(-6);
+    paymentModalOverlay.dataset.orderCode = orderCode;
+    paymentModalOverlay.dataset.productId = selectedProduct.id;
+    paymentModalOverlay.dataset.productTitle = selectedProduct.title;
+    paymentModalOverlay.dataset.productPrice = selectedProduct.price;
+    
+    // Reset form and show main content
+    document.getElementById('buyerInfoForm').reset();
+    document.getElementById('paymentMainContent').style.display = 'flex';
+    document.getElementById('paymentSuccess').style.display = 'none';
+    
+    // Show modal
+    paymentModalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Open payment modal (from confirm button in old modal - kept for compatibility)
 function openPaymentModal() {
     if (!selectedProduct) return;
     
@@ -749,3 +774,4 @@ if (closeSuccessBtn) {
 
 // Expose functions globally
 window.copyToClipboard = copyToClipboard;
+window.openPaymentModalById = openPaymentModalById;
