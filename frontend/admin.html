@@ -1054,7 +1054,7 @@
                 if (generatorAbort) break;
                 
                 const topic = topics[i];
-                updateProgress(i, quantity, `Đang tạo: ${topic.substring(0, 50)}...`);
+                updateProgress(i + 1, quantity, `Đang tạo (${i + 1}/${quantity}): ${topic.substring(0, 40)}...`);
                 
                 try {
                     const content = await generateSKKNContent(apiKey, topic, role, subject, wordCount);
@@ -1072,6 +1072,7 @@
                         
                         results.push({ topic, status: 'success' });
                         addResultCard(topic, 'success', i + 1);
+                        updateProgress(i + 1, quantity, `✅ Hoàn thành: ${topic.substring(0, 40)}...`);
                     } else {
                         results.push({ topic, status: 'error' });
                         addResultCard(topic, 'error', i + 1);
@@ -1166,16 +1167,63 @@ Hãy bắt đầu viết ngay:`;
         
         function downloadAsWord(title, content) {
             const cleanTitle = title.replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF ]/g, '').substring(0, 50);
+            
+            // Format content với các heading và style chuẩn SKKN
+            let formattedContent = content
+                // Bold các heading chính
+                .replace(/^(\*\*[IVX]+\..*\*\*)$/gm, '<h2 style="font-weight:bold; margin-top:18pt; margin-bottom:6pt;">$1</h2>')
+                .replace(/^(\*\*\d+\.\d+\..*\*\*)$/gm, '<h3 style="font-weight:bold; margin-top:12pt; margin-bottom:6pt;">$1</h3>')
+                .replace(/^(\*\*\d+\.\d+\.\d+\..*\*\*)$/gm, '<h4 style="font-weight:bold; margin-top:10pt; margin-bottom:4pt;">$1</h4>')
+                // Xóa markdown **
+                .replace(/\*\*/g, '')
+                // Bullet points
+                .replace(/^\* (.+)$/gm, '<li style="margin-left:36pt;">$1</li>')
+                .replace(/^- (.+)$/gm, '<li style="margin-left:36pt;">$1</li>');
+            
+            // Wrap paragraphs
+            const lines = formattedContent.split('\n');
+            let htmlBody = '';
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) {
+                    htmlBody += '<p style="margin:0;">&nbsp;</p>';
+                } else if (line.startsWith('<h') || line.startsWith('<li')) {
+                    htmlBody += line;
+                } else {
+                    htmlBody += `<p style="text-align:justify; text-indent:36pt; margin-top:6pt; margin-bottom:6pt;">${line}</p>`;
+                }
+            }
+            
             const htmlContent = `
-                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-                <head><meta charset="utf-8"><title>${title}</title></head>
-                <body style="font-family: Times New Roman; font-size: 14pt; line-height: 1.5;">
-                    <h1 style="text-align:center;">${title}</h1>
-                    ${content.split('\n').map(p => `<p>${p}</p>`).join('')}
-                </body></html>
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta charset="utf-8">
+    <title>${title}</title>
+    <style>
+        @page { size: A4; margin: 2.5cm 3cm 2.5cm 3.5cm; }
+        body { font-family: 'Times New Roman', Times, serif; font-size: 14pt; line-height: 1.5; }
+        h1 { font-size: 16pt; font-weight: bold; text-align: center; text-transform: uppercase; }
+        h2 { font-size: 14pt; font-weight: bold; }
+        h3 { font-size: 14pt; font-weight: bold; }
+        h4 { font-size: 14pt; font-weight: bold; font-style: italic; }
+        p { text-align: justify; }
+        li { margin-bottom: 3pt; }
+        table { border-collapse: collapse; width: 100%; margin: 12pt 0; }
+        th, td { border: 1px solid black; padding: 6pt; }
+        th { background-color: #f0f0f0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <p style="text-align:center; font-weight:bold;">SÁNG KIẾN KINH NGHIỆM</p>
+    <h1>${title.toUpperCase()}</h1>
+    <p style="text-align:center;">---oOo---</p>
+    ${htmlBody}
+</body>
+</html>
             `;
             
-            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
