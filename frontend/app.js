@@ -4,8 +4,10 @@ let soldProducts = []; // Không dùng localStorage nữa, dùng status từ DB
 let currentFilter = 'all';
 let selectedProduct = null;
 
-// API Base URL
-const API_URL = 'http://localhost:5000/api';
+// API Base URL - Auto detect production or localhost
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000/api' 
+    : `${window.location.origin}/api`;
 
 // ===== DOM Elements =====
 const productsGrid = document.getElementById('productsGrid');
