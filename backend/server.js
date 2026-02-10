@@ -41,6 +41,22 @@ ProductSchema.virtual('id').get(function() { return this._id.toHexString(); });
 ProductSchema.set('toJSON', { virtuals: true });
 const Product = mongoose.model('Product', ProductSchema);
 
+// Order Model - Đơn hàng
+const OrderSchema = new mongoose.Schema({
+    id: { type: String, required: true, unique: true }, // EDU + timestamp
+    productId: { type: String, required: true },
+    productTitle: String,
+    productPrice: Number,
+    buyerName: { type: String, required: true },
+    buyerEmail: { type: String, required: true },
+    buyerPhone: { type: String, required: true },
+    buyerNote: String,
+    status: { type: String, default: 'pending', enum: ['pending', 'confirmed', 'rejected', 'expired'] },
+    confirmedAt: Date,
+    createdAt: { type: Date, default: Date.now }
+});
+const Order = mongoose.model('Order', OrderSchema);
+
 // Kết nối MongoDB
 const MONGO_URI = process.env.MONGO_URI || '';
 
@@ -354,6 +370,167 @@ app.post('/api/seed', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// ==================== ORDER MANAGEMENT API ====================
+// Local orders storage (for fallback)
+let localOrders = [];
+
+// 8. Tạo đơn hàng mới
+app.post('/api/orders', async (req, res) => {
+    try {
+        const { id, productId, productTitle, productPrice, buyerName, buyerEmail, buyerPhone, buyerNote } = req.body;
+        
+        if (!id || !productId || !buyerName || !buyerEmail || !buyerPhone) {
+            return res.status(400).json({ error: 'Thiếu thông tin đơn hàng' });
+        }
+        
+        const orderData = {
+            id,
+            productId,
+            productTitle,
+            productPrice,
+            buyerName,
+            buyerEmail,
+            buyerPhone,
+            buyerNote: buyerNote || '',
+            status: 'pending',
+            createdAt: new Date()
+        };
+        
+        if (useLocalData) {
+            localOrders.push(orderData);
+            console.log(`📝 [LOCAL] Đơn hàng mới: ${id} - ${productTitle}`);
+            return res.json({ success: true, order: orderData });
+        }
+        
+        const order = new Order(orderData);
+        await order.save();
+        
+        console.log(`📝 Đơn hàng mới: ${id} - ${productTitle}`);
+        console.log(`   👤 ${buyerName} | ${buyerEmail} | ${buyerPhone}`);
+        
+        res.json({ success: true, order });
+    } catch (error) {
+        console.error('Lỗi tạo đơn hàng:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 9. Lấy danh sách đơn hàng (admin)
+app.get('/api/orders', async (req, res) => {
+    try {
+        const { status } = req.query;
+        
+        if (useLocalData) {
+            let orders = [...localOrders];
+            if (status) orders = orders.filter(o => o.status === status);
+            return res.json(orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+        }
+        
+        let query = {};
+        if (status) query.status = status;
+        
+        const orders = await Order.find(query).sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 10. Xác nhận đơn hàng (admin)
+app.put('/api/orders/:id/confirm', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        if (useLocalData) {
+            const idx = localOrders.findIndex(o => o.id === id);
+            if (idx === -1) return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
+            
+            localOrders[idx].status = 'confirmed';
+            localOrders[idx].confirmedAt = new Date();
+            console.log(`✅ [LOCAL] Đã xác nhận đơn: ${id}`);
+            return res.json({ success: true, order: localOrders[idx] });
+        }
+        
+        const order = await Order.findOneAndUpdate(
+            { id },
+            { status: 'confirmed', confirmedAt: new Date() },
+            { new: true }
+        );
+        
+        if (!order) {
+            return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
+        }
+        
+        console.log(`✅ Đã xác nhận đơn hàng: ${id} - ${order.productTitle}`);
+        res.json({ success: true, order });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 11. Từ chối đơn hàng (admin)
+app.put('/api/orders/:id/reject', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        if (useLocalData) {
+            const idx = localOrders.findIndex(o => o.id === id);
+            if (idx === -1) return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
+            
+            localOrders[idx].status = 'rejected';
+            console.log(`❌ [LOCAL] Đã từ chối đơn: ${id}`);
+            return res.json({ success: true, order: localOrders[idx] });
+        }
+        
+        const order = await Order.findOneAndUpdate(
+            { id },
+            { status: 'rejected' },
+            { new: true }
+        );
+        
+        if (!order) {
+            return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
+        }
+        
+        console.log(`❌ Đã từ chối đơn hàng: ${id} - ${order.productTitle}`);
+        res.json({ success: true, order });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 12. Kiểm tra và hết hạn đơn hàng sau 24h
+async function expireOldOrders() {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    if (useLocalData) {
+        localOrders = localOrders.map(o => {
+            if (o.status === 'pending' && new Date(o.createdAt) < oneDayAgo) {
+                console.log(`⏰ [LOCAL] Đơn hết hạn: ${o.id}`);
+                return { ...o, status: 'expired' };
+            }
+            return o;
+        });
+        return;
+    }
+    
+    try {
+        const result = await Order.updateMany(
+            { status: 'pending', createdAt: { $lt: oneDayAgo } },
+            { status: 'expired' }
+        );
+        
+        if (result.modifiedCount > 0) {
+            console.log(`⏰ Đã hết hạn ${result.modifiedCount} đơn hàng`);
+        }
+    } catch (error) {
+        console.error('Lỗi expire orders:', error);
+    }
+}
+
+// Chạy kiểm tra mỗi giờ
+setInterval(expireOldOrders, 60 * 60 * 1000);
 
 // 7. Tạo AI content
 app.post('/api/generate', async (req, res) => {

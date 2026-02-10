@@ -158,7 +158,15 @@ function createParticles() {
 
 // ===== Render Products =====
 function renderProducts() {
-    const availableProducts = productsData.filter(p => !soldProducts.includes(p.id));
+    // Get pending product IDs
+    const pendingProductIds = pendingOrders
+        .filter(o => o.status === 'pending')
+        .map(o => o.productId);
+    
+    // Only hide confirmed sold products (not pending ones)
+    const confirmedSoldIds = soldProducts.filter(id => !pendingProductIds.includes(id));
+    
+    const availableProducts = productsData.filter(p => !confirmedSoldIds.includes(p.id));
     const filteredProducts = currentFilter === 'all' 
         ? availableProducts 
         : availableProducts.filter(p => p.category === currentFilter);
@@ -170,8 +178,11 @@ function renderProducts() {
     }
 
     emptyState.style.display = 'none';
-    productsGrid.innerHTML = filteredProducts.map((product, index) => `
-        <div class="product-card" data-id="${product.id}" style="animation-delay: ${index * 0.1}s">
+    productsGrid.innerHTML = filteredProducts.map((product, index) => {
+        const isPending = pendingProductIds.includes(product.id);
+        return `
+        <div class="product-card ${isPending ? 'pending' : ''}" data-id="${product.id}" style="animation-delay: ${index * 0.1}s">
+            ${isPending ? '<div class="pending-badge">⏳ Đang chờ xác nhận</div>' : ''}
             <div class="card-header">
                 <span class="card-category ${product.category}">
                     ${product.categoryIcon} ${product.categoryName}
@@ -189,12 +200,12 @@ function renderProducts() {
                     <span class="price-original">${formatPrice(product.originalPrice)}</span>
                     <span class="price-current">${formatPrice(product.price)}</span>
                 </div>
-                <button class="btn-buy" onclick="openPurchaseModal(${product.id})">
-                    <span>🛒</span> Mua ngay
+                <button class="btn-buy ${isPending ? 'disabled' : ''}" onclick="${isPending ? '' : 'openPurchaseModal(' + product.id + ')'}" ${isPending ? 'disabled' : ''}>
+                    <span>${isPending ? '⏳' : '🛒'}</span> ${isPending ? 'Đang chờ' : 'Mua ngay'}
                 </button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // ===== Format Price =====
@@ -285,7 +296,12 @@ function confirmPurchase() {
 }
 
 // ===== Show Toast =====
-function showToast() {
+function showToast(message) {
+    if (message) {
+        successToast.textContent = message;
+    } else {
+        successToast.textContent = '🎉 Giao dịch thành công! Sản phẩm đã được gửi qua Email.';
+    }
     successToast.classList.add('show');
     setTimeout(() => {
         successToast.classList.remove('show');
@@ -531,3 +547,239 @@ document.addEventListener('keydown', (e) => {
 });
 
 window.selectSearchResult = selectSearchResult;
+
+// ===== PAYMENT FLOW =====
+const paymentModalOverlay = document.getElementById('paymentModalOverlay');
+const paymentModalClose = document.getElementById('paymentModalClose');
+const backToProductBtn = document.getElementById('backToProductBtn');
+const toPaymentBtn = document.getElementById('toPaymentBtn');
+const backToInfoBtn = document.getElementById('backToInfoBtn');
+const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+
+// Pending orders (local storage)
+let pendingOrders = JSON.parse(localStorage.getItem('pendingOrders')) || [];
+
+// Check and restore expired orders on page load
+function checkExpiredOrders() {
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    let hasChanges = false;
+    
+    pendingOrders = pendingOrders.filter(order => {
+        const orderTime = new Date(order.createdAt).getTime();
+        if (now - orderTime > oneDayMs && order.status === 'pending') {
+            // Order expired, remove from pending
+            hasChanges = true;
+            return false;
+        }
+        return true;
+    });
+    
+    if (hasChanges) {
+        localStorage.setItem('pendingOrders', JSON.stringify(pendingOrders));
+        renderProducts();
+    }
+}
+
+// Run check on load
+checkExpiredOrders();
+
+// Open payment modal
+function openPaymentModal() {
+    if (!selectedProduct) return;
+    
+    // Close product modal
+    closeModal();
+    
+    // Setup payment modal
+    document.getElementById('paymentProductInfo').innerHTML = `
+        <p class="product-name">${selectedProduct.categoryIcon} ${selectedProduct.title}</p>
+        <p class="product-price">${formatPrice(selectedProduct.price)}</p>
+    `;
+    document.getElementById('paymentAmount').textContent = formatPrice(selectedProduct.price);
+    
+    // Generate transfer content
+    const orderCode = 'EDU' + Date.now().toString().slice(-6);
+    const shortTitle = selectedProduct.title.slice(0, 20).replace(/\s+/g, '');
+    document.getElementById('transferContent').textContent = `${orderCode}_${shortTitle}`;
+    document.getElementById('transferContent').dataset.code = orderCode;
+    
+    // Reset to step 1
+    showPaymentStep(1);
+    
+    // Show modal
+    paymentModalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Show payment step
+function showPaymentStep(step) {
+    document.getElementById('paymentStep1').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('paymentStep2').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('paymentStep3').style.display = step === 3 ? 'block' : 'none';
+    
+    // Update step indicators
+    document.querySelectorAll('.payment-steps .step').forEach((el, idx) => {
+        el.classList.remove('active', 'completed');
+        if (idx + 1 < step) el.classList.add('completed');
+        if (idx + 1 === step) el.classList.add('active');
+    });
+}
+
+// Close payment modal
+function closePaymentModal() {
+    paymentModalOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Reset form
+    document.getElementById('buyerInfoForm').reset();
+}
+
+// Validate buyer info
+function validateBuyerInfo() {
+    const name = document.getElementById('buyerName').value.trim();
+    const email = document.getElementById('buyerEmail').value.trim();
+    const phone = document.getElementById('buyerPhone').value.trim();
+    
+    if (!name) {
+        alert('Vui lòng nhập họ tên');
+        document.getElementById('buyerName').focus();
+        return false;
+    }
+    
+    if (!email || !email.includes('@')) {
+        alert('Vui lòng nhập email hợp lệ');
+        document.getElementById('buyerEmail').focus();
+        return false;
+    }
+    
+    if (!phone || phone.length < 9) {
+        alert('Vui lòng nhập số điện thoại hợp lệ');
+        document.getElementById('buyerPhone').focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// Confirm payment
+async function confirmPayment() {
+    const name = document.getElementById('buyerName').value.trim();
+    const email = document.getElementById('buyerEmail').value.trim();
+    const phone = document.getElementById('buyerPhone').value.trim();
+    const note = document.getElementById('buyerNote').value.trim();
+    const orderCode = document.getElementById('transferContent').dataset.code;
+    
+    const order = {
+        id: orderCode,
+        productId: selectedProduct.id,
+        productTitle: selectedProduct.title,
+        productPrice: selectedProduct.price,
+        buyerName: name,
+        buyerEmail: email,
+        buyerPhone: phone,
+        buyerNote: note,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+    };
+    
+    // Save to local storage
+    pendingOrders.push(order);
+    localStorage.setItem('pendingOrders', JSON.stringify(pendingOrders));
+    
+    // Add to sold products (temporarily hide)
+    soldProducts.push(selectedProduct.id);
+    localStorage.setItem('soldProducts', JSON.stringify(soldProducts));
+    
+    // Try to send to backend (optional)
+    try {
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000' 
+            : '';
+        await fetch(`${API_URL}/api/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(order)
+        });
+    } catch (e) {
+        console.log('Backend not available, order saved locally');
+    }
+    
+    // Show success
+    document.getElementById('orderCode').textContent = orderCode;
+    document.getElementById('orderProduct').textContent = selectedProduct.title;
+    document.getElementById('orderEmail').textContent = email;
+    showPaymentStep(3);
+    
+    // Update UI
+    renderProducts();
+    updateStats();
+}
+
+// Copy to clipboard
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('Đã copy!');
+    });
+}
+
+function copyTransferContent() {
+    const content = document.getElementById('transferContent').textContent;
+    copyToClipboard(content);
+}
+
+// Event listeners
+if (confirmBtn) {
+    confirmBtn.addEventListener('click', openPaymentModal);
+}
+
+if (paymentModalClose) {
+    paymentModalClose.addEventListener('click', closePaymentModal);
+}
+
+if (paymentModalOverlay) {
+    paymentModalOverlay.addEventListener('click', (e) => {
+        if (e.target === paymentModalOverlay) {
+            closePaymentModal();
+        }
+    });
+}
+
+if (backToProductBtn) {
+    backToProductBtn.addEventListener('click', () => {
+        closePaymentModal();
+        if (selectedProduct) {
+            openPurchaseModal(selectedProduct.id);
+        }
+    });
+}
+
+if (toPaymentBtn) {
+    toPaymentBtn.addEventListener('click', () => {
+        if (validateBuyerInfo()) {
+            showPaymentStep(2);
+        }
+    });
+}
+
+if (backToInfoBtn) {
+    backToInfoBtn.addEventListener('click', () => {
+        showPaymentStep(1);
+    });
+}
+
+if (confirmPaymentBtn) {
+    confirmPaymentBtn.addEventListener('click', confirmPayment);
+}
+
+if (closeSuccessBtn) {
+    closeSuccessBtn.addEventListener('click', () => {
+        closePaymentModal();
+    });
+}
+
+// Expose functions globally
+window.copyToClipboard = copyToClipboard;
+window.copyTransferContent = copyTransferContent;
+

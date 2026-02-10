@@ -270,7 +270,7 @@
         </div>
     </main>
 
-    <!-- Purchase Modal -->
+    <!-- Purchase Modal - Step 1: Product Info -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal" id="purchaseModal">
             <button class="modal-close" id="modalClose">&times;</button>
@@ -300,8 +300,134 @@
             <div class="modal-footer">
                 <button class="btn-secondary" id="cancelBtn">Hủy</button>
                 <button class="btn-primary" id="confirmBtn">
-                    <span>💳</span> Xác nhận mua
+                    <span>💳</span> Tiến hành thanh toán
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal - Step 2: Payment Info -->
+    <div class="modal-overlay" id="paymentModalOverlay">
+        <div class="modal payment-modal" id="paymentModal">
+            <button class="modal-close" id="paymentModalClose">&times;</button>
+            
+            <!-- Step indicator -->
+            <div class="payment-steps">
+                <div class="step active" data-step="1">
+                    <span class="step-num">1</span>
+                    <span class="step-text">Thông tin</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" data-step="2">
+                    <span class="step-num">2</span>
+                    <span class="step-text">Thanh toán</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" data-step="3">
+                    <span class="step-num">3</span>
+                    <span class="step-text">Hoàn tất</span>
+                </div>
+            </div>
+            
+            <!-- Step 1: Buyer Info -->
+            <div class="payment-step-content" id="paymentStep1">
+                <div class="modal-header">
+                    <div class="modal-icon">📝</div>
+                    <h3>Thông tin người mua</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="payment-product-info" id="paymentProductInfo">
+                        <!-- Product info -->
+                    </div>
+                    <form id="buyerInfoForm">
+                        <div class="form-group">
+                            <label for="buyerName">Họ và tên <span class="required">*</span></label>
+                            <input type="text" id="buyerName" class="form-control" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerEmail">Email <span class="required">*</span></label>
+                            <input type="email" id="buyerEmail" class="form-control" placeholder="email@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerPhone">Số điện thoại <span class="required">*</span></label>
+                            <input type="tel" id="buyerPhone" class="form-control" placeholder="0912 345 678" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerNote">Ghi chú (tùy chọn)</label>
+                            <textarea id="buyerNote" class="form-control" rows="2" placeholder="Yêu cầu đặc biệt..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="backToProductBtn">← Quay lại</button>
+                    <button class="btn-primary" id="toPaymentBtn">
+                        Tiếp tục thanh toán →
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 2: QR Payment -->
+            <div class="payment-step-content" id="paymentStep2" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-icon">💳</div>
+                    <h3>Chuyển khoản ngân hàng</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="payment-amount">
+                        <span>Số tiền cần thanh toán:</span>
+                        <strong id="paymentAmount">400,000đ</strong>
+                    </div>
+                    
+                    <div class="qr-section">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" 
+                             alt="QR Code" 
+                             id="paymentQRCode"
+                             class="qr-code-img">
+                        <div class="bank-info">
+                            <p><strong>PHẠM MẠNH CƯỜNG</strong></p>
+                            <p>STK: <span class="copy-text" onclick="copyToClipboard('0938888335')">0938888335</span> 📋</p>
+                            <p>Ngân hàng: <strong>MB Bank</strong></p>
+                            <p class="transfer-note">Nội dung CK: <span class="copy-text" id="transferContent" onclick="copyTransferContent()">EDUXX_TenSP</span> 📋</p>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-note">
+                        <span class="note-icon">⚠️</span>
+                        <p>Sau khi chuyển khoản thành công, vui lòng bấm nút <strong>"Tôi đã thanh toán"</strong> bên dưới. Admin sẽ xác nhận và gửi tài liệu qua email trong vòng 24h.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="backToInfoBtn">← Quay lại</button>
+                    <button class="btn-success" id="confirmPaymentBtn">
+                        ✅ Tôi đã thanh toán
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Success -->
+            <div class="payment-step-content" id="paymentStep3" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-icon success-icon">🎉</div>
+                    <h3>Đã ghi nhận thanh toán!</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="success-message">
+                        <div class="success-check">✓</div>
+                        <h4>Cảm ơn bạn đã mua hàng!</h4>
+                        <p>Đơn hàng của bạn đã được ghi nhận. Admin sẽ kiểm tra và gửi tài liệu qua email trong vòng <strong>24 giờ</strong>.</p>
+                        <div class="order-info">
+                            <p>Mã đơn hàng: <strong id="orderCode">EDU123456</strong></p>
+                            <p>Sản phẩm: <strong id="orderProduct">Tên sản phẩm</strong></p>
+                            <p>Email nhận: <strong id="orderEmail">email@example.com</strong></p>
+                        </div>
+                        <p class="contact-note">Nếu sau 24h chưa nhận được, vui lòng liên hệ: <strong>0938888335</strong></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" id="closeSuccessBtn">
+                        Đóng
+                    </button>
+                </div>
             </div>
         </div>
     </div>
