@@ -570,9 +570,27 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Catch-all
+// Serve known pages
+const knownPages = ['index.html', 'admin.html', 'generator.html', 'profile.html', 'history.html', '404.html'];
+
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+    const requestedPath = req.path;
+    
+    // If it's a known page or root, serve it
+    if (requestedPath === '/' || requestedPath === '/index.html') {
+        return res.sendFile(path.join(__dirname, '../frontend/index.html'));
+    }
+    
+    // Check if file exists in frontend folder
+    const filePath = path.join(__dirname, '../frontend', requestedPath);
+    const fs = require('fs');
+    
+    if (fs.existsSync(filePath)) {
+        return res.sendFile(filePath);
+    }
+    
+    // Otherwise serve 404 page
+    res.status(404).sendFile(path.join(__dirname, '../frontend/404.html'));
 });
 
 // ==================== AUTO REFILL ====================

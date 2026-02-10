@@ -324,6 +324,26 @@
             color: #ef4444;
         }
         
+        .status-badge.pending {
+            background: rgba(245,158,11,0.2);
+            color: #f59e0b;
+        }
+        
+        .status-badge.confirmed {
+            background: rgba(16,185,129,0.2);
+            color: #10b981;
+        }
+        
+        .status-badge.rejected {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+        }
+        
+        .status-badge.expired {
+            background: rgba(107,114,128,0.2);
+            color: #6b7280;
+        }
+        
         .category-badge {
             padding: 0.25rem 0.75rem;
             border-radius: 20px;
@@ -978,6 +998,7 @@
             
             if (section === 'products') loadProducts();
             if (section === 'chat') loadChats();
+            if (section === 'orders') loadOrders();
         }
         
         // Load Stats
@@ -998,6 +1019,105 @@
             }
         }
         
+        // Load Orders
+        async function loadOrders() {
+            try {
+                const res = await fetch(`${API_URL}/orders`);
+                const orders = await res.json();
+                
+                const container = document.getElementById('ordersList');
+                
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:2rem;">Chưa có đơn hàng nào</p>';
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Sản phẩm</th>
+                                <th>Khách hàng</th>
+                                <th>Liên hệ</th>
+                                <th>Số tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Thời gian</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${orders.map(o => `
+                                <tr>
+                                    <td><code>${o.id}</code></td>
+                                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${o.productTitle}">${o.productTitle || 'N/A'}</td>
+                                    <td>${o.buyerName}</td>
+                                    <td>
+                                        <small>${o.buyerEmail}</small><br>
+                                        <small>${o.buyerPhone}</small>
+                                    </td>
+                                    <td>${formatPrice(o.productPrice)}</td>
+                                    <td>
+                                        <span class="status-badge ${o.status}">${getOrderStatusText(o.status)}</span>
+                                    </td>
+                                    <td><small>${new Date(o.createdAt).toLocaleString('vi-VN')}</small></td>
+                                    <td>
+                                        ${o.status === 'pending' ? `
+                                            <button class="action-btn" onclick="confirmOrder('${o.id}')" title="Xác nhận">✅</button>
+                                            <button class="action-btn" onclick="rejectOrder('${o.id}')" title="Từ chối">❌</button>
+                                        ` : '—'}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (e) {
+                console.error('Error loading orders:', e);
+                document.getElementById('ordersList').innerHTML = '<p style="color:#ef4444; text-align:center; padding:2rem;">Lỗi tải đơn hàng</p>';
+            }
+        }
+        
+        function getOrderStatusText(status) {
+            const map = {
+                'pending': '⏳ Chờ xác nhận',
+                'confirmed': '✅ Đã xác nhận',
+                'rejected': '❌ Đã từ chối',
+                'expired': '⏰ Hết hạn'
+            };
+            return map[status] || status;
+        }
+        
+        async function confirmOrder(id) {
+            if (!confirm('Xác nhận đơn hàng này? (Đã nhận được tiền)')) return;
+            try {
+                const res = await fetch(`${API_URL}/orders/${id}/confirm`, { method: 'PUT' });
+                if (res.ok) {
+                    alert('✅ Đã xác nhận đơn hàng!');
+                    loadOrders();
+                } else {
+                    alert('Lỗi xác nhận đơn hàng');
+                }
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+        
+        async function rejectOrder(id) {
+            if (!confirm('Từ chối đơn hàng này?')) return;
+            try {
+                const res = await fetch(`${API_URL}/orders/${id}/reject`, { method: 'PUT' });
+                if (res.ok) {
+                    alert('❌ Đã từ chối đơn hàng!');
+                    loadOrders();
+                } else {
+                    alert('Lỗi từ chối đơn hàng');
+                }
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+
         // Load Products
         async function loadProducts() {
             try {

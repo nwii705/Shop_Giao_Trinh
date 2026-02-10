@@ -752,3 +752,117 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// ===== FOOTER MODALS =====
+function showAboutModal() {
+    showInfoModal('Về chúng tôi', `
+        <div style="text-align: center; padding: 1rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">📚</div>
+            <h2 style="margin-bottom: 1rem; background: linear-gradient(135deg, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EduShop</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Nền tảng giáo trình trực tuyến hàng đầu Việt Nam</p>
+            <div style="text-align: left; background: rgba(139,92,246,0.1); padding: 1.5rem; border-radius: 15px; margin-bottom: 1rem;">
+                <p style="margin-bottom: 0.75rem;">✨ <strong>Sứ mệnh:</strong> Hỗ trợ giáo viên Việt Nam tiết kiệm thời gian soạn giáo án, nâng cao chất lượng giảng dạy.</p>
+                <p style="margin-bottom: 0.75rem;">🎯 <strong>Tầm nhìn:</strong> Trở thành nền tảng giáo dục số #1 Đông Nam Á.</p>
+                <p>🤖 <strong>Công nghệ:</strong> Ứng dụng AI tiên tiến để tự động hóa việc soạn SKKN, KHBD.</p>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">© 2025-2026 EduShop Team</p>
+        </div>
+    `);
+}
+
+function showContactModal() {
+    showInfoModal('Liên hệ', `
+        <div style="padding: 1rem;">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">📞</div>
+                <h3>Chúng tôi luôn sẵn sàng hỗ trợ bạn!</h3>
+            </div>
+            <div style="display: grid; gap: 1rem;">
+                <div style="background: rgba(16,185,129,0.1); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">📱</span>
+                    <div>
+                        <strong>Hotline / Zalo</strong>
+                        <p style="color: var(--text-secondary);">0938 888 335</p>
+                    </div>
+                </div>
+                <div style="background: rgba(139,92,246,0.1); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">📧</span>
+                    <div>
+                        <strong>Email</strong>
+                        <p style="color: var(--text-secondary);">support@edushop.vn</p>
+                    </div>
+                </div>
+                <div style="background: rgba(236,72,153,0.1); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">💬</span>
+                    <div>
+                        <strong>Hỗ trợ kỹ thuật</strong>
+                        <p style="color: var(--text-secondary);">Zalo: 0865 063 436</p>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">Thời gian làm việc: 8:00 - 22:00 (T2 - CN)</p>
+        </div>
+    `);
+}
+
+function showPolicyModal() {
+    showInfoModal('Chính sách', `
+        <div style="padding: 1rem;">
+            <h3 style="margin-bottom: 1rem; color: #8b5cf6;">📋 Chính sách mua hàng</h3>
+            <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem;">
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">✅ Giao hàng qua email trong vòng 24 giờ</li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">✅ Hỗ trợ chỉnh sửa miễn phí 1 lần</li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">✅ Hoàn tiền 100% nếu không nhận được hàng</li>
+                <li style="padding: 0.5rem 0;">✅ Bảo mật thông tin khách hàng</li>
+            </ul>
+            
+            <h3 style="margin-bottom: 1rem; color: #ec4899;">🔒 Chính sách bảo mật</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Chúng tôi cam kết:</p>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.5rem 0;">🔐 Không chia sẻ thông tin cá nhân cho bên thứ 3</li>
+                <li style="padding: 0.5rem 0;">🔐 Mã hóa dữ liệu thanh toán</li>
+                <li style="padding: 0.5rem 0;">🔐 Bảo mật nội dung giáo trình đã mua</li>
+            </ul>
+        </div>
+    `);
+}
+
+function showInfoModal(title, content) {
+    // Create modal if not exists
+    let infoModal = document.getElementById('infoModalOverlay');
+    if (!infoModal) {
+        infoModal = document.createElement('div');
+        infoModal.id = 'infoModalOverlay';
+        infoModal.className = 'modal-overlay';
+        infoModal.innerHTML = `
+            <div class="modal" id="infoModal" style="max-width: 500px;">
+                <button class="modal-close" onclick="closeInfoModal()">&times;</button>
+                <div class="modal-header">
+                    <h3 id="infoModalTitle"></h3>
+                </div>
+                <div class="modal-body" id="infoModalContent" style="max-height: 60vh; overflow-y: auto;">
+                </div>
+            </div>
+        `;
+        document.body.appendChild(infoModal);
+    }
+    
+    document.getElementById('infoModalTitle').textContent = title;
+    document.getElementById('infoModalContent').innerHTML = content;
+    infoModal.classList.add('active');
+    
+    // Close on overlay click
+    infoModal.onclick = (e) => {
+        if (e.target === infoModal) closeInfoModal();
+    };
+}
+
+function closeInfoModal() {
+    const modal = document.getElementById('infoModalOverlay');
+    if (modal) modal.classList.remove('active');
+}
+
+// Expose to global
+window.showAboutModal = showAboutModal;
+window.showContactModal = showContactModal;
+window.showPolicyModal = showPolicyModal;
+window.closeInfoModal = closeInfoModal;
