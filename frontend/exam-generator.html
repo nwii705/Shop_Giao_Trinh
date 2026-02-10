@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Đề Thi Generator - EduShop</title>
+    <meta name="description" content="Tạo đề kiểm tra tự động bằng AI theo Thông tư 22/2021. Đề 15 phút, 45 phút, giữa kỳ, cuối kỳ với ma trận đề và đáp án.">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .exam-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            transition: color 0.3s;
+        }
+        
+        .back-link:hover {
+            color: var(--accent-primary);
+        }
+        
+        .exam-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 900px) {
+            .exam-grid { grid-template-columns: 1fr; }
+        }
+        
+        .exam-form-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+        
+        .exam-type-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .exam-type-btn {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .exam-type-btn:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .exam-type-btn.active {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+        }
+        
+        .exam-type-btn .icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .exam-type-btn .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .difficulty-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        
+        .difficulty-item label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .difficulty-item input {
+            width: 50px;
+            text-align: center;
+            padding: 6px;
+            border-radius: 6px;
+        }
+        
+        .btn-generate {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-generate:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Preview Panel */
+        .preview-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .preview-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-action:hover {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: #f59e0b;
+        }
+        
+        .btn-action.primary {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border: none;
+            color: white;
+        }
+        
+        .preview-content {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+        }
+        
+        .preview-placeholder {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .preview-placeholder .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Progress */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .progress-bar.active {
+            display: block;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Exam Preview Styles */
+        .exam-preview h3 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .exam-preview .school-name {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .exam-preview .exam-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+        
+        .exam-preview .exam-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .exam-preview .question {
+            margin-bottom: 1rem;
+        }
+        
+        .exam-preview .question-text {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .exam-preview .options {
+            padding-left: 1.5rem;
+        }
+        
+        .exam-preview .option {
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Ma trận đề */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+        
+        .matrix-table th,
+        .matrix-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            text-align: center;
+        }
+        
+        .matrix-table th {
+            background: rgba(245, 158, 11, 0.2);
+        }
+        
+        /* Chips cho chọn nội dung */
+        .topic-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .topic-chip {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .topic-chip:hover {
+            border-color: #f59e0b;
+        }
+        
+        .topic-chip.active {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border-color: transparent;
+            color: white;
+        }
+        
+        /* Features highlight */
+        .features-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        
+        .feature-item .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-item h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .feature-item p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .features-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .exam-type-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .difficulty-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="exam-container">
+        <a href="index.html" class="back-link">← Quay lại trang chủ</a>
+        
+        <div class="page-header">
+            <h1>📝 AI Đề Thi Generator</h1>
+            <p>Tạo đề kiểm tra tự động theo Thông tư 22/2021 với ma trận đề và đáp án chi tiết</p>
+        </div>
+        
+        <!-- Features -->
+        <div class="features-row">
+            <div class="feature-item">
+                <div class="icon">⚡</div>
+                <h4>Siêu nhanh</h4>
+                <p>Tạo đề trong 30 giây</p>
+            </div>
+            <div class="feature-item">
+                <div class="icon">📊</div>
+                <h4>Ma trận chuẩn</h4>
+                <p>Theo TT 22/2021</p>
+            </div>
+            <div class="feature-item">
+                <div class="icon">📄</div>
+                <h4>Xuất Word</h4>
+                <p>Format sẵn sàng in</p>
+            </div>
+            <div class="feature-item">
+                <div class="icon">🔀</div>
+                <h4>Nhiều đề</h4>
+                <p>Đề A, B, C, D</p>
+            </div>
+        </div>
+        
+        <div class="exam-grid">
+            <!-- Form Panel -->
+            <div class="exam-form-card">
+                <h2 class="card-title">⚙️ Cấu hình đề thi</h2>
+                
+                <!-- API Key -->
+                <div class="form-group">
+                    <label>🔑 OpenRouter API Key</label>
+                    <input type="password" id="apiKey" placeholder="sk-or-..." value="">
+                    <small style="color:var(--text-secondary); font-size:0.8rem;">Lấy key tại <a href="https://openrouter.ai/keys" target="_blank" style="color:#f59e0b;">openrouter.ai/keys</a></small>
+                </div>
+                
+                <!-- Môn & Lớp -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>📚 Môn học</label>
+                        <select id="subject">
+                            <option value="toan">Toán</option>
+                            <option value="vatly">Vật lý</option>
+                            <option value="hoahoc">Hóa học</option>
+                            <option value="sinhhoc">Sinh học</option>
+                            <option value="khtn" selected>KHTN</option>
+                            <option value="nguvan">Ngữ văn</option>
+                            <option value="tienganh">Tiếng Anh</option>
+                            <option value="lichsu">Lịch sử</option>
+                            <option value="dialy">Địa lý</option>
+                            <option value="gdcd">GDCD</option>
+                            <option value="tinhoc">Tin học</option>
+                            <option value="congnghe">Công nghệ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🎓 Lớp</label>
+                        <select id="grade">
+                            <option value="6">Lớp 6</option>
+                            <option value="7">Lớp 7</option>
+                            <option value="8" selected>Lớp 8</option>
+                            <option value="9">Lớp 9</option>
+                            <option value="10">Lớp 10</option>
+                            <option value="11">Lớp 11</option>
+                            <option value="12">Lớp 12</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Loại đề -->
+                <div class="form-group">
+                    <label>📋 Loại đề kiểm tra</label>
+                    <div class="exam-type-grid">
+                        <button type="button" class="exam-type-btn" data-type="15p" onclick="selectExamType('15p')">
+                            <div class="icon">⏱️</div>
+                            <div class="label">15 phút</div>
+                        </button>
+                        <button type="button" class="exam-type-btn active" data-type="45p" onclick="selectExamType('45p')">
+                            <div class="icon">📝</div>
+                            <div class="label">45 phút</div>
+                        </button>
+                        <button type="button" class="exam-type-btn" data-type="gk" onclick="selectExamType('gk')">
+                            <div class="icon">📖</div>
+                            <div class="label">Giữa kỳ</div>
+                        </button>
+                        <button type="button" class="exam-type-btn" data-type="ck" onclick="selectExamType('ck')">
+                            <div class="icon">🎯</div>
+                            <div class="label">Cuối kỳ</div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Nội dung kiểm tra -->
+                <div class="form-group">
+                    <label>📖 Nội dung kiểm tra</label>
+                    <input type="text" id="examContent" placeholder="VD: Chương 1, 2 hoặc Bài 5-10 hoặc Toàn bộ HK1">
+                </div>
+                
+                <!-- Số câu hỏi -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>❓ Số câu trắc nghiệm</label>
+                        <input type="number" id="mcqCount" value="20" min="0" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>✍️ Số câu tự luận</label>
+                        <input type="number" id="essayCount" value="4" min="0" max="10">
+                    </div>
+                </div>
+                
+                <!-- Phân bổ mức độ -->
+                <div class="form-group">
+                    <label>📊 Phân bổ mức độ (% tổng điểm)</label>
+                    <div class="difficulty-grid">
+                        <div class="difficulty-item">
+                            <label>Nhận biết</label>
+                            <input type="number" id="levelNB" value="40" min="0" max="100">%
+                        </div>
+                        <div class="difficulty-item">
+                            <label>Thông hiểu</label>
+                            <input type="number" id="levelTH" value="30" min="0" max="100">%
+                        </div>
+                        <div class="difficulty-item">
+                            <label>Vận dụng</label>
+                            <input type="number" id="levelVD" value="20" min="0" max="100">%
+                        </div>
+                        <div class="difficulty-item">
+                            <label>VD cao</label>
+                            <input type="number" id="levelVDC" value="10" min="0" max="100">%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Số đề -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🔢 Số đề tạo</label>
+                        <select id="examVariants">
+                            <option value="1">1 đề</option>
+                            <option value="2" selected>2 đề (A, B)</option>
+                            <option value="4">4 đề (A, B, C, D)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🏫 Tên trường</label>
+                        <input type="text" id="schoolName" placeholder="Trường THCS...">
+                    </div>
+                </div>
+                
+                <!-- Generate Button -->
+                <button class="btn-generate" id="generateBtn" onclick="generateExam()">
+                    <span>⚡</span> Tạo đề thi ngay
+                </button>
+                
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText"></div>
+            </div>
+            
+            <!-- Preview Panel -->
+            <div class="preview-card">
+                <div class="preview-header">
+                    <h2 class="card-title">👁️ Xem trước đề</h2>
+                    <div class="preview-actions" id="previewActions" style="display:none;">
+                        <button class="btn-action" onclick="downloadWord()">📥 Word</button>
+                        <button class="btn-action" onclick="downloadAnswer()">📋 Đáp án</button>
+                        <button class="btn-action primary" onclick="downloadAll()">📦 Tải tất cả</button>
+                    </div>
+                </div>
+                
+                <div class="preview-content" id="previewContent">
+                    <div class="preview-placeholder">
+                        <div class="icon">📝</div>
+                        <h3>Chưa có đề thi</h3>
+                        <p>Điền thông tin và nhấn "Tạo đề thi ngay" để bắt đầu</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentExamType = '45p';
+        let generatedExams = [];
+        let generatedAnswers = [];
+        
+        function selectExamType(type) {
+            currentExamType = type;
+            document.querySelectorAll('.exam-type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
+            
+            // Update default values based on exam type
+            const defaults = {
+                '15p': { mcq: 10, essay: 1 },
+                '45p': { mcq: 20, essay: 4 },
+                'gk': { mcq: 25, essay: 5 },
+                'ck': { mcq: 30, essay: 6 }
+            };
+            
+            document.getElementById('mcqCount').value = defaults[type].mcq;
+            document.getElementById('essayCount').value = defaults[type].essay;
+        }
+        
+        async function generateExam() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) {
+                alert('Vui lòng nhập OpenRouter API Key!');
+                document.getElementById('apiKey').focus();
+                return;
+            }
+            
+            const subject = document.getElementById('subject');
+            const subjectName = subject.options[subject.selectedIndex].text;
+            const grade = document.getElementById('grade').value;
+            const content = document.getElementById('examContent').value || 'Toàn bộ chương trình';
+            const mcqCount = parseInt(document.getElementById('mcqCount').value) || 20;
+            const essayCount = parseInt(document.getElementById('essayCount').value) || 4;
+            const variants = parseInt(document.getElementById('examVariants').value) || 1;
+            const schoolName = document.getElementById('schoolName').value || 'Trường THCS';
+            
+            const levels = {
+                nb: parseInt(document.getElementById('levelNB').value) || 40,
+                th: parseInt(document.getElementById('levelTH').value) || 30,
+                vd: parseInt(document.getElementById('levelVD').value) || 20,
+                vdc: parseInt(document.getElementById('levelVDC').value) || 10
+            };
+            
+            // Validate levels sum
+            const totalLevel = levels.nb + levels.th + levels.vd + levels.vdc;
+            if (totalLevel !== 100) {
+                alert(`Tổng mức độ phải bằng 100%! Hiện tại: ${totalLevel}%`);
+                return;
+            }
+            
+            const examTypeName = {
+                '15p': 'KIỂM TRA 15 PHÚT',
+                '45p': 'KIỂM TRA 1 TIẾT',
+                'gk': 'KIỂM TRA GIỮA KỲ',
+                'ck': 'KIỂM TRA CUỐI KỲ'
+            }[currentExamType];
+            
+            // Show progress
+            const btn = document.getElementById('generateBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner">⏳</span> Đang tạo đề...';
+            progressBar.classList.add('active');
+            progressFill.style.width = '0%';
+            
+            generatedExams = [];
+            generatedAnswers = [];
+            
+            try {
+                for (let v = 0; v < variants; v++) {
+                    const variantLetter = String.fromCharCode(65 + v); // A, B, C, D
+                    progressText.textContent = `Đang tạo đề ${variantLetter}... (${v + 1}/${variants})`;
+                    progressFill.style.width = `${((v + 0.3) / variants) * 100}%`;
+                    
+                    const prompt = buildExamPrompt({
+                        subjectName,
+                        grade,
+                        content,
+                        mcqCount,
+                        essayCount,
+                        levels,
+                        examTypeName,
+                        variantLetter,
+                        schoolName
+                    });
+                    
+                    const result = await callAI(apiKey, prompt);
+                    
+                    if (result) {
+                        generatedExams.push({ variant: variantLetter, content: result });
+                        
+                        // Generate answer key
+                        progressText.textContent = `Đang tạo đáp án đề ${variantLetter}...`;
+                        progressFill.style.width = `${((v + 0.7) / variants) * 100}%`;
+                        
+                        const answerPrompt = buildAnswerPrompt(result, subjectName);
+                        const answerResult = await callAI(apiKey, answerPrompt);
+                        generatedAnswers.push({ variant: variantLetter, content: answerResult });
+                    }
+                    
+                    progressFill.style.width = `${((v + 1) / variants) * 100}%`;
+                    
+                    // Delay between variants
+                    if (v < variants - 1) {
+                        await new Promise(r => setTimeout(r, 2000));
+                    }
+                }
+                
+                progressText.textContent = '✅ Hoàn thành!';
+                displayPreview();
+                document.getElementById('previewActions').style.display = 'flex';
+                
+            } catch (error) {
+                alert('Lỗi tạo đề: ' + error.message);
+                progressText.textContent = '❌ Lỗi: ' + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>⚡</span> Tạo đề thi ngay';
+            }
+        }
+        
+        function buildExamPrompt({ subjectName, grade, content, mcqCount, essayCount, levels, examTypeName, variantLetter, schoolName }) {
+            return `Bạn là giáo viên ${subjectName} giỏi, hãy tạo ĐỀ KIỂM TRA hoàn chỉnh.
+
+THÔNG TIN:
+- Môn: ${subjectName} - Lớp ${grade}
+- Loại: ${examTypeName}
+- Mã đề: ${variantLetter}
+- Nội dung: ${content}
+- Trường: ${schoolName}
+
+CẤU TRÚC ĐỀ:
+I. TRẮC NGHIỆM (${mcqCount} câu x 0.25đ = ${mcqCount * 0.25}đ)
+   - Nhận biết: ${Math.round(mcqCount * levels.nb / 100)} câu
+   - Thông hiểu: ${Math.round(mcqCount * levels.th / 100)} câu
+   - Vận dụng: ${Math.round(mcqCount * levels.vd / 100)} câu
+   - Vận dụng cao: ${Math.round(mcqCount * levels.vdc / 100)} câu
+
+II. TỰ LUẬN (${essayCount} câu, tổng ${10 - mcqCount * 0.25}đ)
+   - Phân bổ theo 4 mức độ tương tự
+
+YÊU CẦU:
+1. Câu hỏi rõ ràng, chính xác về mặt khoa học
+2. 4 phương án A, B, C, D cho trắc nghiệm (chỉ 1 đáp án đúng)
+3. Câu tự luận có phân điểm cụ thể
+4. Đa dạng dạng câu hỏi
+5. KHÔNG ghi đáp án trong đề, chỉ ghi câu hỏi
+
+FORMAT ĐỀ:
+---
+${schoolName.toUpperCase()}
+${examTypeName}
+Môn: ${subjectName} - Lớp ${grade}
+Thời gian: ${currentExamType === '15p' ? '15' : currentExamType === '45p' ? '45' : '90'} phút
+Mã đề: ${variantLetter}
+---
+
+I. PHẦN TRẮC NGHIỆM (${mcqCount * 0.25} điểm)
+
+Câu 1: [Nội dung câu hỏi]
+A. [Phương án A]
+B. [Phương án B]
+C. [Phương án C]
+D. [Phương án D]
+
+... (tiếp tục đến câu ${mcqCount})
+
+II. PHẦN TỰ LUẬN (${10 - mcqCount * 0.25} điểm)
+
+Câu 1 (X điểm): [Nội dung câu hỏi]
+
+... (tiếp tục)
+
+---HẾT---`;
+        }
+        
+        function buildAnswerPrompt(examContent, subjectName) {
+            return `Dựa vào đề ${subjectName} sau, hãy tạo ĐÁP ÁN CHI TIẾT:
+
+${examContent}
+
+YÊU CẦU:
+1. Trắc nghiệm: Liệt kê đáp án đúng (VD: 1-A, 2-B, 3-C...)
+2. Tự luận: Lời giải chi tiết từng bước, có biểu điểm
+
+FORMAT:
+---
+ĐÁP ÁN VÀ HƯỚNG DẪN CHẤM
+
+I. TRẮC NGHIỆM:
+1-A, 2-B, 3-C, ...
+
+II. TỰ LUẬN:
+
+Câu 1 (X điểm):
+- Bước 1: ... (x điểm)
+- Bước 2: ... (x điểm)
+...
+---`;
+        }
+        
+        async function callAI(apiKey, prompt) {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-2.0-flash-001',
+                    messages: [{ role: 'user', content: prompt }],
+                    max_tokens: 8000,
+                    temperature: 0.7
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content || null;
+        }
+        
+        function displayPreview() {
+            const container = document.getElementById('previewContent');
+            
+            if (generatedExams.length === 0) {
+                container.innerHTML = '<div class="preview-placeholder"><div class="icon">❌</div><h3>Không tạo được đề</h3></div>';
+                return;
+            }
+            
+            // Show first exam
+            const firstExam = generatedExams[0];
+            let html = `<div class="exam-preview">`;
+            html += formatExamContent(firstExam.content);
+            html += `</div>`;
+            
+            if (generatedExams.length > 1) {
+                html += `<div style="margin-top: 1rem; padding: 1rem; background: rgba(245,158,11,0.1); border-radius: 8px; text-align: center;">
+                    <strong>✅ Đã tạo ${generatedExams.length} đề:</strong> ${generatedExams.map(e => 'Đề ' + e.variant).join(', ')}
+                </div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function formatExamContent(content) {
+            return content
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^(Câu \d+)/gm, '<br><strong>$1</strong>')
+                .replace(/^(I\.|II\.)/gm, '<br><strong style="font-size:1.1rem;">$1</strong>')
+                .replace(/^([A-D])\./gm, '&nbsp;&nbsp;&nbsp;$1.')
+                .replace(/---(.+?)---/g, '<div style="text-align:center; font-weight:bold; margin: 1rem 0;">$1</div>')
+                .replace(/\n/g, '<br>');
+        }
+        
+        function downloadWord() {
+            if (generatedExams.length === 0) return;
+            
+            generatedExams.forEach(exam => {
+                downloadAsWord(`De_${exam.variant}`, exam.content);
+            });
+        }
+        
+        function downloadAnswer() {
+            if (generatedAnswers.length === 0) return;
+            
+            generatedAnswers.forEach(answer => {
+                downloadAsWord(`DapAn_${answer.variant}`, answer.content);
+            });
+        }
+        
+        function downloadAll() {
+            downloadWord();
+            setTimeout(() => downloadAnswer(), 500);
+        }
+        
+        function downloadAsWord(filename, content) {
+            const htmlContent = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page { size: 21cm 29.7cm; margin: 2cm; }
+        body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.5; }
+        h1 { text-align: center; font-size: 14pt; }
+        h2 { font-size: 13pt; font-weight: bold; }
+        .header { text-align: center; margin-bottom: 1cm; }
+    </style>
+</head>
+<body>
+    ${content.replace(/\n/g, '<br>')}
+</body>
+</html>`;
+            
+            const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.doc`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

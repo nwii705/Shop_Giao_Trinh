@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI SKKN Reviewer - Chấm điểm & Cải thiện SKKN | EduShop</title>
+    <meta name="description" content="AI tự động chấm điểm, phân tích và cải thiện SKKN theo chuẩn QĐ 658. Đảm bảo SKKN đạt giải cấp trường, huyện, tỉnh.">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .reviewer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .reviewer-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(236,72,153,0.2));
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .reviewer-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .reviewer-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+        
+        .reviewer-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .premium-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-item h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .feature-item p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .upload-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .upload-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-tab {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .upload-tab:hover, .upload-tab.active {
+            border-color: #8b5cf6;
+            background: rgba(139,92,246,0.1);
+        }
+        
+        .upload-tab.active {
+            box-shadow: 0 0 20px rgba(139,92,246,0.3);
+        }
+        
+        .upload-tab-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-content {
+            display: none;
+        }
+        
+        .upload-content.active {
+            display: block;
+        }
+        
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #8b5cf6;
+            background: rgba(139,92,246,0.1);
+        }
+        
+        .drop-zone-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .drop-zone p {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .drop-zone small {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .text-input {
+            width: 100%;
+            min-height: 300px;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        
+        .text-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+        
+        .api-key-section {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            align-items: flex-end;
+        }
+        
+        .api-key-group {
+            flex: 1;
+        }
+        
+        .api-key-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .api-key-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: monospace;
+        }
+        
+        .btn-review {
+            padding: 0.875rem 2rem;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        .btn-review:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139,92,246,0.4);
+        }
+        
+        .btn-review:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Results Section */
+        .results-section {
+            display: none;
+        }
+        
+        .results-section.active {
+            display: block;
+        }
+        
+        .score-overview {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .total-score {
+            text-align: center;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #10b981 0deg,
+                #10b981 calc(var(--score) * 3.6deg),
+                rgba(255,255,255,0.1) calc(var(--score) * 3.6deg)
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+        
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: var(--bg-dark);
+            border-radius: 50%;
+        }
+        
+        .score-value {
+            position: relative;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .score-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .grade-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .grade-a { background: rgba(16,185,129,0.2); color: #10b981; }
+        .grade-b { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .grade-c { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .grade-d { background: rgba(239,68,68,0.2); color: #ef4444; }
+        
+        .criteria-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+        }
+        
+        .criteria-score {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .criteria-score.high { background: rgba(16,185,129,0.2); color: #10b981; }
+        .criteria-score.medium { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .criteria-score.low { background: rgba(239,68,68,0.2); color: #ef4444; }
+        
+        .criteria-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.1rem;
+        }
+        
+        .criteria-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Detailed Analysis */
+        .analysis-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .analysis-header {
+            padding: 1rem 1.5rem;
+            background: rgba(139,92,246,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .analysis-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .analysis-toggle {
+            font-size: 1.25rem;
+            transition: transform 0.3s;
+        }
+        
+        .analysis-card.open .analysis-toggle {
+            transform: rotate(180deg);
+        }
+        
+        .analysis-content {
+            padding: 1.5rem;
+            display: none;
+        }
+        
+        .analysis-card.open .analysis-content {
+            display: block;
+        }
+        
+        .issue-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .issue-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .issue-icon.error { background: rgba(239,68,68,0.2); }
+        .issue-icon.warning { background: rgba(245,158,11,0.2); }
+        .issue-icon.info { background: rgba(59,130,246,0.2); }
+        
+        .issue-content h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .issue-content p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .suggestion {
+            background: rgba(16,185,129,0.1);
+            border-left: 3px solid #10b981;
+            padding: 0.75rem 1rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+        }
+        
+        .suggestion strong {
+            color: #10b981;
+        }
+        
+        /* Improve Button */
+        .improve-section {
+            background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(236,72,153,0.2));
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .improve-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .improve-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-improve {
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-improve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16,185,129,0.4);
+        }
+        
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(139,92,246,0.3);
+            border-top-color: #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+        
+        .loading-progress {
+            width: 300px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            transition: color 0.3s;
+        }
+        
+        .back-btn:hover {
+            color: var(--accent-primary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .score-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .criteria-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .upload-tabs {
+                flex-direction: column;
+            }
+            
+            .api-key-section {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="reviewer-container">
+        <a href="index.html" class="back-btn">← Về trang chủ</a>
+        
+        <div class="reviewer-header">
+            <span class="premium-badge">⭐ PREMIUM FEATURE</span>
+            <h1>🎯 AI SKKN Reviewer</h1>
+            <p>Chấm điểm, phân tích và cải thiện SKKN tự động theo chuẩn QĐ 658/QĐ-SGDĐT. Đảm bảo đạt giải cấp trường, huyện, tỉnh!</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">📊</div>
+                <h4>Chấm điểm 10 tiêu chí</h4>
+                <p>Theo chuẩn QĐ 658</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔍</div>
+                <h4>Phát hiện lỗi</h4>
+                <p>Văn phong, cấu trúc</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">💡</div>
+                <h4>Gợi ý cải thiện</h4>
+                <p>Chi tiết từng mục</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">✨</div>
+                <h4>Auto-Improve</h4>
+                <p>Viết lại phần yếu</p>
+            </div>
+        </div>
+        
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <h2 class="section-title">📤 Tải lên SKKN của bạn</h2>
+            
+            <div class="upload-tabs">
+                <div class="upload-tab active" data-tab="paste">
+                    <div class="upload-tab-icon">📝</div>
+                    <h4>Paste văn bản</h4>
+                    <p>Copy nội dung SKKN vào đây</p>
+                </div>
+                <div class="upload-tab" data-tab="file">
+                    <div class="upload-tab-icon">📄</div>
+                    <h4>Upload file</h4>
+                    <p>Word (.docx) hoặc PDF</p>
+                </div>
+            </div>
+            
+            <div class="upload-content active" id="pasteContent">
+                <textarea class="text-input" id="skknText" placeholder="Paste toàn bộ nội dung SKKN của bạn vào đây...
+
+Ví dụ:
+I. PHẦN MỞ ĐẦU
+1. Lý do chọn đề tài
+...
+
+II. PHẦN NỘI DUNG
+...
+
+III. PHẦN KẾT LUẬN
+..."></textarea>
+            </div>
+            
+            <div class="upload-content" id="fileContent">
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-icon">📁</div>
+                    <p>Kéo thả file vào đây hoặc click để chọn</p>
+                    <small>Hỗ trợ: .docx, .doc, .pdf (Tối đa 10MB)</small>
+                    <input type="file" id="fileInput" accept=".docx,.doc,.pdf">
+                </div>
+                <div id="fileInfo" style="margin-top: 1rem; display: none;">
+                    <p>📄 File đã chọn: <strong id="fileName"></strong></p>
+                </div>
+            </div>
+            
+            <div class="api-key-section">
+                <div class="api-key-group">
+                    <label>🔑 OpenRouter API Key</label>
+                    <input type="password" id="apiKey" placeholder="sk-or-v1-xxxxxxxx...">
+                </div>
+                <button class="btn-review" id="reviewBtn" onclick="startReview()">
+                    <span>🎯</span> Bắt đầu chấm điểm
+                </button>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="score-overview">
+                <div class="total-score">
+                    <div class="score-circle" id="scoreCircle" style="--score: 0">
+                        <span class="score-value" id="totalScore">0</span>
+                    </div>
+                    <div class="score-label">Điểm tổng / 100</div>
+                    <span class="grade-badge grade-c" id="gradeBadge">Đang phân tích...</span>
+                </div>
+                
+                <div class="criteria-list" id="criteriaList">
+                    <!-- Criteria items will be inserted here -->
+                </div>
+            </div>
+            
+            <!-- Detailed Analysis -->
+            <div id="analysisCards">
+                <!-- Analysis cards will be inserted here -->
+            </div>
+            
+            <!-- Improve Section -->
+            <div class="improve-section">
+                <h3>🚀 Muốn cải thiện SKKN?</h3>
+                <p>AI sẽ tự động viết lại các phần yếu, giúp SKKN của bạn đạt điểm cao hơn</p>
+                <button class="btn-improve" onclick="improveSSKN()">
+                    ✨ Auto-Improve SKKN
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Đang phân tích SKKN...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="loadingProgress" style="width: 0%"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching
+        document.querySelectorAll('.upload-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.upload-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const tabName = tab.dataset.tab;
+                document.getElementById(tabName + 'Content').classList.add('active');
+            });
+        });
+        
+        // File upload handling
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+        
+        let uploadedFileContent = '';
+        
+        function handleFile(file) {
+            const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type) && !file.name.match(/\.(doc|docx|pdf)$/i)) {
+                alert('Vui lòng chọn file Word hoặc PDF');
+                return;
+            }
+            
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileInfo').style.display = 'block';
+            
+            // For now, we'll read as text (in production, you'd use a proper parser)
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedFileContent = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+        
+        // Criteria definitions
+        const criteria = [
+            { id: 'structure', name: 'Cấu trúc bài viết', desc: 'Đầy đủ 3 phần theo QĐ 658' },
+            { id: 'intro', name: 'Phần mở đầu', desc: 'Lý do, mục tiêu, phạm vi' },
+            { id: 'theory', name: 'Cơ sở lý luận', desc: 'Khái niệm, lý thuyết nền' },
+            { id: 'situation', name: 'Thực trạng', desc: 'Khảo sát, số liệu thực tế' },
+            { id: 'solutions', name: 'Giải pháp', desc: 'Chi tiết, sáng tạo, khả thi' },
+            { id: 'results', name: 'Kết quả', desc: 'Số liệu so sánh trước/sau' },
+            { id: 'innovation', name: 'Tính mới/sáng tạo', desc: 'Điểm đột phá của đề tài' },
+            { id: 'practicality', name: 'Tính thực tiễn', desc: 'Khả năng áp dụng rộng rãi' },
+            { id: 'writing', name: 'Văn phong', desc: 'Mạch lạc, không lặp từ' },
+            { id: 'format', name: 'Trình bày', desc: 'Font, margin, bảng biểu' }
+        ];
+        
+        let reviewResult = null;
+        
+        async function startReview() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const skknText = document.getElementById('skknText').value.trim() || uploadedFileContent;
+            
+            if (!apiKey) {
+                alert('Vui lòng nhập OpenRouter API Key');
+                return;
+            }
+            
+            if (!skknText || skknText.length < 500) {
+                alert('Vui lòng nhập nội dung SKKN (tối thiểu 500 ký tự)');
+                return;
+            }
+            
+            showLoading('Đang phân tích cấu trúc SKKN...', 10);
+            
+            try {
+                // Call AI to analyze
+                const result = await analyzeSSKN(apiKey, skknText);
+                reviewResult = result;
+                displayResults(result);
+                
+            } catch (error) {
+                console.error(error);
+                alert('Lỗi phân tích: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function analyzeSSKN(apiKey, content) {
+            showLoading('Đang chấm điểm theo 10 tiêu chí...', 30);
+            
+            const prompt = `Bạn là chuyên gia đánh giá SKKN (Sáng kiến kinh nghiệm) giáo dục theo chuẩn QĐ 658/QĐ-SGDĐT.
+
+Hãy phân tích SKKN sau và trả về kết quả dưới dạng JSON với format:
+
+{
+    "totalScore": <số từ 0-100>,
+    "grade": "<A/B/C/D>",
+    "summary": "<Nhận xét tổng quan 2-3 câu>",
+    "criteria": {
+        "structure": {"score": <1-10>, "comment": "<nhận xét ngắn>"},
+        "intro": {"score": <1-10>, "comment": "<nhận xét>"},
+        "theory": {"score": <1-10>, "comment": "<nhận xét>"},
+        "situation": {"score": <1-10>, "comment": "<nhận xét>"},
+        "solutions": {"score": <1-10>, "comment": "<nhận xét>"},
+        "results": {"score": <1-10>, "comment": "<nhận xét>"},
+        "innovation": {"score": <1-10>, "comment": "<nhận xét>"},
+        "practicality": {"score": <1-10>, "comment": "<nhận xét>"},
+        "writing": {"score": <1-10>, "comment": "<nhận xét>"},
+        "format": {"score": <1-10>, "comment": "<nhận xét>"}
+    },
+    "issues": [
+        {
+            "type": "error|warning|info",
+            "category": "<tên tiêu chí>",
+            "title": "<vấn đề>",
+            "description": "<mô tả chi tiết>",
+            "suggestion": "<gợi ý sửa cụ thể>"
+        }
+    ],
+    "strengths": ["<điểm mạnh 1>", "<điểm mạnh 2>", ...],
+    "improvements": ["<cần cải thiện 1>", "<cần cải thiện 2>", ...]
+}
+
+Tiêu chí chấm điểm:
+- Grade A (85-100): Xuất sắc, đạt giải cấp tỉnh
+- Grade B (70-84): Tốt, đạt giải cấp huyện  
+- Grade C (55-69): Khá, đạt giải cấp trường
+- Grade D (0-54): Cần cải thiện nhiều
+
+NỘI DUNG SKKN CẦN ĐÁNH GIÁ:
+"""
+${content.substring(0, 15000)}
+"""
+
+CHỈ TRẢ VỀ JSON, KHÔNG CÓ TEXT KHÁC.`;
+
+            showLoading('AI đang đánh giá chi tiết...', 60);
+            
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-2.0-flash-001',
+                    messages: [{ role: 'user', content: prompt }],
+                    max_tokens: 4000,
+                    temperature: 0.3
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+            
+            showLoading('Đang xử lý kết quả...', 90);
+            
+            const data = await response.json();
+            let resultText = data.choices?.[0]?.message?.content || '';
+            
+            // Extract JSON from response
+            const jsonMatch = resultText.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) {
+                throw new Error('Không thể parse kết quả từ AI');
+            }
+            
+            return JSON.parse(jsonMatch[0]);
+        }
+        
+        function displayResults(result) {
+            document.getElementById('resultsSection').classList.add('active');
+            
+            // Update total score
+            const totalScore = result.totalScore || 0;
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('scoreCircle').style.setProperty('--score', totalScore);
+            
+            // Update grade badge
+            const gradeBadge = document.getElementById('gradeBadge');
+            gradeBadge.textContent = getGradeText(result.grade);
+            gradeBadge.className = 'grade-badge grade-' + (result.grade || 'c').toLowerCase();
+            
+            // Update criteria list
+            const criteriaList = document.getElementById('criteriaList');
+            criteriaList.innerHTML = criteria.map(c => {
+                const score = result.criteria?.[c.id]?.score || 5;
+                const scoreClass = score >= 8 ? 'high' : score >= 5 ? 'medium' : 'low';
+                return `
+                    <div class="criteria-item">
+                        <div class="criteria-score ${scoreClass}">${score}</div>
+                        <div class="criteria-info">
+                            <h4>${c.name}</h4>
+                            <p>${result.criteria?.[c.id]?.comment || c.desc}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Update analysis cards
+            const analysisCards = document.getElementById('analysisCards');
+            
+            // Strengths card
+            let cardsHTML = `
+                <div class="analysis-card open">
+                    <div class="analysis-header" onclick="toggleCard(this)">
+                        <h3>✅ Điểm mạnh</h3>
+                        <span class="analysis-toggle">▼</span>
+                    </div>
+                    <div class="analysis-content">
+                        ${(result.strengths || []).map(s => `
+                            <div class="issue-item">
+                                <div class="issue-icon info">👍</div>
+                                <div class="issue-content">
+                                    <p>${s}</p>
+                                </div>
+                            </div>
+                        `).join('') || '<p>Đang phân tích...</p>'}
+                    </div>
+                </div>
+            `;
+            
+            // Issues card
+            cardsHTML += `
+                <div class="analysis-card open">
+                    <div class="analysis-header" onclick="toggleCard(this)">
+                        <h3>⚠️ Vấn đề cần sửa</h3>
+                        <span class="analysis-toggle">▼</span>
+                    </div>
+                    <div class="analysis-content">
+                        ${(result.issues || []).map(issue => `
+                            <div class="issue-item">
+                                <div class="issue-icon ${issue.type}">${issue.type === 'error' ? '❌' : issue.type === 'warning' ? '⚠️' : 'ℹ️'}</div>
+                                <div class="issue-content">
+                                    <h4>${issue.title}</h4>
+                                    <p>${issue.description}</p>
+                                    <div class="suggestion">
+                                        <strong>💡 Gợi ý:</strong> ${issue.suggestion}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('') || '<p>Không có vấn đề nghiêm trọng!</p>'}
+                    </div>
+                </div>
+            `;
+            
+            // Improvements card
+            cardsHTML += `
+                <div class="analysis-card">
+                    <div class="analysis-header" onclick="toggleCard(this)">
+                        <h3>🎯 Cần cải thiện</h3>
+                        <span class="analysis-toggle">▼</span>
+                    </div>
+                    <div class="analysis-content">
+                        ${(result.improvements || []).map(imp => `
+                            <div class="issue-item">
+                                <div class="issue-icon warning">📝</div>
+                                <div class="issue-content">
+                                    <p>${imp}</p>
+                                </div>
+                            </div>
+                        `).join('') || '<p>Đang phân tích...</p>'}
+                    </div>
+                </div>
+            `;
+            
+            analysisCards.innerHTML = cardsHTML;
+            
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function getGradeText(grade) {
+            const map = {
+                'A': '🏆 Xuất sắc - Đạt giải cấp Tỉnh',
+                'B': '🥇 Tốt - Đạt giải cấp Huyện',
+                'C': '🥈 Khá - Đạt giải cấp Trường',
+                'D': '📝 Cần cải thiện'
+            };
+            return map[grade] || 'Đang đánh giá...';
+        }
+        
+        function toggleCard(header) {
+            header.parentElement.classList.toggle('open');
+        }
+        
+        async function improveSSKN() {
+            if (!reviewResult) {
+                alert('Vui lòng chấm điểm SKKN trước');
+                return;
+            }
+            
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const skknText = document.getElementById('skknText').value.trim() || uploadedFileContent;
+            
+            if (!apiKey) {
+                alert('Vui lòng nhập API Key');
+                return;
+            }
+            
+            showLoading('Đang cải thiện SKKN...', 20);
+            
+            try {
+                // Find weak areas (score < 7)
+                const weakAreas = [];
+                for (const [key, value] of Object.entries(reviewResult.criteria || {})) {
+                    if (value.score < 7) {
+                        weakAreas.push({ id: key, ...value });
+                    }
+                }
+                
+                if (weakAreas.length === 0) {
+                    alert('🎉 SKKN của bạn đã tốt! Không cần cải thiện thêm.');
+                    hideLoading();
+                    return;
+                }
+                
+                showLoading(`Đang viết lại ${weakAreas.length} phần yếu...`, 50);
+                
+                const prompt = `Dựa trên phân tích sau, hãy viết lại/cải thiện các phần yếu của SKKN.
+
+PHÂN TÍCH HIỆN TẠI:
+${JSON.stringify(weakAreas, null, 2)}
+
+NỘI DUNG SKKN GỐC:
+"""
+${skknText.substring(0, 10000)}
+"""
+
+Hãy viết lại các phần sau với chất lượng tốt hơn, văn phong sinh động, có ví dụ cụ thể:
+${weakAreas.map(w => `- ${w.id}: ${w.comment}`).join('\n')}
+
+QUAN TRỌNG: Viết đầy đủ, chi tiết, không tóm tắt.`;
+                
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.0-flash-001',
+                        messages: [{ role: 'user', content: prompt }],
+                        max_tokens: 8000,
+                        temperature: 0.7
+                    })
+                });
+                
+                showLoading('Đang tạo file kết quả...', 90);
+                
+                const data = await response.json();
+                const improvedContent = data.choices?.[0]?.message?.content || '';
+                
+                // Download improved content
+                downloadAsWord('SKKN_Improved', improvedContent);
+                
+                alert('✅ Đã tải xuống file SKKN đã cải thiện!');
+                
+            } catch (error) {
+                console.error(error);
+                alert('Lỗi cải thiện: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function downloadAsWord(title, content) {
+            const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${title}</title>
+<style>
+body { font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.5; margin: 2cm; }
+h1, h2, h3 { font-weight: bold; }
+</style>
+</head>
+<body>
+${content.replace(/\n/g, '<br>')}
+</body>
+</html>`;
+            
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title}.doc`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function showLoading(text, progress) {
+            document.getElementById('loadingOverlay').classList.add('active');
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingProgress').style.width = progress + '%';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+        
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            if (!container) return;
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    position: absolute;
+                    width: ${Math.random() * 4 + 2}px;
+                    height: ${Math.random() * 4 + 2}px;
+                    background: rgba(139, 92, 246, ${Math.random() * 0.5 + 0.2});
+                    border-radius: 50%;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation: float ${Math.random() * 10 + 10}s linear infinite;
+                `;
+                container.appendChild(particle);
+            }
+        }
+        
+        createParticles();
+    </script>
+</body>
+</html>
