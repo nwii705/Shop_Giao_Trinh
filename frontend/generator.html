@@ -942,12 +942,12 @@
                                 </div>
                             </div>
                             
-                            <!-- Deep Research -->
+                            <!-- Deep Research - Powered by Perplexity Sonar -->
                             <div style="background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.3); border-radius: 8px; padding: 12px;">
-                                <label class="form-label" style="font-size: 12px;">🔬 Tavily API Key (Deep Research)</label>
-                                <input type="password" class="form-control" id="skkn_tavily_key" placeholder="Tùy chọn - Giúp AI tìm số liệu thực tế">
+                                <label class="form-label" style="font-size: 12px;">🔬 Deep Research (Perplexity Sonar via OpenRouter)</label>
+                                <input type="password" class="form-control" id="skkn_tavily_key" placeholder="(Tùy chọn) Tavily API Key - Bổ sung thêm nguồn">
                                 <small style="color: #888; font-size: 10px; margin-top: 5px; display: block;">
-                                    🆓 1000 lượt/tháng tại <a href="https://tavily.com/" target="_blank" style="color: #2ed573;">tavily.com</a>
+                                    ✨ Sử dụng <b style="color: #2ed573;">Perplexity Sonar</b> qua OpenRouter để search internet realtime. Tavily là bổ sung (optional).
                                 </small>
                                 <button type="button" id="btnDeepResearch" onclick="performDeepResearch()" 
                                         style="margin-top: 10px; width: 100%; padding: 10px; background: linear-gradient(135deg, #2ed573, #1e90ff); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">
@@ -5755,12 +5755,13 @@ ${content}
         }
         
         // ========== DEEP RESEARCH FUNCTIONS ==========
+        // Sử dụng Perplexity Sonar qua OpenRouter để search internet
         let deepResearchData = null;
         
         async function performDeepResearch() {
             const topic = document.getElementById('skkn_title').value.trim();
-            const geminiKey = document.getElementById('skkn_api_key').value.trim();
-            const tavilyKey = document.getElementById('skkn_tavily_key').value.trim();
+            const openRouterKey = document.getElementById('skkn_api_key').value.trim(); // OpenRouter key
+            const tavilyKey = document.getElementById('skkn_tavily_key')?.value?.trim() || '';
             const role = document.getElementById('skkn_position').value || 'Giáo viên bộ môn';
             const subject = document.getElementById('skkn_subject').value || 'Giáo dục';
             const level = document.getElementById('skkn_level').value || 'THCS';
@@ -5772,8 +5773,8 @@ ${content}
                 return;
             }
             
-            if (!geminiKey) {
-                showToast('Vui lòng nhập Gemini API Key!', true);
+            if (!openRouterKey) {
+                showToast('Vui lòng nhập OpenRouter API Key!', true);
                 document.getElementById('skkn_api_key').focus();
                 return;
             }
@@ -5782,11 +5783,11 @@ ${content}
             const btn = document.getElementById('btnDeepResearch');
             const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<span style="animation: spin 1s linear infinite; display: inline-block;">🔄</span> Đang nghiên cứu... (30-60s)';
+            btn.innerHTML = '<span style="animation: spin 1s linear infinite; display: inline-block;">🔄</span> Đang nghiên cứu với Perplexity Sonar... (30-90s)';
             btn.style.opacity = '0.7';
             
             try {
-                const response = await fetch('/api/deep-research', {
+                const response = await fetch(`${NODE_API_URL}/deep-research`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -5794,7 +5795,8 @@ ${content}
                         role,
                         subject,
                         level,
-                        geminiKey,
+                        openRouterKey, // Gửi với tên mới
+                        geminiKey: openRouterKey, // Backward compatible
                         tavilyKey
                     })
                 });
@@ -5804,7 +5806,7 @@ ${content}
                 if (result.success) {
                     deepResearchData = result;
                     showDeepResearchResults(result);
-                    showToast(`✅ Nghiên cứu hoàn thành trong ${result.duration}s`);
+                    showToast(`✅ Nghiên cứu hoàn thành trong ${result.duration}s (${result.searchEngine || 'Perplexity Sonar'})`);
                 } else {
                     showToast('Lỗi: ' + result.error, true);
                 }

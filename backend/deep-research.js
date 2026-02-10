@@ -1,25 +1,30 @@
 /**
  * Deep Research Agent - Bộ não nghiên cứu sâu cho SKKN/KHBD
  * 
- * Quy trình 3 bước:
- * 1. PLAN - Phân tích đề tài, lên kế hoạch tìm kiếm
- * 2. SEARCH - Tìm kiếm đa chiều (Pháp lý, Lý luận, Thực tiễn)
- * 3. SYNTHESIZE - Đọc hiểu và tổng hợp thành báo cáo
+ * Sử dụng Perplexity Sonar qua OpenRouter để tìm kiếm và tổng hợp thông tin
+ * Model perplexity/sonar tự động search internet và trả về kết quả tổng hợp
  * 
- * Sử dụng:
- * - Tavily API: Tìm kiếm web tối ưu cho AI (1000 lượt free/tháng)
- * - Gemini 1.5 Flash: Đọc và tổng hợp (context 1M tokens)
+ * Quy trình:
+ * 1. Nhận đề tài từ user
+ * 2. Gọi Perplexity Sonar để tìm kiếm real-time
+ * 3. Tổng hợp thành báo cáo nghiên cứu tiền khả thi
+ * 
+ * Chỉ cần 1 API key: OpenRouter API Key
  */
 
 const https = require('https');
-const http = require('http');
 
 class DeepResearchAgent {
-    constructor(geminiKey, tavilyKey) {
-        this.geminiKey = geminiKey;
-        this.tavilyKey = tavilyKey;
-        this.searchResults = [];
+    constructor(openRouterKey, tavilyKey = null) {
+        // OpenRouter key dùng cho cả Perplexity Sonar và Gemini
+        this.openRouterKey = openRouterKey;
+        this.tavilyKey = tavilyKey; // Giữ lại cho fallback (optional)
         this.logs = [];
+        
+        // Model cho Deep Research (Perplexity Sonar - có khả năng search internet)
+        this.searchModel = 'perplexity/sonar';
+        // Model cho tổng hợp (Gemini)
+        this.synthesisModel = 'google/gemini-2.5-flash';
     }
 
     log(message) {
@@ -29,195 +34,16 @@ class DeepResearchAgent {
     }
 
     /**
-     * BƯỚC 1: Lên kế hoạch tìm kiếm
-     * AI tự sinh ra các từ khóa chuyên sâu từ đề tài
+     * Gọi OpenRouter API (hỗ trợ nhiều model)
      */
-    async planSearchQueries(topic, role, subject, level) {
-        this.log(`📋 Đang lên kế hoạch nghiên cứu cho: "${topic}"`);
-        
-        const planPrompt = `Bạn là chuyên gia nghiên cứu giáo dục Việt Nam.
-        
-Đề tài SKKN: "${topic}"
-Vị trí tác giả: ${role}
-Lĩnh vực: ${subject}
-Cấp học: ${level}
-
-Nhiệm vụ: Hãy sinh ra 6 từ khóa/câu truy vấn TÌM KIẾM GOOGLE bằng tiếng Việt để tìm thông tin cho đề tài này.
-
-Yêu cầu từ khóa bao gồm:
-1. Văn bản pháp lý mới nhất (Nghị quyết, Thông tư, Công văn)
-2. Số liệu thống kê về thực trạng
-3. Các mô hình/giải pháp thành công
-4. Nghiên cứu khoa học liên quan
-5. Xu hướng mới trong lĩnh vực này
-6. Case study thực tế tại Việt Nam
-
-Trả lời ĐÚNG ĐỊNH DẠNG JSON:
-{
-  "queries": [
-    "từ khóa 1",
-    "từ khóa 2",
-    "từ khóa 3",
-    "từ khóa 4",
-    "từ khóa 5",
-    "từ khóa 6"
-  ]
-}`;
-
-        try {
-            const response = await this.callGemini(planPrompt, 0.3);
-            // Parse JSON từ response
-            const jsonMatch = response.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                const parsed = JSON.parse(jsonMatch[0]);
-                this.log(`✅ Đã tạo ${parsed.queries.length} từ khóa tìm kiếm`);
-                return parsed.queries;
-            }
-        } catch (e) {
-            this.log(`⚠️ Lỗi tạo kế hoạch: ${e.message}`);
-        }
-
-        // Fallback: Tự tạo từ khóa mặc định
-        return [
-            `${topic} văn bản chỉ đạo ${new Date().getFullYear()}`,
-            `thực trạng ${topic} trường học Việt Nam`,
-            `số liệu thống kê ${subject} ${level}`,
-            `giải pháp ${topic} hiệu quả`,
-            `mô hình ${topic} thành công`,
-            `nghiên cứu khoa học về ${topic}`
-        ];
-    }
-
-    /**
-     * BƯỚC 2: Thực thi tìm kiếm với Tavily API
-     */
-    async searchWithTavily(query) {
-        if (!this.tavilyKey) {
-            this.log('⚠️ Không có Tavily API Key, bỏ qua tìm kiếm');
-            return [];
-        }
-
-        this.log(`🔍 Tìm kiếm: "${query}"`);
-
-        return new Promise((resolve) => {
-            const postData = JSON.stringify({
-                api_key: this.tavilyKey,
-                query: query,
-                search_depth: "advanced",
-                include_answer: true,
-                include_raw_content: false,
-                max_results: 5,
-                include_domains: [
-                    "moet.gov.vn",
-                    "giaoduc.net.vn",
-                    "vnexpress.net",
-                    "tuoitre.vn",
-                    "thanhnien.vn",
-                    "baochinhphu.vn",
-                    "dangcongsan.vn",
-                    "thuvienphapluat.vn",
-                    "luatvietnam.vn"
-                ]
-            });
-
-            const options = {
-                hostname: 'api.tavily.com',
-                path: '/search',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(postData)
-                }
-            };
-
-            const req = https.request(options, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                    try {
-                        const result = JSON.parse(data);
-                        if (result.results) {
-                            this.log(`  ✓ Tìm thấy ${result.results.length} kết quả`);
-                            resolve(result.results.map(r => ({
-                                title: r.title,
-                                url: r.url,
-                                content: r.content,
-                                score: r.score
-                            })));
-                        } else {
-                            resolve([]);
-                        }
-                    } catch (e) {
-                        this.log(`  ✗ Lỗi parse: ${e.message}`);
-                        resolve([]);
-                    }
-                });
-            });
-
-            req.on('error', (e) => {
-                this.log(`  ✗ Lỗi request: ${e.message}`);
-                resolve([]);
-            });
-
-            req.setTimeout(10000, () => {
-                req.destroy();
-                resolve([]);
-            });
-
-            req.write(postData);
-            req.end();
-        });
-    }
-
-    /**
-     * Fallback: Sử dụng Google Custom Search API (nếu có)
-     */
-    async searchWithGoogle(query, googleApiKey, googleCx) {
-        if (!googleApiKey || !googleCx) {
-            return [];
-        }
-
-        this.log(`🔍 Google Search: "${query}"`);
-
-        return new Promise((resolve) => {
-            const encodedQuery = encodeURIComponent(query);
-            const url = `https://www.googleapis.com/customsearch/v1?key=${googleApiKey}&cx=${googleCx}&q=${encodedQuery}&num=5`;
-
-            https.get(url, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                    try {
-                        const result = JSON.parse(data);
-                        if (result.items) {
-                            resolve(result.items.map(item => ({
-                                title: item.title,
-                                url: item.link,
-                                content: item.snippet,
-                                score: 0.8
-                            })));
-                        } else {
-                            resolve([]);
-                        }
-                    } catch (e) {
-                        resolve([]);
-                    }
-                });
-            }).on('error', () => resolve([]));
-        });
-    }
-
-    /**
-     * Gọi Gemini API qua OpenRouter
-     */
-    async callGemini(prompt, temperature = 0.7) {
+    async callOpenRouter(model, prompt, temperature = 0.7, maxTokens = 8000) {
         return new Promise((resolve, reject) => {
             const postData = JSON.stringify({
-                model: 'google/gemini-2.5-flash',
+                model: model,
                 messages: [
                     { role: 'user', content: prompt }
                 ],
-                max_tokens: 8000,
+                max_tokens: maxTokens,
                 temperature: temperature
             });
 
@@ -227,9 +53,9 @@ Trả lời ĐÚNG ĐỊNH DẠNG JSON:
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.geminiKey}`,
+                    'Authorization': `Bearer ${this.openRouterKey}`,
                     'HTTP-Referer': 'http://localhost:5000',
-                    'X-Title': 'EduAI Generator'
+                    'X-Title': 'EduAI Deep Research'
                 }
             };
 
@@ -253,9 +79,9 @@ Trả lời ĐÚNG ĐỊNH DẠNG JSON:
             });
 
             req.on('error', reject);
-            req.setTimeout(120000, () => {
+            req.setTimeout(180000, () => { // 3 phút timeout cho deep research
                 req.destroy();
-                reject(new Error('OpenRouter request timeout'));
+                reject(new Error('OpenRouter request timeout (3 minutes)'));
             });
 
             req.write(postData);
@@ -264,65 +90,217 @@ Trả lời ĐÚNG ĐỊNH DẠNG JSON:
     }
 
     /**
-     * BƯỚC 3: Tổng hợp kết quả thành Báo cáo Nghiên cứu
+     * Tìm kiếm với Perplexity Sonar qua OpenRouter
+     * Model này tự động search internet và trả về kết quả tổng hợp
      */
-    async synthesizeReport(topic, role, subject, level, searchResults) {
-        this.log('📝 Đang tổng hợp báo cáo nghiên cứu...');
+    async searchWithPerplexity(topic, role, subject, level) {
+        this.log(`🔍 Đang tìm kiếm với Perplexity Sonar: "${topic}"`);
+        
+        const currentYear = new Date().getFullYear();
+        
+        const searchPrompt = `Bạn là chuyên gia nghiên cứu giáo dục Việt Nam. 
 
-        // Gom tất cả nội dung tìm được
-        const researchContext = searchResults.map((r, i) => 
-            `[Nguồn ${i + 1}] ${r.title}\nURL: ${r.url}\nNội dung: ${r.content}`
-        ).join('\n\n---\n\n');
-
-        const synthesisPrompt = `Bạn là Trợ lý Nghiên cứu Giáo dục cấp cao tại Việt Nam.
+Nhiệm vụ: Tìm kiếm và tổng hợp thông tin THỰC TẾ từ internet cho đề tài SKKN sau:
 
 === THÔNG TIN ĐỀ TÀI ===
-• Tên đề tài SKKN: "${topic}"
+• Tên đề tài: "${topic}"
 • Vị trí tác giả: ${role}
 • Lĩnh vực: ${subject}
 • Cấp học: ${level}
 
-=== DỮ LIỆU THÔ TỪ INTERNET (Deep Research) ===
-${researchContext || 'Không tìm thấy dữ liệu từ internet. Hãy sử dụng kiến thức có sẵn.'}
+=== YÊU CẦU TÌM KIẾM (năm ${currentYear - 2}-${currentYear}) ===
+
+Hãy tìm kiếm và tổng hợp các thông tin sau:
+
+1. **VĂN BẢN PHÁP LÝ MỚI NHẤT**:
+   - Các Nghị quyết, Thông tư, Công văn của Bộ GD&ĐT liên quan
+   - Chương trình GDPT 2018 và các văn bản hướng dẫn
+   - Văn bản về chuyển đổi số, đổi mới phương pháp dạy học
+   - Ghi rõ số hiệu, ngày ban hành
+
+2. **SỐ LIỆU THỐNG KÊ THỰC TẾ**:
+   - Tỷ lệ áp dụng các phương pháp/công nghệ mới trong giáo dục
+   - Số liệu về hiệu quả các mô hình đổi mới
+   - Thống kê từ Bộ GD&ĐT, các Sở GD&ĐT, nghiên cứu khoa học
+   - Ghi rõ nguồn và năm thống kê
+
+3. **CÁC MÔ HÌNH THÀNH CÔNG**:
+   - 2-3 trường hợp áp dụng thành công tại Việt Nam
+   - Kết quả cụ thể đạt được
+   - Bài học kinh nghiệm
+
+4. **XU HƯỚNG VÀ THÁCH THỨC**:
+   - Xu hướng mới trong lĩnh vực ${subject}
+   - Thách thức thực tế tại các trường ${level}
+   - Cơ hội phát triển
+
+5. **TÀI LIỆU THAM KHẢO**:
+   - Sách, giáo trình liên quan
+   - Bài báo khoa học, nghiên cứu
+   - Link tham khảo (nếu có)
+
+=== ĐỊNH DẠNG OUTPUT ===
+Viết báo cáo tổng hợp khoảng 1500-2000 từ, chia theo các mục trên.
+Mỗi thông tin phải ghi rõ NGUỒN TRÍCH DẪN (tên văn bản, năm, website...).
+Nếu không tìm thấy thông tin cụ thể, ghi chú "Cần xác minh thêm".`;
+
+        try {
+            const result = await this.callOpenRouter(
+                this.searchModel, 
+                searchPrompt, 
+                0.4, // Temperature thấp cho search chính xác
+                6000
+            );
+            this.log(`✅ Perplexity Sonar đã hoàn thành tìm kiếm`);
+            return result;
+        } catch (error) {
+            this.log(`⚠️ Lỗi Perplexity Sonar: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Fallback: Tìm kiếm với Tavily API (nếu có key)
+     */
+    async searchWithTavily(query) {
+        if (!this.tavilyKey) {
+            return [];
+        }
+
+        this.log(`🔍 Fallback Tavily: "${query}"`);
+
+        return new Promise((resolve) => {
+            const postData = JSON.stringify({
+                api_key: this.tavilyKey,
+                query: query,
+                search_depth: "advanced",
+                include_answer: true,
+                include_raw_content: false,
+                max_results: 5,
+                include_domains: [
+                    "moet.gov.vn",
+                    "giaoduc.net.vn",
+                    "vnexpress.net",
+                    "tuoitre.vn",
+                    "thanhnien.vn",
+                    "baochinhphu.vn",
+                    "thuvienphapluat.vn"
+                ]
+            });
+
+            const options = {
+                hostname: 'api.tavily.com',
+                path: '/search',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            };
+
+            const req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const result = JSON.parse(data);
+                        if (result.results) {
+                            resolve(result.results.map(r => ({
+                                title: r.title,
+                                url: r.url,
+                                content: r.content
+                            })));
+                        } else {
+                            resolve([]);
+                        }
+                    } catch (e) {
+                        resolve([]);
+                    }
+                });
+            });
+
+            req.on('error', () => resolve([]));
+            req.setTimeout(10000, () => {
+                req.destroy();
+                resolve([]);
+            });
+
+            req.write(postData);
+            req.end();
+        });
+    }
+
+    /**
+     * Tổng hợp kết quả thành Báo cáo Nghiên cứu Tiền Khả Thi
+     */
+    async synthesizeReport(topic, role, subject, level, perplexityData, tavilyData = []) {
+        this.log('📝 Đang tổng hợp báo cáo cuối cùng...');
+
+        // Gom thêm dữ liệu từ Tavily nếu có
+        const additionalContext = tavilyData.length > 0 
+            ? `\n\n=== DỮ LIỆU BỔ SUNG TỪ TAVILY ===\n${tavilyData.map((r, i) => 
+                `[${i + 1}] ${r.title}\nURL: ${r.url}\nNội dung: ${r.content}`
+            ).join('\n\n')}`
+            : '';
+
+        const synthesisPrompt = `Bạn là Trợ lý Nghiên cứu Giáo dục cấp cao tại Việt Nam.
+
+=== THÔNG TIN ĐỀ TÀI SKKN ===
+• Tên đề tài: "${topic}"
+• Vị trí tác giả: ${role}
+• Lĩnh vực: ${subject}
+• Cấp học: ${level}
+
+=== KẾT QUẢ TỪ DEEP RESEARCH (Perplexity Sonar) ===
+${perplexityData}
+${additionalContext}
 
 === NHIỆM VỤ ===
-Dựa trên các dữ liệu trên, hãy viết một "BÁO CÁO NGHIÊN CỨU TIỀN KHẢ THI" (khoảng 1500-2000 từ) gồm các phần sau:
+Dựa trên dữ liệu nghiên cứu ở trên, hãy viết một "BÁO CÁO NGHIÊN CỨU TIỀN KHẢ THI" hoàn chỉnh, được định dạng như sau:
 
 ## 1. CƠ SỞ PHÁP LÝ
-- Liệt kê các văn bản, nghị quyết, thông tư mới nhất liên quan đến đề tài
-- Trích dẫn chính xác số hiệu, năm ban hành
-- Ví dụ: Nghị quyết 29-NQ/TW (2013), Thông tư 32/2018/TT-BGDĐT, CV 5512/BGDĐT-GDTrH...
+- Liệt kê các văn bản, nghị quyết, thông tư MỚI NHẤT liên quan
+- Ghi rõ số hiệu văn bản, năm ban hành
+- Ví dụ: Nghị quyết 29-NQ/TW (2013), Thông tư 32/2018/TT-BGDĐT, Công văn 5512/BGDĐT-GDTrH...
 
 ## 2. CƠ SỞ THỰC TIỄN & SỐ LIỆU
-- Tổng hợp các con số thống kê về thực trạng vấn đề
+- Tổng hợp số liệu thống kê về thực trạng vấn đề
 - Các khó khăn, thách thức đang tồn tại
-- Xu hướng phát triển trong lĩnh vực này
-- Nếu có số liệu từ nguồn, hãy trích dẫn. Nếu không, tạo số liệu hợp lý có chú thích "Số liệu ước tính"
+- Xu hướng phát triển hiện nay
+- GHI RÕ NGUỒN cho mỗi số liệu
 
 ## 3. CÁC MÔ HÌNH THÀNH CÔNG
-- Giới thiệu 2-3 mô hình/case study đã thành công trong lĩnh vực này
-- Phân tích điểm mạnh, điểm yếu của từng mô hình
+- Giới thiệu 2-3 mô hình/case study đã áp dụng thành công
+- Phân tích điểm mạnh, điểm yếu
 - Bài học kinh nghiệm rút ra
 
 ## 4. GỢI Ý GIẢI PHÁP "MỚI & SÁNG TẠO"
-Dựa trên nghiên cứu, gợi ý 4-5 giải pháp có tính MỚI cho đề tài, mỗi giải pháp gồm:
-- Tên giải pháp
-- Mô tả ngắn gọn (2-3 câu)
-- Tính mới/sáng tạo
-- Điều kiện thực hiện
+Dựa trên nghiên cứu, gợi ý 4-5 giải pháp có tính MỚI cho đề tài:
+| STT | Tên giải pháp | Mô tả ngắn | Tính mới | Điều kiện thực hiện |
+|-----|---------------|------------|----------|---------------------|
+| 1   | ...           | ...        | ...      | ...                 |
+| 2   | ...           | ...        | ...      | ...                 |
+| ... | ...           | ...        | ...      | ...                 |
 
 ## 5. TÀI LIỆU THAM KHẢO GỢI Ý
-- Liệt kê 8-10 tài liệu nên đọc thêm (sách, bài báo, văn bản pháp quy)
-- Đúng format trích dẫn khoa học
+Liệt kê 8-10 tài liệu theo format trích dẫn khoa học:
+1. Tác giả (Năm). Tên tài liệu. Nhà xuất bản/Website.
+2. ...
 
 === YÊU CẦU ===
-✓ Viết bằng tiếng Việt, văn phong học thuật
-✓ Trung thực, khách quan, có trích dẫn nguồn khi có thể
-✓ Số liệu phải hợp lý với thực tế giáo dục Việt Nam
-✓ Giải pháp phải phù hợp với vai trò ${role} và cấp học ${level}`;
+✓ Viết đầy đủ 1500-2000 từ
+✓ Văn phong học thuật, dễ hiểu
+✓ Trích dẫn nguồn rõ ràng
+✓ Số liệu phù hợp thực tế giáo dục Việt Nam
+✓ Giải pháp phù hợp với vai trò ${role} và cấp học ${level}`;
 
         try {
-            const report = await this.callGemini(synthesisPrompt, 0.6);
+            const report = await this.callOpenRouter(
+                this.synthesisModel,
+                synthesisPrompt,
+                0.6,
+                8000
+            );
             this.log('✅ Hoàn thành báo cáo nghiên cứu!');
             return report;
         } catch (e) {
@@ -333,51 +311,55 @@ Dựa trên nghiên cứu, gợi ý 4-5 giải pháp có tính MỚI cho đề t
 
     /**
      * MAIN: Thực hiện toàn bộ quy trình Deep Research
+     * Sử dụng Perplexity Sonar làm công cụ search chính
      */
     async performDeepResearch(topic, role, subject, level) {
         this.logs = [];
-        this.searchResults = [];
         
         const startTime = Date.now();
-        this.log(`🚀 BẮT ĐẦU DEEP RESEARCH`);
+        this.log(`🚀 BẮT ĐẦU DEEP RESEARCH (Powered by Perplexity Sonar)`);
         this.log(`📌 Đề tài: "${topic}"`);
         this.log(`👤 Vai trò: ${role}`);
         this.log(`📚 Lĩnh vực: ${subject}`);
         this.log(`🏫 Cấp học: ${level}`);
 
         try {
-            // Bước 1: Lên kế hoạch
-            const queries = await this.planSearchQueries(topic, role, subject, level);
+            // Bước 1: Tìm kiếm với Perplexity Sonar (real-time internet search)
+            this.log('🔎 Bước 1: Tìm kiếm với Perplexity Sonar...');
+            const perplexityData = await this.searchWithPerplexity(topic, role, subject, level);
             
-            // Bước 2: Tìm kiếm
-            this.log('🔎 Bắt đầu tìm kiếm đa chiều...');
-            for (const query of queries) {
-                const results = await this.searchWithTavily(query);
-                this.searchResults.push(...results);
-                // Delay để tránh rate limit
-                await new Promise(r => setTimeout(r, 500));
-            }
-            
-            // Loại bỏ trùng lặp theo URL
-            const uniqueResults = [];
-            const seenUrls = new Set();
-            for (const r of this.searchResults) {
-                if (!seenUrls.has(r.url)) {
-                    seenUrls.add(r.url);
-                    uniqueResults.push(r);
+            // Bước 2 (Optional): Bổ sung với Tavily nếu có key
+            let tavilyData = [];
+            if (this.tavilyKey) {
+                this.log('🔎 Bước 2: Bổ sung với Tavily...');
+                const queries = [
+                    `${topic} văn bản pháp luật ${new Date().getFullYear()}`,
+                    `${topic} số liệu thống kê giáo dục Việt Nam`
+                ];
+                for (const query of queries) {
+                    const results = await this.searchWithTavily(query);
+                    tavilyData.push(...results);
+                    await new Promise(r => setTimeout(r, 500));
                 }
+                this.log(`  ✓ Tavily bổ sung ${tavilyData.length} nguồn`);
             }
-            this.searchResults = uniqueResults;
-            this.log(`📊 Tổng cộng: ${this.searchResults.length} nguồn thông tin duy nhất`);
 
-            // Bước 3: Tổng hợp
+            // Bước 3: Tổng hợp thành báo cáo cuối cùng
+            this.log('📝 Bước 3: Tổng hợp báo cáo cuối cùng với Gemini...');
             const report = await this.synthesizeReport(
-                topic, role, subject, level, 
-                this.searchResults.slice(0, 20) // Giới hạn 20 nguồn
+                topic, role, subject, level,
+                perplexityData,
+                tavilyData
             );
 
             const duration = ((Date.now() - startTime) / 1000).toFixed(1);
             this.log(`⏱️ Hoàn thành trong ${duration}s`);
+
+            // Extract sources từ báo cáo (nếu có thể)
+            const sources = tavilyData.map(r => ({
+                title: r.title,
+                url: r.url
+            }));
 
             return {
                 success: true,
@@ -386,10 +368,8 @@ Dựa trên nghiên cứu, gợi ý 4-5 giải pháp có tính MỚI cho đề t
                 subject,
                 level,
                 report,
-                sources: this.searchResults.slice(0, 20).map(r => ({
-                    title: r.title,
-                    url: r.url
-                })),
+                sources,
+                searchEngine: 'Perplexity Sonar + Gemini 2.5 Flash',
                 logs: this.logs,
                 duration: parseFloat(duration)
             };

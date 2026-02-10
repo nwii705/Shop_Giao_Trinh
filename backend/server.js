@@ -89,22 +89,27 @@ function loadLocalData() {
 
 // ========== DEEP RESEARCH API ==========
 // POST /api/deep-research - Thực hiện nghiên cứu sâu cho SKKN
+// Sử dụng Perplexity Sonar qua OpenRouter để search internet
 app.post('/api/deep-research', async (req, res) => {
     try {
-        const { topic, role, subject, level, geminiKey, tavilyKey } = req.body;
+        const { topic, role, subject, level, geminiKey, openRouterKey, tavilyKey } = req.body;
         
         // Validate input
         if (!topic) {
             return res.status(400).json({ error: 'Thiếu tên đề tài' });
         }
-        if (!geminiKey) {
-            return res.status(400).json({ error: 'Thiếu Gemini API Key' });
+        
+        // Hỗ trợ cả geminiKey (cũ) và openRouterKey (mới)
+        const apiKey = openRouterKey || geminiKey;
+        if (!apiKey) {
+            return res.status(400).json({ error: 'Thiếu OpenRouter API Key' });
         }
         
         console.log(`🔬 Deep Research Request: "${topic}"`);
+        console.log(`   Using: Perplexity Sonar + Gemini via OpenRouter`);
         
-        // Khởi tạo agent
-        const agent = new DeepResearchAgent(geminiKey, tavilyKey || null);
+        // Khởi tạo agent với OpenRouter key
+        const agent = new DeepResearchAgent(apiKey, tavilyKey || null);
         
         // Thực hiện nghiên cứu
         const result = await agent.performDeepResearch(
