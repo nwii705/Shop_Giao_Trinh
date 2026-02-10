@@ -1459,27 +1459,28 @@ CHÚ Ý:
             const cleanTitle = title.replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF ]/g, '').substring(0, 50);
             
             // Format content với các heading và style chuẩn SKKN
+            const fontStyle = "font-family:'Times New Roman',Times,serif;";
             let formattedContent = content
                 // Xử lý các heading với **I., **II., **III., **1., **2., etc
-                .replace(/^\*\*([IVX]+)\.\s*PHẦN\s+(.+?)\*\*$/gm, '<h1 style="font-size:16pt; font-weight:bold; text-align:center; margin-top:24pt; margin-bottom:12pt; text-transform:uppercase;">$1. PHẦN $2</h1>')
-                .replace(/^\*\*([IVX]+)\.\s*(.+?)\*\*$/gm, '<h1 style="font-size:15pt; font-weight:bold; margin-top:20pt; margin-bottom:10pt;">$1. $2</h1>')
-                .replace(/^\*\*(\d+)\.\s*(.+?)\*\*$/gm, '<h2 style="font-size:14pt; font-weight:bold; margin-top:16pt; margin-bottom:8pt;">$1. $2</h2>')
-                .replace(/^\*\*(\d+\.\d+)\.\s*(.+?)\*\*$/gm, '<h3 style="font-size:14pt; font-weight:bold; margin-top:12pt; margin-bottom:6pt;">$1. $2</h3>')
-                .replace(/^\*\*(\d+\.\d+\.\d+)\.\s*(.+?)\*\*$/gm, '<h4 style="font-size:14pt; font-weight:bold; font-style:italic; margin-top:10pt; margin-bottom:4pt;">$1. $2</h4>')
+                .replace(/^\*\*([IVX]+)\.\s*PHẦN\s+(.+?)\*\*$/gm, `<h1 style="${fontStyle} font-size:16pt; font-weight:bold; text-align:center; margin-top:24pt; margin-bottom:12pt; text-transform:uppercase;">$1. PHẦN $2</h1>`)
+                .replace(/^\*\*([IVX]+)\.\s*(.+?)\*\*$/gm, `<h1 style="${fontStyle} font-size:15pt; font-weight:bold; margin-top:20pt; margin-bottom:10pt;">$1. $2</h1>`)
+                .replace(/^\*\*(\d+)\.\s*(.+?)\*\*$/gm, `<h2 style="${fontStyle} font-size:14pt; font-weight:bold; margin-top:16pt; margin-bottom:8pt;">$1. $2</h2>`)
+                .replace(/^\*\*(\d+\.\d+)\.\s*(.+?)\*\*$/gm, `<h3 style="${fontStyle} font-size:14pt; font-weight:bold; margin-top:12pt; margin-bottom:6pt;">$1. $2</h3>`)
+                .replace(/^\*\*(\d+\.\d+\.\d+)\.\s*(.+?)\*\*$/gm, `<h4 style="${fontStyle} font-size:14pt; font-weight:bold; font-style:italic; margin-top:10pt; margin-bottom:4pt;">$1. $2</h4>`)
                 // Bold text còn lại
                 .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
                 // Italic
                 .replace(/\*(.+?)\*/g, '<i>$1</i>')
                 // Bullet points
-                .replace(/^[\s]*[•]\s*(.+)$/gm, '<li style="margin-left:36pt; margin-bottom:3pt;">$1</li>')
-                .replace(/^[\s]*[-]\s*(.+)$/gm, '<li style="margin-left:36pt; margin-bottom:3pt;">$1</li>')
-                .replace(/^[\s]*[+]\s*(.+)$/gm, '<li style="margin-left:36pt; margin-bottom:3pt;">$1</li>')
+                .replace(/^[\s]*[•]\s*(.+)$/gm, `<li style="${fontStyle} margin-left:36pt; margin-bottom:3pt;">$1</li>`)
+                .replace(/^[\s]*[-]\s*(.+)$/gm, `<li style="${fontStyle} margin-left:36pt; margin-bottom:3pt;">$1</li>`)
+                .replace(/^[\s]*[+]\s*(.+)$/gm, `<li style="${fontStyle} margin-left:36pt; margin-bottom:3pt;">$1</li>`)
                 // Xử lý bảng markdown
                 .replace(/\|(.+)\|/g, function(match) {
-                    const cells = match.split('|').filter(c => c.trim());
+                                    const cells = match.split('|').filter(c => c.trim());
                     const isHeader = cells.some(c => c.includes('---'));
                     if (isHeader) return '';
-                    const cellHtml = cells.map(c => `<td style="border:1px solid #000; padding:6pt;">${c.trim()}</td>`).join('');
+                    const cellHtml = cells.map(c => `<td style="font-family:'Times New Roman',Times,serif; border:1px solid #000; padding:6pt;">${c.trim()}</td>`).join('');
                     return `<tr>${cellHtml}</tr>`;
                 });
             
@@ -1519,7 +1520,7 @@ CHÚ Ý:
                         inList = false;
                     }
                     // Thụt đầu dòng cho đoạn văn thường
-                    htmlBody += `<p style="text-align:justify; text-indent:1.27cm; margin-top:6pt; margin-bottom:6pt; line-height:1.5;">${line}</p>`;
+                    htmlBody += `<p style="font-family:'Times New Roman',Times,serif; text-align:justify; text-indent:1.27cm; margin-top:6pt; margin-bottom:6pt; line-height:150%;">${line}</p>`;
                 }
             }
             if (inList) htmlBody += '</ul>';
@@ -1547,24 +1548,26 @@ CHÚ Ý:
         }
         body { 
             font-family: 'Times New Roman', Times, serif; 
+            mso-fareast-font-family: 'Times New Roman';
+            mso-bidi-font-family: 'Times New Roman';
             font-size: 14pt; 
             line-height: 150%;
             mso-line-height-rule: exactly;
             text-align: justify;
         }
-        h1 { font-size: 16pt; font-weight: bold; text-align: center; page-break-after: avoid; line-height: 150%; }
-        h2 { font-size: 14pt; font-weight: bold; page-break-after: avoid; line-height: 150%; }
-        h3 { font-size: 14pt; font-weight: bold; page-break-after: avoid; line-height: 150%; }
-        h4 { font-size: 14pt; font-weight: bold; font-style: italic; page-break-after: avoid; line-height: 150%; }
-        p { text-align: justify; margin: 6pt 0; line-height: 150%; }
+        h1 { font-family: 'Times New Roman', Times, serif; font-size: 16pt; font-weight: bold; text-align: center; page-break-after: avoid; line-height: 150%; }
+        h2 { font-family: 'Times New Roman', Times, serif; font-size: 14pt; font-weight: bold; page-break-after: avoid; line-height: 150%; }
+        h3 { font-family: 'Times New Roman', Times, serif; font-size: 14pt; font-weight: bold; page-break-after: avoid; line-height: 150%; }
+        h4 { font-family: 'Times New Roman', Times, serif; font-size: 14pt; font-weight: bold; font-style: italic; page-break-after: avoid; line-height: 150%; }
+        p { font-family: 'Times New Roman', Times, serif; text-align: justify; margin: 6pt 0; line-height: 150%; }
         ul { margin: 6pt 0; padding-left: 1.27cm; }
-        li { margin-bottom: 3pt; text-align: justify; line-height: 150%; }
+        li { font-family: 'Times New Roman', Times, serif; margin-bottom: 3pt; text-align: justify; line-height: 150%; }
         table { border-collapse: collapse; width: 100%; margin: 12pt 0; page-break-inside: avoid; }
-        th, td { border: 1px solid black; padding: 6pt; vertical-align: top; line-height: 130%; }
+        th, td { font-family: 'Times New Roman', Times, serif; border: 1px solid black; padding: 6pt; vertical-align: top; line-height: 130%; }
         th { background-color: #f0f0f0; font-weight: bold; text-align: center; }
-        .header-title { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 6pt; }
-        .main-title { font-size: 16pt; font-weight: bold; text-align: center; text-transform: uppercase; margin: 12pt 0; line-height: 150%; }
-        .separator { text-align: center; margin: 6pt 0; }
+        .header-title { font-family: 'Times New Roman', Times, serif; font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 6pt; }
+        .main-title { font-family: 'Times New Roman', Times, serif; font-size: 16pt; font-weight: bold; text-align: center; text-transform: uppercase; margin: 12pt 0; line-height: 150%; }
+        .separator { font-family: 'Times New Roman', Times, serif; text-align: center; margin: 6pt 0; }
     </style>
 </head>
 <body>
