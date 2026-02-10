@@ -350,7 +350,7 @@ function setupEventListeners() {
     // Modal events
     modalClose.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
-    confirmBtn.addEventListener('click', confirmPurchase);
+    // confirmBtn now handled in payment flow section below
     
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
