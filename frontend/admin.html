@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EduShop</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: rgba(20,20,30,0.95);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar-logo span {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(139,92,246,0.2);
+            color: var(--accent-primary);
+        }
+        
+        .nav-item.active {
+            border-left: 3px solid var(--accent-primary);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+        }
+        
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .admin-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-btn.primary {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+        }
+        
+        .admin-btn.secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139,92,246,0.3);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        }
+        
+        .stat-card.ai::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        .stat-card.stem::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .stat-card.method::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .stat-card.skill::before { background: linear-gradient(90deg, #ec4899, #f472b6); }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        /* Sections */
+        .section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        /* Products Table */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .products-table th,
+        .products-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .products-table th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .products-table tr:hover {
+            background: rgba(139,92,246,0.05);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.available {
+            background: rgba(16,185,129,0.2);
+            color: #10b981;
+        }
+        
+        .status-badge.sold {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+        }
+        
+        .category-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        .category-badge.ai { background: rgba(139,92,246,0.2); color: #8b5cf6; }
+        .category-badge.stem { background: rgba(16,185,129,0.2); color: #10b981; }
+        .category-badge.method { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .category-badge.skill { background: rgba(236,72,153,0.2); color: #ec4899; }
+        
+        .action-btn {
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            margin-right: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: rgba(139,92,246,0.3);
+        }
+        
+        /* Chat Panel */
+        .chat-panel {
+            display: none;
+        }
+        
+        .chat-panel.active {
+            display: block;
+        }
+        
+        .chat-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .chat-item:hover {
+            background: rgba(139,92,246,0.1);
+        }
+        
+        .chat-item.unread {
+            background: rgba(139,92,246,0.05);
+        }
+        
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .chat-info {
+            flex: 1;
+        }
+        
+        .chat-info h4 {
+            margin-bottom: 0.25rem;
+        }
+        
+        .chat-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .chat-time {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+        
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        
+        /* Chat Window */
+        .chat-window {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            height: 500px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        
+        .chat-window.active {
+            display: flex;
+        }
+        
+        .chat-window-header {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            padding: 1rem;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-window-header h3 {
+            color: white;
+            margin: 0;
+        }
+        
+        .chat-window-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .chat-window-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .chat-msg {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+        }
+        
+        .chat-msg.admin {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            align-self: flex-end;
+        }
+        
+        .chat-msg.user {
+            background: rgba(255,255,255,0.1);
+            align-self: flex-start;
+        }
+        
+        .chat-window-input {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .chat-window-input input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+        }
+        
+        .chat-window-input button {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+        }
+        
+        /* AI Generator */
+        .generator-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                🎓 <span>EduShop</span> Admin
+            </div>
+            
+            <nav>
+                <a href="#dashboard" class="nav-item active" onclick="showSection('dashboard')">
+                    📊 Dashboard
+                </a>
+                <a href="#products" class="nav-item" onclick="showSection('products')">
+                    📚 Sản phẩm
+                </a>
+                <a href="#generator" class="nav-item" onclick="showSection('generator')">
+                    🤖 AI Generator
+                </a>
+                <a href="#chat" class="nav-item" onclick="showSection('chat')">
+                    💬 Chat
+                    <span class="unread-badge" id="unreadCount" style="display:none;">0</span>
+                </a>
+                <a href="#settings" class="nav-item" onclick="showSection('settings')">
+                    ⚙️ Cài đặt
+                </a>
+                <a href="index.html" class="nav-item">
+                    🏪 Xem Shop
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title" id="pageTitle">📊 Dashboard</h1>
+                <div class="admin-actions">
+                    <button class="admin-btn secondary" onclick="refreshData()">
+                        🔄 Làm mới
+                    </button>
+                    <button class="admin-btn primary" onclick="triggerAI()">
+                        🤖 Tạo AI Content
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Section -->
+            <section id="dashboardSection">
+                <div class="stats-grid">
+                    <div class="stat-card ai">
+                        <div class="stat-icon">🤖</div>
+                        <div class="stat-value" id="statAI">0</div>
+                        <div class="stat-label">AI & Công nghệ</div>
+                    </div>
+                    <div class="stat-card stem">
+                        <div class="stat-icon">🔬</div>
+                        <div class="stat-value" id="statSTEM">0</div>
+                        <div class="stat-label">STEM</div>
+                    </div>
+                    <div class="stat-card method">
+                        <div class="stat-icon">📖</div>
+                        <div class="stat-value" id="statMethod">0</div>
+                        <div class="stat-label">Phương pháp</div>
+                    </div>
+                    <div class="stat-card skill">
+                        <div class="stat-icon">💡</div>
+                        <div class="stat-value" id="statSkill">0</div>
+                        <div class="stat-label">Kỹ năng</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-value" id="totalAvailable">0</div>
+                        <div class="stat-label">Tổng sản phẩm</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="totalSold">0</div>
+                        <div class="stat-label">Đã bán</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📡</div>
+                        <div class="stat-value" id="serverMode">-</div>
+                        <div class="stat-label">Server Mode</div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Products Section -->
+            <section id="productsSection" style="display:none;">
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">📚 Danh sách sản phẩm</h2>
+                        <div>
+                            <button class="admin-btn secondary" onclick="seedData()">🌱 Seed Data</button>
+                            <button class="admin-btn secondary" onclick="resetProducts()">🔄 Reset</button>
+                            <button class="admin-btn secondary" style="color:#ef4444;" onclick="deleteAllProducts()">🗑️ Xóa hết</button>
+                        </div>
+                    </div>
+                    
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Tiêu đề</th>
+                                <th>Danh mục</th>
+                                <th>Giá</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <tr><td colspan="5" style="text-align:center;">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Generator Section -->
+            <section id="generatorSection" style="display:none;">
+                <div class="section">
+                    <h2 class="section-title">🤖 AI Content Generator</h2>
+                    <p style="color:var(--text-secondary); margin-bottom:1.5rem;">
+                        Sử dụng Gemini AI để tự động tạo giáo trình mới
+                    </p>
+                    
+                    <div class="generator-form">
+                        <div class="form-group">
+                            <label>Danh mục</label>
+                            <select id="genCategory">
+                                <option value="ai">🤖 AI & Công nghệ</option>
+                                <option value="stem">🔬 STEM</option>
+                                <option value="method">📖 Phương pháp</option>
+                                <option value="skill">💡 Kỹ năng</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Số lượng</label>
+                            <input type="number" id="genQuantity" value="3" min="1" max="10">
+                        </div>
+                        <button class="admin-btn primary" onclick="generateContent()">
+                            ⚡ Tạo ngay
+                        </button>
+                    </div>
+                    
+                    <div class="loading" id="generatorLoading">
+                        <div class="spinner"></div>
+                        <p>Đang tạo nội dung bằng AI...</p>
+                        <p style="color:var(--text-secondary); font-size:0.875rem;">Có thể mất 1-2 phút</p>
+                    </div>
+                    
+                    <div id="generatorResult" style="margin-top:1.5rem;"></div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">📋 API Keys Status</h2>
+                    <p style="color:var(--text-secondary);">
+                        Đang sử dụng 6 Gemini API keys để xoay vòng tránh rate limit
+                    </p>
+                    <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
+                            ✅ Key 1 Active
+                        </span>
+                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
+                            ✅ Key 2 Active
+                        </span>
+                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
+                            ✅ Key 3 Active
+                        </span>
+                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
+                            ✅ Key 4 Active
+                        </span>
+                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
+                            ✅ Key 5 Active
+                        </span>
+                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
+                            ✅ Key 6 Active
+                        </span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Chat Section -->
+            <section id="chatSection" style="display:none;">
+                <div class="section">
+                    <h2 class="section-title">💬 Tin nhắn từ khách hàng</h2>
+                    
+                    <div class="chat-list" id="chatList">
+                        <div style="text-align:center; padding:2rem; color:var(--text-secondary);">
+                            Chưa có tin nhắn nào
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Settings Section -->
+            <section id="settingsSection" style="display:none;">
+                <div class="section">
+                    <h2 class="section-title">⚙️ Cài đặt hệ thống</h2>
+                    
+                    <div style="margin-top:1.5rem;">
+                        <h3 style="margin-bottom:1rem;">Auto-Refill</h3>
+                        <p style="color:var(--text-secondary); margin-bottom:1rem;">
+                            Tự động tạo sản phẩm mới khi kho < 3
+                        </p>
+                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                            <input type="checkbox" checked id="autoRefill">
+                            <span>Bật Auto-Refill</span>
+                        </label>
+                    </div>
+                    
+                    <div style="margin-top:2rem;">
+                        <h3 style="margin-bottom:1rem;">Ngưỡng kho tối thiểu</h3>
+                        <input type="number" value="3" min="1" max="10" style="padding:0.75rem; border-radius:10px; border:1px solid var(--border-color); background:rgba(255,255,255,0.05); color:var(--text-primary); width:100px;">
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Chat Window -->
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-window-header">
+            <h3 id="chatUserName">Chat với User</h3>
+            <button class="chat-window-close" onclick="closeChatWindow()">×</button>
+        </div>
+        <div class="chat-window-messages" id="chatWindowMessages">
+        </div>
+        <div class="chat-window-input">
+            <input type="text" id="adminChatInput" placeholder="Nhập tin nhắn..." onkeypress="handleAdminKeypress(event)">
+            <button onclick="sendAdminMessage()">➤</button>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let currentChatUser = null;
+        
+        // Navigation
+        function showSection(section) {
+            document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+            document.getElementById(section + 'Section').style.display = 'block';
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const titles = {
+                dashboard: '📊 Dashboard',
+                products: '📚 Sản phẩm',
+                generator: '🤖 AI Generator',
+                chat: '💬 Chat',
+                settings: '⚙️ Cài đặt'
+            };
+            document.getElementById('pageTitle').textContent = titles[section] || section;
+            
+            if (section === 'products') loadProducts();
+            if (section === 'chat') loadChats();
+        }
+        
+        // Load Stats
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_URL}/stats`);
+                const data = await res.json();
+                
+                document.getElementById('statAI').textContent = data.categories?.ai || 0;
+                document.getElementById('statSTEM').textContent = data.categories?.stem || 0;
+                document.getElementById('statMethod').textContent = data.categories?.method || 0;
+                document.getElementById('statSkill').textContent = data.categories?.skill || 0;
+                document.getElementById('totalAvailable').textContent = data.available || 0;
+                document.getElementById('totalSold').textContent = data.sold || 0;
+                document.getElementById('serverMode').textContent = data.mode?.toUpperCase() || 'N/A';
+            } catch (e) {
+                console.error('Error loading stats:', e);
+            }
+        }
+        
+        // Load Products
+        async function loadProducts() {
+            try {
+                const res = await fetch(`${API_URL}/products`);
+                const products = await res.json();
+                
+                const tbody = document.getElementById('productsTableBody');
+                
+                if (products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có sản phẩm</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = products.map(p => `
+                    <tr>
+                        <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                            ${p.title}
+                        </td>
+                        <td>
+                            <span class="category-badge ${p.category}">${p.categoryName || p.category}</span>
+                        </td>
+                        <td>${formatPrice(p.price)}</td>
+                        <td>
+                            <span class="status-badge ${p.status}">${p.status === 'available' ? 'Còn hàng' : 'Đã bán'}</span>
+                        </td>
+                        <td>
+                            <button class="action-btn" onclick="deleteProduct('${p._id || p.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Error loading products:', e);
+            }
+        }
+        
+        // Actions
+        async function seedData() {
+            try {
+                const res = await fetch(`${API_URL}/seed`, { method: 'POST' });
+                const data = await res.json();
+                alert(data.message || `Đã seed ${data.count} sản phẩm`);
+                loadStats();
+                loadProducts();
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+        
+        async function resetProducts() {
+            if (!confirm('Reset tất cả sản phẩm về trạng thái còn hàng?')) return;
+            try {
+                const res = await fetch(`${API_URL}/reset`, { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                loadStats();
+                loadProducts();
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+        
+        async function deleteAllProducts() {
+            if (!confirm('⚠️ XÓA TẤT CẢ sản phẩm? Hành động này không thể hoàn tác!')) return;
+            try {
+                const res = await fetch(`${API_URL}/products/all`, { method: 'DELETE' });
+                const data = await res.json();
+                alert(`Đã xóa ${data.deleted} sản phẩm`);
+                loadStats();
+                loadProducts();
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+        
+        // Delete single product
+        async function deleteProduct(id) {
+            if (!confirm('Xóa sản phẩm này?')) return;
+            try {
+                const res = await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert('Đã xóa sản phẩm!');
+                    loadStats();
+                    loadProducts();
+                } else {
+                    const data = await res.json();
+                    alert('Lỗi: ' + (data.error || 'Không thể xóa'));
+                }
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+        
+        async function generateContent() {
+            const category = document.getElementById('genCategory').value;
+            const quantity = document.getElementById('genQuantity').value;
+            
+            document.getElementById('generatorLoading').classList.add('active');
+            document.getElementById('generatorResult').innerHTML = '';
+            
+            try {
+                const res = await fetch(`${API_URL}/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category, quantity: parseInt(quantity) })
+                });
+                const data = await res.json();
+                
+                document.getElementById('generatorResult').innerHTML = `
+                    <div style="padding:1rem; background:rgba(16,185,129,0.1); border-radius:10px; border:1px solid rgba(16,185,129,0.3);">
+                        <h4 style="color:#10b981; margin-bottom:0.5rem;">✅ Hoàn thành</h4>
+                        <pre style="color:var(--text-secondary); font-size:0.875rem; white-space:pre-wrap;">${data.output || 'AI Worker đã được kích hoạt'}</pre>
+                    </div>
+                `;
+                
+                loadStats();
+            } catch (e) {
+                document.getElementById('generatorResult').innerHTML = `
+                    <div style="padding:1rem; background:rgba(239,68,68,0.1); border-radius:10px; border:1px solid rgba(239,68,68,0.3);">
+                        <h4 style="color:#ef4444;">❌ Lỗi</h4>
+                        <p>${e.message}</p>
+                    </div>
+                `;
+            } finally {
+                document.getElementById('generatorLoading').classList.remove('active');
+            }
+        }
+        
+        function triggerAI() {
+            showSection('generator');
+            document.querySelector('.nav-item[href="#generator"]').click();
+        }
+        
+        function refreshData() {
+            loadStats();
+            loadProducts();
+        }
+        
+        // Chat functions
+        function loadChats() {
+            const chats = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+            const container = document.getElementById('chatList');
+            
+            if (chats.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-secondary);">Chưa có tin nhắn nào</div>';
+                return;
+            }
+            
+            // Group by user (simplified - all messages from "user")
+            const userChats = chats.filter(c => c.from === 'user');
+            const unread = userChats.filter(c => !c.read).length;
+            
+            if (unread > 0) {
+                document.getElementById('unreadCount').textContent = unread;
+                document.getElementById('unreadCount').style.display = 'flex';
+            }
+            
+            container.innerHTML = `
+                <div class="chat-item ${unread > 0 ? 'unread' : ''}" onclick="openChatWindow('user')">
+                    <div class="chat-avatar">👤</div>
+                    <div class="chat-info">
+                        <h4>Khách hàng</h4>
+                        <p>${userChats.length > 0 ? userChats[userChats.length-1].message : 'Chưa có tin nhắn'}</p>
+                    </div>
+                    <div>
+                        ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
+                        <div class="chat-time">${userChats.length > 0 ? new Date(userChats[userChats.length-1].time).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) : ''}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function openChatWindow(userId) {
+            currentChatUser = userId;
+            document.getElementById('chatWindow').classList.add('active');
+            
+            const chats = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+            const container = document.getElementById('chatWindowMessages');
+            
+            container.innerHTML = chats.map(c => `
+                <div class="chat-msg ${c.from}">
+                    ${c.message}
+                </div>
+            `).join('');
+            
+            container.scrollTop = container.scrollHeight;
+            
+            // Mark as read
+            chats.forEach(c => c.read = true);
+            localStorage.setItem('chatMessages', JSON.stringify(chats));
+            document.getElementById('unreadCount').style.display = 'none';
+        }
+        
+        function closeChatWindow() {
+            document.getElementById('chatWindow').classList.remove('active');
+        }
+        
+        function sendAdminMessage() {
+            const input = document.getElementById('adminChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const chats = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+            chats.push({
+                from: 'admin',
+                message,
+                time: new Date().toISOString(),
+                read: true
+            });
+            localStorage.setItem('chatMessages', JSON.stringify(chats));
+            
+            input.value = '';
+            openChatWindow(currentChatUser);
+        }
+        
+        function handleAdminKeypress(event) {
+            if (event.key === 'Enter') sendAdminMessage();
+        }
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        }
+        
+        // Init
+        loadStats();
+        loadChats();
+    </script>
+</body>
+</html>

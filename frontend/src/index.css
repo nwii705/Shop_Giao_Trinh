@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e4e4e7;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3a5a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a4a6a;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #4285f4 0%, #a855f7 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gemini sparkle animation */
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+/* Chat bubble styling */
+.chat-bubble {
+  @apply rounded-2xl p-4 max-w-[80%];
+}
+
+.chat-bubble-user {
+  @apply bg-gemini-blue/20 ml-auto;
+}
+
+.chat-bubble-ai {
+  @apply bg-gemini-sidebar;
+}
+
+/* Button hover effect */
+.btn-hover {
+  @apply transition-all duration-200 hover:scale-[1.02] hover:shadow-lg;
+}
+
+/* Input focus */
+.input-focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-gemini-blue/50;
+}
+
+/* Markdown content styling */
+.markdown-content h1 { @apply text-2xl font-bold mb-4 mt-6; }
+.markdown-content h2 { @apply text-xl font-bold mb-3 mt-5; }
+.markdown-content h3 { @apply text-lg font-semibold mb-2 mt-4; }
+.markdown-content p { @apply mb-3 leading-relaxed; }
+.markdown-content ul { @apply list-disc list-inside mb-3 space-y-1; }
+.markdown-content ol { @apply list-decimal list-inside mb-3 space-y-1; }
+.markdown-content table { @apply w-full border-collapse mb-4; }
+.markdown-content th { @apply border border-gemini-border bg-gemini-sidebar p-2 text-left; }
+.markdown-content td { @apply border border-gemini-border p-2; }
+.markdown-content blockquote { @apply border-l-4 border-gemini-purple pl-4 italic my-3; }
+.markdown-content code { @apply bg-gemini-sidebar px-1.5 py-0.5 rounded text-sm; }
+.markdown-content pre { @apply bg-gemini-sidebar p-4 rounded-lg overflow-x-auto mb-4; }

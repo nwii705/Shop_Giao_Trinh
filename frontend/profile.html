@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang cá nhân - EduShop</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .profile-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .profile-header {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(236,72,153,0.2));
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+        
+        .profile-info h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-info p {
+            color: var(--text-secondary);
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-card .label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .purchase-history {
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .purchase-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s;
+        }
+        
+        .purchase-item:hover {
+            background: rgba(139,92,246,0.1);
+        }
+        
+        .purchase-item:last-child {
+            border-bottom: none;
+        }
+        
+        .purchase-info h4 {
+            margin-bottom: 0.25rem;
+        }
+        
+        .purchase-info span {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .purchase-price {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 1rem;
+            transition: color 0.3s;
+        }
+        
+        .back-btn:hover {
+            color: var(--accent-primary);
+        }
+        
+        .edit-profile-btn {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .edit-profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139,92,246,0.4);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .chat-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 5px 20px rgba(139,92,246,0.5);
+            transition: transform 0.3s;
+        }
+        
+        .chat-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .chat-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
+        
+        .chat-box {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            height: 450px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        
+        .chat-box.active {
+            display: flex;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header h3 {
+            color: white;
+            margin: 0;
+        }
+        
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .chat-message.user {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .chat-message.admin {
+            background: rgba(255,255,255,0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-message .time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .chat-input input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+        }
+        
+        .chat-input button {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <a href="index.html" class="back-btn">
+            ← Quay lại Shop
+        </a>
+        
+        <div class="profile-header">
+            <div class="avatar" id="userAvatar">👤</div>
+            <div class="profile-info">
+                <h1 id="userName">Khách hàng</h1>
+                <p id="userEmail">guest@edushop.vn</p>
+                <p style="margin-top: 0.5rem;">🎓 Thành viên từ: <span id="memberSince">Hôm nay</span></p>
+            </div>
+            <button class="edit-profile-btn" onclick="editProfile()">
+                ✏️ Chỉnh sửa
+            </button>
+        </div>
+        
+        <div class="profile-stats">
+            <div class="stat-card">
+                <div class="number" id="totalPurchases">0</div>
+                <div class="label">Giáo trình đã mua</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalSpent">0đ</div>
+                <div class="label">Tổng chi tiêu</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="memberLevel">🥉</div>
+                <div class="label">Cấp độ thành viên</div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">📚 Lịch sử mua hàng</h2>
+        <div class="purchase-history" id="purchaseHistory">
+            <div class="empty-state">
+                <p>Chưa có đơn hàng nào</p>
+                <a href="index.html" style="color: var(--accent-primary);">Khám phá ngay →</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">
+                <h3>💬 Chat với Admin</h3>
+                <button class="chat-close" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message admin">
+                    Xin chào! Tôi có thể giúp gì cho bạn?
+                    <div class="time">Bây giờ</div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." onkeypress="handleChatKeypress(event)">
+                <button onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+        <button class="chat-toggle" onclick="toggleChat()">
+            💬
+            <span class="chat-badge" id="chatBadge">0</span>
+        </button>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        
+        // Load profile data
+        function loadProfile() {
+            const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            const purchases = JSON.parse(localStorage.getItem('purchaseHistory') || '[]');
+            
+            document.getElementById('userName').textContent = profile.name || 'Khách hàng';
+            document.getElementById('userEmail').textContent = profile.email || 'guest@edushop.vn';
+            document.getElementById('userAvatar').textContent = profile.avatar || '👤';
+            document.getElementById('memberSince').textContent = profile.since || new Date().toLocaleDateString('vi-VN');
+            
+            // Stats
+            document.getElementById('totalPurchases').textContent = purchases.length;
+            const totalSpent = purchases.reduce((sum, p) => sum + (p.price || 0), 0);
+            document.getElementById('totalSpent').textContent = formatPrice(totalSpent);
+            
+            // Level
+            let level = '🥉 Đồng';
+            if (purchases.length >= 10) level = '🥇 Vàng';
+            else if (purchases.length >= 5) level = '🥈 Bạc';
+            document.getElementById('memberLevel').textContent = level;
+            
+            // History
+            renderPurchaseHistory(purchases);
+        }
+        
+        function renderPurchaseHistory(purchases) {
+            const container = document.getElementById('purchaseHistory');
+            
+            if (purchases.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Chưa có đơn hàng nào</p>
+                        <a href="index.html" style="color: var(--accent-primary);">Khám phá ngay →</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = purchases.map(p => `
+                <div class="purchase-item">
+                    <div class="purchase-info">
+                        <h4>${p.title}</h4>
+                        <span>📅 ${p.date} • ${p.category}</span>
+                    </div>
+                    <div class="purchase-price">${formatPrice(p.price)}</div>
+                </div>
+            `).join('');
+        }
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        }
+        
+        function editProfile() {
+            const name = prompt('Nhập tên của bạn:', document.getElementById('userName').textContent);
+            if (name) {
+                const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+                profile.name = name;
+                profile.since = profile.since || new Date().toLocaleDateString('vi-VN');
+                localStorage.setItem('userProfile', JSON.stringify(profile));
+                loadProfile();
+            }
+        }
+        
+        // Chat functions
+        function toggleChat() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.classList.toggle('active');
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const messagesContainer = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            
+            // Add user message
+            messagesContainer.innerHTML += `
+                <div class="chat-message user">
+                    ${message}
+                    <div class="time">${time}</div>
+                </div>
+            `;
+            
+            input.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Save to localStorage for admin to see
+            const chats = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+            chats.push({
+                from: 'user',
+                message,
+                time: new Date().toISOString(),
+                read: false
+            });
+            localStorage.setItem('chatMessages', JSON.stringify(chats));
+            
+            // Simulate admin response
+            setTimeout(() => {
+                const responses = [
+                    'Cảm ơn bạn đã liên hệ! Admin sẽ phản hồi sớm nhất.',
+                    'Xin chờ một chút, tôi đang kiểm tra...',
+                    'Bạn có thể mô tả thêm vấn đề được không?',
+                    'Đã nhận được tin nhắn của bạn!'
+                ];
+                const reply = responses[Math.floor(Math.random() * responses.length)];
+                
+                messagesContainer.innerHTML += `
+                    <div class="chat-message admin">
+                        ${reply}
+                        <div class="time">${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                `;
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 1000);
+        }
+        
+        function handleChatKeypress(event) {
+            if (event.key === 'Enter') sendMessage();
+        }
+        
+        // Init
+        loadProfile();
+    </script>
+</body>
+</html>

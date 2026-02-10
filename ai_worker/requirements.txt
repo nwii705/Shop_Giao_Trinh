@@ -1,0 +1,4 @@
+pymongo
+google-generativeai
+fpdf2
+python-dotenv

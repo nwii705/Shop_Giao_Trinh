@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduShop - Giáo Trình Chất Lượng</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Particle Background -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="book-icon">📚</span>
+                </div>
+                <div class="logo-text">
+                    <h1>EduShop</h1>
+                    <span>Giáo Trình Chất Lượng</span>
+                </div>
+            </div>
+            <!-- Category filter moved to bottom tabs -->
+            <div class="header-actions">
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalProducts">21</span>
+                        <span class="stat-label">Giáo trình</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="soldProducts">0</span>
+                        <span class="stat-label">Đã bán</span>
+                    </div>
+                </div>
+                <a href="generator.html" class="btn-generator" title="Tự soạn giáo trình">
+                    ✨ Tự soạn
+                </a>
+                <a href="profile.html" class="btn-profile" title="Trang cá nhân">
+                    👤
+                </a>
+                <a href="admin.html" class="btn-admin" title="Admin Dashboard">
+                    ⚙️
+                </a>
+                <button class="btn-reset" id="resetBtn" title="Khôi phục tất cả">
+                    <span>🔄</span> Reset
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2 class="hero-title">
+                <span class="gradient-text">Khám Phá Kho Tàng</span>
+                <br>Giáo Trình Giáo Dục
+            </h2>
+            <p class="hero-desc">Bộ sưu tập các đề tài sáng kiến kinh nghiệm chất lượng cao về ứng dụng AI, STEM và đổi mới phương pháp dạy học</p>
+            <div class="hero-badges">
+                <span class="badge">✨ Độc quyền</span>
+                <span class="badge">🎯 Chất lượng cao</span>
+                <span class="badge">📖 Đầy đủ nội dung</span>
+            </div>
+        </div>
+        <div class="hero-decoration">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+        </div>
+    </section>
+
+    <!-- Category Tabs -->
+    <section class="category-section">
+        <div class="container">
+            <div class="category-tabs" id="categoryTabs">
+                <button class="btn-search-tab" id="searchBtn" title="Tìm kiếm">
+                    <span class="search-icon">🔍</span>
+                    <span class="search-text">Tìm kiếm</span>
+                </button>
+                <div class="tab-divider"></div>
+                <button class="category-tab active" data-category="all">
+                    <span class="tab-icon">🌟</span>
+                    <span class="tab-text">Tất cả</span>
+                    <span class="tab-count" id="countAll">21</span>
+                </button>
+                <button class="category-tab" data-category="ai">
+                    <span class="tab-icon">🤖</span>
+                    <span class="tab-text">AI & Công nghệ số</span>
+                    <span class="tab-count" id="countAi">8</span>
+                </button>
+                <button class="category-tab" data-category="stem">
+                    <span class="tab-icon">🔬</span>
+                    <span class="tab-text">STEM & Dự án</span>
+                    <span class="tab-count" id="countStem">4</span>
+                </button>
+                <button class="category-tab" data-category="method">
+                    <span class="tab-icon">📝</span>
+                    <span class="tab-text">Phương pháp</span>
+                    <span class="tab-count" id="countMethod">6</span>
+                </button>
+                <button class="category-tab" data-category="skill">
+                    <span class="tab-icon">🧪</span>
+                    <span class="tab-text">Kỹ năng & TN</span>
+                    <span class="tab-count" id="countSkill">3</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <main class="main-content">
+        <div class="container">
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded here -->
+            </div>
+            
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <h3>Không còn giáo trình nào</h3>
+                <p>Tất cả giáo trình trong danh mục này đã được bán hết!</p>
+                <button class="btn-primary" onclick="resetProducts()">Khôi phục tất cả</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Purchase Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="purchaseModal">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon">🎉</div>
+                <h3>Xác nhận mua hàng</h3>
+            </div>
+            <div class="modal-body">
+                <div class="product-preview" id="modalProductPreview">
+                    <!-- Product preview will be loaded here -->
+                </div>
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>Giá gốc:</span>
+                        <span class="original-price" id="modalOriginalPrice">500,000đ</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Giảm giá:</span>
+                        <span class="discount">-20%</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Thành tiền:</span>
+                        <span class="final-price" id="modalFinalPrice">400,000đ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelBtn">Hủy</button>
+                <button class="btn-primary" id="confirmBtn">
+                    <span>💳</span> Xác nhận mua
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Floating Box -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-box" id="searchBox">
+            <button class="search-close" id="searchClose">&times;</button>
+            <div class="search-header">
+                <div class="search-icon-large">🔍</div>
+                <h3>Tìm kiếm giáo trình</h3>
+                <p>Nhập từ khóa để tìm đề tài phù hợp</p>
+            </div>
+            <div class="search-input-wrapper">
+                <span class="search-input-icon">🔎</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="VD: AI, STEM, Vật lý, KHTN 8..." autocomplete="off">
+                <button class="search-clear" id="searchClear" title="Xóa">✕</button>
+            </div>
+            <div class="search-tags">
+                <span class="search-tag" data-keyword="AI">AI</span>
+                <span class="search-tag" data-keyword="STEM">STEM</span>
+                <span class="search-tag" data-keyword="KHTN 8">KHTN 8</span>
+                <span class="search-tag" data-keyword="Vật lý">Vật lý</span>
+                <span class="search-tag" data-keyword="thí nghiệm">Thí nghiệm</span>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-placeholder">
+                    <span class="placeholder-icon">📚</span>
+                    <p>Nhập từ khóa để bắt đầu tìm kiếm...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="toast" id="successToast">
+        <div class="toast-icon">✅</div>
+        <div class="toast-content">
+            <strong>Mua hàng thành công!</strong>
+            <p>Giáo trình đã được gửi đến email của bạn.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>📚 EduShop</h3>
+                    <p>Nền tảng giáo trình trực tuyến hàng đầu</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#">Về chúng tôi</a>
+                    <a href="#">Liên hệ</a>
+                    <a href="#">Chính sách</a>
+                    <a href="#">Hỗ trợ</a>
+                </div>
+                <div class="footer-social">
+                    <a href="#" class="social-link">📧</a>
+                    <a href="#" class="social-link">📱</a>
+                    <a href="#" class="social-link">💬</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025-2026 EduShop. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
