@@ -4612,9 +4612,25 @@ LƯU Ý QUAN TRỌNG:
                     
                     ${sectionsHtml}
                     
-                    <div class="outline-total">
-                        <span class="outline-total-label">📊 TỔNG SỐ TỪ DỰ KIẾN</span>
-                        <span class="outline-total-value" id="outlineTotalWords">${meta.targetWords.toLocaleString()} từ</span>
+                    <div class="outline-total" style="flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span class="outline-total-label">📊 TỔNG SỐ TỪ DỰ KIẾN</span>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <input type="number" id="outlineTotalInput" 
+                                    value="${meta.targetWords}" 
+                                    min="3000" max="20000" step="500"
+                                    onchange="redistributeOutlineWords(this.value)"
+                                    style="width: 100px; padding: 0.5rem 0.75rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; color: var(--success); font-size: 1.1rem; font-weight: 700; text-align: center;">
+                                <span style="color: var(--success); font-weight: 600;">từ</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="redistributeOutlineWords(5000)" class="outline-preset-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem;">5,000 từ</button>
+                            <button onclick="redistributeOutlineWords(7000)" class="outline-preset-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem;">7,000 từ</button>
+                            <button onclick="redistributeOutlineWords(10000)" class="outline-preset-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem;">10,000 từ</button>
+                            <button onclick="redistributeOutlineWords(14000)" class="outline-preset-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem;">14,000 từ</button>
+                            <span style="color: var(--text-secondary); font-size: 0.75rem; align-self: center;">( ~${Math.round(meta.targetWords/350)} trang A4 )</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -4682,13 +4698,61 @@ LƯU Ý QUAN TRỌNG:
                 }
                 
                 // Update total display
-                const totalEl = document.getElementById('outlineTotalWords');
-                if (totalEl) totalEl.textContent = total.toLocaleString() + ' từ';
+                const totalEl = document.getElementById('outlineTotalInput');
+                if (totalEl) totalEl.value = total;
                 
                 // Update pending meta
                 if (skknPendingMeta) {
                     skknPendingMeta.targetWords = total;
                 }
+            }
+        }
+        
+        // Redistribute words when total changes
+        function redistributeOutlineWords(newTotal) {
+            newTotal = parseInt(newTotal) || 7000;
+            if (newTotal < 3000) newTotal = 3000;
+            if (newTotal > 20000) newTotal = 20000;
+            
+            if (!skknOutlineData || !skknOutlineData.sections) return;
+            
+            // Update input field
+            const totalInput = document.getElementById('outlineTotalInput');
+            if (totalInput) totalInput.value = newTotal;
+            
+            // Redistribute based on percentage
+            skknOutlineData.sections.forEach((section, sIdx) => {
+                section.words = Math.round(newTotal * section.percentage / 100);
+                section.items.forEach((item, iIdx) => {
+                    item.words = Math.round(newTotal * item.percentage / 100);
+                    
+                    // Update input fields in DOM
+                    const wordInput = document.querySelector(`.outline-word-input[data-section="${sIdx}"][data-item="${iIdx}"]`);
+                    if (wordInput) {
+                        wordInput.value = item.words;
+                        // Update progress bar
+                        const pct = Math.round(item.words / newTotal * 100);
+                        const progressBar = wordInput.parentElement?.querySelector('.outline-progress-fill');
+                        if (progressBar) progressBar.style.width = pct + '%';
+                    }
+                });
+                
+                // Update section header
+                const sectionHeader = document.querySelector(`.outline-section[data-section="${sIdx}"] .outline-section-title span:last-child`);
+                if (sectionHeader) {
+                    sectionHeader.textContent = `(~${section.words.toLocaleString()} từ - ${section.percentage}%)`;
+                }
+            });
+            
+            // Update pending meta
+            if (skknPendingMeta) {
+                skknPendingMeta.targetWords = newTotal;
+            }
+            
+            // Update page estimate
+            const pageEstimate = document.querySelector('.outline-total span[style*="0.75rem"]');
+            if (pageEstimate) {
+                pageEstimate.textContent = `( ~${Math.round(newTotal/350)} trang A4 )`;
             }
         }
         
