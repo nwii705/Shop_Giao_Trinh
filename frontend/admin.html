@@ -729,64 +729,90 @@
             <!-- Generator Section -->
             <section id="generatorSection" style="display:none;">
                 <div class="section">
-                    <h2 class="section-title">🤖 AI Content Generator</h2>
+                    <h2 class="section-title">🤖 AI SKKN Generator</h2>
                     <p style="color:var(--text-secondary); margin-bottom:1.5rem;">
-                        Sử dụng Gemini AI để tự động tạo giáo trình mới
+                        Tự động soạn SKKN bằng Gemini AI, xuất Word và upload lên Shop
                     </p>
                     
-                    <div class="generator-form">
+                    <div class="generator-form" style="display:grid; gap:1rem;">
                         <div class="form-group">
-                            <label>Danh mục</label>
-                            <select id="genCategory">
-                                <option value="ai">🤖 AI & Công nghệ</option>
-                                <option value="stem">🔬 STEM</option>
-                                <option value="method">📖 Phương pháp</option>
-                                <option value="skill">💡 Kỹ năng</option>
-                            </select>
+                            <label>🔑 OpenRouter API Key</label>
+                            <input type="password" id="genApiKey" placeholder="sk-or-..." style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:rgba(255,255,255,0.05); color:var(--text-primary);">
+                            <small style="color:var(--text-muted);">Lấy key tại <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--primary-light);">openrouter.ai/keys</a></small>
                         </div>
+                        
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div class="form-group">
+                                <label>📁 Danh mục</label>
+                                <select id="genCategory" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);">
+                                    <option value="ai">🤖 AI & Công nghệ số</option>
+                                    <option value="stem">🔬 STEM & Dự án</option>
+                                    <option value="method">📝 Phương pháp dạy học</option>
+                                    <option value="skill">🧪 Kỹ năng & Thí nghiệm</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>📊 Số lượng SKKN</label>
+                                <input type="number" id="genQuantity" value="1" min="1" max="5" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:rgba(255,255,255,0.05); color:var(--text-primary);">
+                            </div>
+                        </div>
+                        
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div class="form-group">
+                                <label>👨‍🏫 Vai trò</label>
+                                <input type="text" id="genRole" value="Giáo viên THCS" placeholder="VD: Giáo viên Vật lý THCS" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:rgba(255,255,255,0.05); color:var(--text-primary);">
+                            </div>
+                            <div class="form-group">
+                                <label>📚 Môn học</label>
+                                <input type="text" id="genSubject" value="KHTN" placeholder="VD: Vật lý, Hóa học, KHTN" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:rgba(255,255,255,0.05); color:var(--text-primary);">
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
-                            <label>Số lượng</label>
-                            <input type="number" id="genQuantity" value="3" min="1" max="10">
+                            <label>📝 Đề tài (tùy chọn - để trống sẽ tự tạo ngẫu nhiên)</label>
+                            <textarea id="genTopics" rows="3" placeholder="Nhập mỗi đề tài 1 dòng, hoặc để trống để AI tự tạo..." style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:rgba(255,255,255,0.05); color:var(--text-primary); resize:vertical;"></textarea>
                         </div>
-                        <button class="admin-btn primary" onclick="generateContent()">
-                            ⚡ Tạo ngay
+                        
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div class="form-group">
+                                <label>💰 Giá bán (VNĐ)</label>
+                                <input type="number" id="genPrice" value="400000" step="10000" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:rgba(255,255,255,0.05); color:var(--text-primary);">
+                            </div>
+                            <div class="form-group">
+                                <label>📏 Số từ (~)</label>
+                                <input type="number" id="genWordCount" value="7000" step="1000" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:rgba(255,255,255,0.05); color:var(--text-primary);">
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex; gap:1rem; margin-top:1rem;">
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                                <input type="checkbox" id="genAutoUpload" checked>
+                                <span>Tự động upload lên Shop</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                                <input type="checkbox" id="genDownloadWord" checked>
+                                <span>Xuất file Word</span>
+                            </label>
+                        </div>
+                        
+                        <button class="admin-btn primary" onclick="startBatchGenerate()" id="genStartBtn" style="padding:14px 28px; font-size:1rem;">
+                            ⚡ Bắt đầu tạo SKKN
                         </button>
                     </div>
                     
-                    <div class="loading" id="generatorLoading">
-                        <div class="spinner"></div>
-                        <p>Đang tạo nội dung bằng AI...</p>
-                        <p style="color:var(--text-secondary); font-size:0.875rem;">Có thể mất 1-2 phút</p>
+                    <div id="generatorProgress" style="display:none; margin-top:2rem;">
+                        <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:1.5rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                                <span id="genProgressText">Đang tạo...</span>
+                                <span id="genProgressPercent">0%</span>
+                            </div>
+                            <div style="height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+                                <div id="genProgressBar" style="height:100%; width:0%; background:linear-gradient(90deg, var(--primary), var(--secondary)); transition:width 0.3s;"></div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div id="generatorResult" style="margin-top:1.5rem;"></div>
-                </div>
-                
-                <div class="section">
-                    <h2 class="section-title">📋 API Keys Status</h2>
-                    <p style="color:var(--text-secondary);">
-                        Đang sử dụng 6 Gemini API keys để xoay vòng tránh rate limit
-                    </p>
-                    <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
-                            ✅ Key 1 Active
-                        </span>
-                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
-                            ✅ Key 2 Active
-                        </span>
-                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
-                            ✅ Key 3 Active
-                        </span>
-                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
-                            ✅ Key 4 Active
-                        </span>
-                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
-                            ✅ Key 5 Active
-                        </span>
-                        <span style="padding:0.5rem 1rem; background:rgba(16,185,129,0.2); color:#10b981; border-radius:20px; font-size:0.875rem;">
-                            ✅ Key 6 Active
-                        </span>
-                    </div>
+                    <div id="generatorResults" style="margin-top:2rem;"></div>
                 </div>
             </section>
             
@@ -979,39 +1005,240 @@
             }
         }
         
-        async function generateContent() {
-            const category = document.getElementById('genCategory').value;
-            const quantity = document.getElementById('genQuantity').value;
+        // ===== SKKN BATCH GENERATOR =====
+        let generatorAbort = false;
+        
+        async function startBatchGenerate() {
+            const apiKey = document.getElementById('genApiKey').value.trim();
+            if (!apiKey) {
+                alert('Vui lòng nhập OpenRouter API Key!');
+                document.getElementById('genApiKey').focus();
+                return;
+            }
             
-            document.getElementById('generatorLoading').classList.add('active');
-            document.getElementById('generatorResult').innerHTML = '';
+            const category = document.getElementById('genCategory').value;
+            const quantity = parseInt(document.getElementById('genQuantity').value) || 1;
+            const role = document.getElementById('genRole').value || 'Giáo viên THCS';
+            const subject = document.getElementById('genSubject').value || 'KHTN';
+            const price = parseInt(document.getElementById('genPrice').value) || 400000;
+            const wordCount = parseInt(document.getElementById('genWordCount').value) || 7000;
+            const topicsInput = document.getElementById('genTopics').value.trim();
+            const autoUpload = document.getElementById('genAutoUpload').checked;
+            const downloadWord = document.getElementById('genDownloadWord').checked;
+            
+            // Parse topics or generate random
+            let topics = topicsInput ? topicsInput.split('\n').filter(t => t.trim()) : [];
+            
+            // If not enough topics, generate random ones
+            const categoryNames = {
+                ai: 'AI và Công nghệ số',
+                stem: 'STEM và dự án',
+                method: 'Phương pháp dạy học',
+                skill: 'Kỹ năng thí nghiệm'
+            };
+            
+            if (topics.length < quantity) {
+                const randomTopics = await generateRandomTopics(apiKey, category, quantity - topics.length, subject);
+                topics = [...topics, ...randomTopics];
+            }
+            
+            // Show progress
+            document.getElementById('genStartBtn').disabled = true;
+            document.getElementById('generatorProgress').style.display = 'block';
+            document.getElementById('generatorResults').innerHTML = '';
+            generatorAbort = false;
+            
+            const results = [];
+            
+            for (let i = 0; i < Math.min(quantity, topics.length); i++) {
+                if (generatorAbort) break;
+                
+                const topic = topics[i];
+                updateProgress(i, quantity, `Đang tạo: ${topic.substring(0, 50)}...`);
+                
+                try {
+                    const content = await generateSKKNContent(apiKey, topic, role, subject, wordCount);
+                    
+                    if (content) {
+                        // Download Word if checked
+                        if (downloadWord) {
+                            downloadAsWord(topic, content);
+                        }
+                        
+                        // Upload to shop if checked
+                        if (autoUpload) {
+                            await uploadToShop(topic, category, price);
+                        }
+                        
+                        results.push({ topic, status: 'success' });
+                        addResultCard(topic, 'success', i + 1);
+                    } else {
+                        results.push({ topic, status: 'error' });
+                        addResultCard(topic, 'error', i + 1);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    results.push({ topic, status: 'error', error: e.message });
+                    addResultCard(topic, 'error', i + 1, e.message);
+                }
+                
+                // Delay between requests
+                if (i < quantity - 1) {
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+            
+            updateProgress(quantity, quantity, 'Hoàn thành!');
+            document.getElementById('genStartBtn').disabled = false;
+            
+            // Show summary
+            const successCount = results.filter(r => r.status === 'success').length;
+            alert(`✅ Hoàn thành!\n${successCount}/${quantity} SKKN đã được tạo.`);
+            
+            loadStats();
+        }
+        
+        async function generateRandomTopics(apiKey, category, count, subject) {
+            const categoryPrompts = {
+                ai: `đề tài SKKN về ứng dụng AI, công nghệ số, ChatGPT, trí tuệ nhân tạo trong dạy học môn ${subject}`,
+                stem: `đề tài SKKN về giáo dục STEM, dự án STEM, tích hợp liên môn trong môn ${subject}`,
+                method: `đề tài SKKN về đổi mới phương pháp dạy học, kỹ thuật dạy học tích cực trong môn ${subject}`,
+                skill: `đề tài SKKN về phát triển kỹ năng thực hành, thí nghiệm, năng lực học sinh trong môn ${subject}`
+            };
             
             try {
-                const res = await fetch(`${API_URL}/generate`, {
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.0-flash-001',
+                        messages: [{
+                            role: 'user',
+                            content: `Hãy tạo ${count} ${categoryPrompts[category]}. Chỉ liệt kê tên đề tài, mỗi đề tài 1 dòng, không đánh số, không giải thích.`
+                        }]
+                    })
+                });
+                
+                const data = await response.json();
+                const text = data.choices?.[0]?.message?.content || '';
+                return text.split('\n').filter(t => t.trim()).slice(0, count);
+            } catch (e) {
+                console.error('Error generating topics:', e);
+                return Array(count).fill(`Ứng dụng công nghệ trong dạy học ${subject}`);
+            }
+        }
+        
+        async function generateSKKNContent(apiKey, topic, role, subject, wordCount) {
+            const prompt = `Bạn là ${role} giỏi viết SKKN. Hãy viết một SKKN hoàn chỉnh với đề tài: "${topic}"
+
+YÊU CẦU:
+- Viết khoảng ${wordCount} từ
+- Theo cấu trúc QĐ 658: Lý do chọn đề tài, Mục tiêu, Đối tượng, Phương pháp, Nội dung, Kết quả, Kết luận
+- Ngôn ngữ học thuật, chuyên nghiệp
+- KHÔNG tự giới thiệu, KHÔNG sử dụng dấu ---
+
+Hãy bắt đầu viết ngay:`;
+
+            try {
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.0-flash-001',
+                        messages: [{ role: 'user', content: prompt }],
+                        max_tokens: 16000
+                    })
+                });
+                
+                const data = await response.json();
+                return data.choices?.[0]?.message?.content || null;
+            } catch (e) {
+                console.error('Error generating SKKN:', e);
+                return null;
+            }
+        }
+        
+        function downloadAsWord(title, content) {
+            const cleanTitle = title.replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF ]/g, '').substring(0, 50);
+            const htmlContent = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
+                <head><meta charset="utf-8"><title>${title}</title></head>
+                <body style="font-family: Times New Roman; font-size: 14pt; line-height: 1.5;">
+                    <h1 style="text-align:center;">${title}</h1>
+                    ${content.split('\n').map(p => `<p>${p}</p>`).join('')}
+                </body></html>
+            `;
+            
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SKKN_${cleanTitle}.doc`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        async function uploadToShop(title, category, price) {
+            const categoryInfo = {
+                ai: { name: 'AI & Công nghệ số', icon: '🤖' },
+                stem: { name: 'STEM & Dự án', icon: '🔬' },
+                method: { name: 'Phương pháp dạy học', icon: '📝' },
+                skill: { name: 'Kỹ năng & Thí nghiệm', icon: '🧪' }
+            };
+            
+            const product = {
+                title,
+                category,
+                categoryName: categoryInfo[category].name,
+                categoryIcon: categoryInfo[category].icon,
+                price,
+                originalPrice: Math.round(price * 1.25),
+                features: ['SKKN', 'AI Generated', 'Word'],
+                status: 'available'
+            };
+            
+            try {
+                await fetch(`${API_URL}/products`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ category, quantity: parseInt(quantity) })
+                    body: JSON.stringify(product)
                 });
-                const data = await res.json();
-                
-                document.getElementById('generatorResult').innerHTML = `
-                    <div style="padding:1rem; background:rgba(16,185,129,0.1); border-radius:10px; border:1px solid rgba(16,185,129,0.3);">
-                        <h4 style="color:#10b981; margin-bottom:0.5rem;">✅ Hoàn thành</h4>
-                        <pre style="color:var(--text-secondary); font-size:0.875rem; white-space:pre-wrap;">${data.output || 'AI Worker đã được kích hoạt'}</pre>
-                    </div>
-                `;
-                
-                loadStats();
             } catch (e) {
-                document.getElementById('generatorResult').innerHTML = `
-                    <div style="padding:1rem; background:rgba(239,68,68,0.1); border-radius:10px; border:1px solid rgba(239,68,68,0.3);">
-                        <h4 style="color:#ef4444;">❌ Lỗi</h4>
-                        <p>${e.message}</p>
-                    </div>
-                `;
-            } finally {
-                document.getElementById('generatorLoading').classList.remove('active');
+                console.error('Upload error:', e);
             }
+        }
+        
+        function updateProgress(current, total, text) {
+            const percent = Math.round((current / total) * 100);
+            document.getElementById('genProgressText').textContent = text;
+            document.getElementById('genProgressPercent').textContent = `${percent}%`;
+            document.getElementById('genProgressBar').style.width = `${percent}%`;
+        }
+        
+        function addResultCard(topic, status, index, error = '') {
+            const container = document.getElementById('generatorResults');
+            const statusIcon = status === 'success' ? '✅' : '❌';
+            const statusColor = status === 'success' ? '#10b981' : '#ef4444';
+            
+            container.innerHTML += `
+                <div style="padding:1rem; margin-bottom:0.75rem; background:rgba(${status === 'success' ? '16,185,129' : '239,68,68'},0.1); border-radius:10px; border-left:4px solid ${statusColor};">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:600;">${statusIcon} #${index}: ${topic.substring(0, 60)}${topic.length > 60 ? '...' : ''}</span>
+                    </div>
+                    ${error ? `<p style="color:#ef4444; font-size:0.85rem; margin-top:0.5rem;">${error}</p>` : ''}
+                </div>
+            `;
+        }
+        
+        async function generateContent() {
+            // Legacy function - redirect to new
+            startBatchGenerate();
         }
         
         function triggerAI() {
