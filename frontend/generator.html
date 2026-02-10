@@ -4349,29 +4349,230 @@ D. [Đáp án D]
             return structure;
         }
         
-        function showSKKNOutlinePreview(meta, apiKey) {
+        // ========== BƯỚC 1: Nghiên cứu & Tạo dàn ý ==========
+        async function showSKKNOutlinePreview(meta, apiKey) {
             skknPendingMeta = meta;
             skknPendingApiKey = apiKey;
-            skknOutlineData = getSKKNOutlineStructure(meta.targetWords);
+            
+            // Hiện modal với loading
+            const loadingModalHtml = `
+                <div class="outline-modal-overlay" id="outlineModalOverlay">
+                    <div class="outline-modal">
+                        <div class="outline-modal-header">
+                            <div class="outline-modal-title">
+                                <span>🔍</span>
+                                <span>Đang nghiên cứu & Tạo dàn ý...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="outline-modal-body" style="text-align: center; padding: 3rem;">
+                            <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px; font-size: 0.9rem;">
+                                <strong>📝 Đề tài:</strong> ${meta.title}
+                            </div>
+                            
+                            <div class="loading-spinner" style="margin: 2rem auto;"></div>
+                            <p id="outlineLoadingStatus" style="color: var(--text-secondary);">Đang phân tích đề tài và xác định các ý chính...</p>
+                            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary);">
+                                ⏱️ Quá trình này có thể mất 10-30 giây
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', loadingModalHtml);
+            setTimeout(() => {
+                document.getElementById('outlineModalOverlay').classList.add('show');
+            }, 10);
+            
+            try {
+                // Gọi AI để tạo dàn ý chi tiết
+                const outline = await generateSKKNOutlineWithAI(meta, apiKey);
+                skknOutlineData = outline;
+                
+                // Cập nhật modal với dàn ý đã tạo
+                updateOutlineModalWithContent(meta, outline);
+                
+            } catch (error) {
+                console.error('Error generating outline:', error);
+                // Nếu lỗi, dùng dàn ý mặc định
+                skknOutlineData = getSKKNOutlineStructure(meta.targetWords);
+                updateOutlineModalWithContent(meta, skknOutlineData);
+                showToast('Dùng dàn ý mặc định do không thể nghiên cứu', true);
+            }
+        }
+        
+        // Gọi AI để tạo dàn ý chi tiết với tiêu đề cụ thể
+        async function generateSKKNOutlineWithAI(meta, apiKey) {
+            const statusEl = document.getElementById('outlineLoadingStatus');
+            if (statusEl) statusEl.textContent = 'Đang nghiên cứu đề tài với AI...';
+            
+            const prompt = `Bạn là chuyên gia viết sáng kiến kinh nghiệm (SKKN) giáo dục Việt Nam.
+
+ĐỀ TÀI: "${meta.title}"
+MÔN: ${meta.subject}
+CẤP HỌC: ${meta.level}
+VỊ TRÍ TÁC GIẢ: ${meta.position}
+YÊU CẦU ĐỘ DÀI: ~${meta.targetWords} từ
+
+Hãy tạo DÀN Ý CHI TIẾT cho SKKN này theo cấu trúc QĐ 658/QĐ-SGDĐT. 
+Đặt tên CỤ THỂ cho từng mục dựa trên nội dung đề tài.
+
+Trả về JSON theo format sau (KHÔNG thêm markdown, KHÔNG thêm \`\`\`json):
+{
+  "sections": [
+    {
+      "id": "phan1",
+      "title": "I. PHẦN MỞ ĐẦU",
+      "percentage": 15,
+      "items": [
+        { "id": "lydo", "label": "1.1. Lý do chọn đề tài: [Tên cụ thể liên quan đến đề tài]", "percentage": 5 },
+        { "id": "muctieu", "label": "1.2. Mục tiêu nghiên cứu: [Mục tiêu cụ thể]", "percentage": 3 },
+        { "id": "doituong", "label": "1.3. Đối tượng và phạm vi: [Đối tượng cụ thể]", "percentage": 3 },
+        { "id": "gioihan", "label": "1.4. Giới hạn nghiên cứu", "percentage": 2 },
+        { "id": "phuongphap", "label": "1.5. Phương pháp nghiên cứu", "percentage": 2 }
+      ]
+    },
+    {
+      "id": "phan2", 
+      "title": "II. PHẦN NỘI DUNG",
+      "percentage": 77,
+      "items": [
+        { "id": "cosoly", "label": "2.1. Cơ sở lý luận về [khái niệm liên quan đề tài]", "percentage": 10 },
+        { "id": "thuctrang", "label": "2.2. Thực trạng [vấn đề] tại [địa điểm/đơn vị]", "percentage": 15 },
+        { "id": "giaiphap", "label": "2.3. Các giải pháp [động từ + nội dung cụ thể]", "percentage": 40, 
+          "subItems": [
+            "2.3.1. Giải pháp 1: [Tên giải pháp cụ thể]",
+            "2.3.2. Giải pháp 2: [Tên giải pháp cụ thể]", 
+            "2.3.3. Giải pháp 3: [Tên giải pháp cụ thể]",
+            "2.3.4. Giải pháp 4: [Tên giải pháp cụ thể]",
+            "2.3.5. Giải pháp 5: [Tên giải pháp cụ thể]"
+          ]
+        },
+        { "id": "ketqua", "label": "2.4. Kết quả đạt được sau khi áp dụng", "percentage": 12 }
+      ]
+    },
+    {
+      "id": "phan3",
+      "title": "III. KẾT LUẬN, KIẾN NGHỊ", 
+      "percentage": 6,
+      "items": [
+        { "id": "ketluan", "label": "3.1. Kết luận", "percentage": 3 },
+        { "id": "kiennghi", "label": "3.2. Kiến nghị", "percentage": 3 }
+      ]
+    },
+    {
+      "id": "tailieu",
+      "title": "TÀI LIỆU THAM KHẢO",
+      "percentage": 2,
+      "items": [
+        { "id": "thamkhao", "label": "Danh mục tài liệu tham khảo", "percentage": 2 }
+      ]
+    }
+  ]
+}
+
+LƯU Ý QUAN TRỌNG:
+- Đặt tên CỤ THỂ, SINH ĐỘNG cho từng mục dựa trên đề tài "${meta.title}"
+- Phần 2.3 phải có subItems với 4-5 giải pháp cụ thể, sáng tạo
+- Giữ đúng id và percentage
+- CHỈ trả về JSON, không giải thích thêm`;
+
+            try {
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`,
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'EduAI SKKN Generator'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.5-flash',
+                        messages: [{ role: 'user', content: prompt }],
+                        max_tokens: 4000,
+                        temperature: 0.7
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                
+                const data = await response.json();
+                let content = data.choices[0]?.message?.content || '';
+                
+                // Parse JSON
+                content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                const outline = JSON.parse(content);
+                
+                // Tính số từ cho từng phần
+                outline.sections.forEach(section => {
+                    section.words = Math.round(meta.targetWords * section.percentage / 100);
+                    section.items.forEach(item => {
+                        item.words = Math.round(meta.targetWords * item.percentage / 100);
+                    });
+                });
+                
+                if (statusEl) statusEl.textContent = 'Đã tạo xong dàn ý!';
+                
+                return outline;
+                
+            } catch (error) {
+                console.error('Error calling AI for outline:', error);
+                throw error;
+            }
+        }
+        
+        // Cập nhật modal với nội dung dàn ý
+        function updateOutlineModalWithContent(meta, outline) {
+            const modal = document.querySelector('.outline-modal');
+            if (!modal) return;
             
             let sectionsHtml = '';
-            skknOutlineData.sections.forEach((section, sIdx) => {
+            outline.sections.forEach((section, sIdx) => {
                 let itemsHtml = '';
                 section.items.forEach((item, iIdx) => {
                     const pct = Math.round(item.words / meta.targetWords * 100);
+                    
+                    // Nếu có subItems (các giải pháp), hiển thị chúng
+                    let subItemsHtml = '';
+                    if (item.subItems && item.subItems.length > 0) {
+                        subItemsHtml = `
+                            <div style="margin-top: 0.5rem; padding-left: 1rem; border-left: 2px solid var(--border-color);">
+                                ${item.subItems.map((sub, subIdx) => `
+                                    <div style="padding: 0.3rem 0; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="text" class="outline-subitem-input" 
+                                            data-section="${sIdx}" data-item="${iIdx}" data-sub="${subIdx}"
+                                            value="${sub}" 
+                                            style="flex: 1; padding: 0.4rem 0.6rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.85rem;"
+                                            onchange="updateOutlineSubItem(this)">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                    
                     itemsHtml += `
-                        <div class="outline-item">
-                            <span class="outline-item-label">${item.label}</span>
-                            <div class="outline-item-words">
-                                <input type="number" class="outline-word-input" 
-                                    data-section="${sIdx}" data-item="${iIdx}" 
-                                    value="${item.words}" min="100" step="50"
-                                    onchange="updateOutlineWords(this)">
-                                <span class="outline-word-label">từ</span>
-                                <div class="outline-progress-bar">
-                                    <div class="outline-progress-fill" style="width: ${pct}%"></div>
+                        <div class="outline-item" style="flex-direction: column; align-items: stretch;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                                <input type="text" class="outline-label-input"
+                                    data-section="${sIdx}" data-item="${iIdx}"
+                                    value="${item.label}"
+                                    style="flex: 1; padding: 0.4rem 0.6rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem;"
+                                    onchange="updateOutlineLabel(this)">
+                                <div class="outline-item-words">
+                                    <input type="number" class="outline-word-input" 
+                                        data-section="${sIdx}" data-item="${iIdx}" 
+                                        value="${item.words}" min="100" step="50"
+                                        onchange="updateOutlineWords(this)">
+                                    <span class="outline-word-label">từ</span>
+                                    <div class="outline-progress-bar">
+                                        <div class="outline-progress-fill" style="width: ${pct}%"></div>
+                                    </div>
                                 </div>
                             </div>
+                            ${subItemsHtml}
                         </div>
                     `;
                 });
@@ -4382,7 +4583,7 @@ D. [Đáp án D]
                             <div class="outline-section-title">
                                 <span>${section.title}</span>
                                 <span style="color: var(--text-secondary); font-weight: 400; font-size: 0.85rem;">
-                                    (~${section.words} từ - ${section.percentage}%)
+                                    (~${section.words.toLocaleString()} từ - ${section.percentage}%)
                                 </span>
                             </div>
                             <span class="outline-section-toggle">▼</span>
@@ -4394,55 +4595,61 @@ D. [Đáp án D]
                 `;
             });
             
-            const modalHtml = `
-                <div class="outline-modal-overlay" id="outlineModalOverlay">
-                    <div class="outline-modal">
-                        <div class="outline-modal-header">
-                            <div class="outline-modal-title">
-                                <span>📋</span>
-                                <span>Đề xuất Dàn ý & Phân bổ số từ</span>
-                            </div>
-                            <button class="outline-modal-close" onclick="closeOutlineModal()">&times;</button>
-                        </div>
-                        
-                        <div class="outline-modal-body">
-                            <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px; font-size: 0.9rem;">
-                                <strong>📝 Đề tài:</strong> ${meta.title}<br>
-                                <span style="color: var(--text-secondary);">Bạn có thể điều chỉnh số từ cho từng phần trước khi AI bắt đầu soạn.</span>
-                            </div>
-                            
-                            ${sectionsHtml}
-                            
-                            <div class="outline-total">
-                                <span class="outline-total-label">📊 TỔNG SỐ TỪ DỰ KIẾN</span>
-                                <span class="outline-total-value" id="outlineTotalWords">${meta.targetWords.toLocaleString()} từ</span>
-                            </div>
-                        </div>
-                        
-                        <div class="outline-modal-footer">
-                            <button class="outline-btn outline-btn-cancel" onclick="closeOutlineModal()">
-                                ❌ Hủy bỏ
-                            </button>
-                            <button class="outline-btn outline-btn-confirm" onclick="confirmOutlineAndGenerate()">
-                                ✅ Đồng ý - Bắt đầu soạn
-                            </button>
-                        </div>
+            modal.innerHTML = `
+                <div class="outline-modal-header">
+                    <div class="outline-modal-title">
+                        <span>📋</span>
+                        <span>Dàn ý SKKN - Chỉnh sửa & Xác nhận</span>
+                    </div>
+                    <button class="outline-modal-close" onclick="closeOutlineModal()">&times;</button>
+                </div>
+                
+                <div class="outline-modal-body">
+                    <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; font-size: 0.9rem;">
+                        <strong>✅ AI đã tạo dàn ý cho:</strong> ${meta.title}<br>
+                        <span style="color: var(--text-secondary);">Bạn có thể chỉnh sửa tên các mục và số từ trước khi bắt đầu soạn.</span>
+                    </div>
+                    
+                    ${sectionsHtml}
+                    
+                    <div class="outline-total">
+                        <span class="outline-total-label">📊 TỔNG SỐ TỪ DỰ KIẾN</span>
+                        <span class="outline-total-value" id="outlineTotalWords">${meta.targetWords.toLocaleString()} từ</span>
                     </div>
                 </div>
+                
+                <div class="outline-modal-footer">
+                    <button class="outline-btn outline-btn-cancel" onclick="closeOutlineModal()">
+                        ❌ Hủy bỏ
+                    </button>
+                    <button class="outline-btn outline-btn-confirm" onclick="confirmOutlineAndGenerate()">
+                        ✍️ Bắt đầu soạn SKKN
+                    </button>
+                </div>
             `;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-            
-            // Show with animation
-            setTimeout(() => {
-                document.getElementById('outlineModalOverlay').classList.add('show');
-            }, 10);
         }
         
         function toggleOutlineSection(sIdx) {
             const section = document.querySelector(`.outline-section[data-section="${sIdx}"]`);
             if (section) {
                 section.classList.toggle('expanded');
+            }
+        }
+        
+        function updateOutlineLabel(input) {
+            const sIdx = parseInt(input.dataset.section);
+            const iIdx = parseInt(input.dataset.item);
+            if (skknOutlineData && skknOutlineData.sections[sIdx]) {
+                skknOutlineData.sections[sIdx].items[iIdx].label = input.value;
+            }
+        }
+        
+        function updateOutlineSubItem(input) {
+            const sIdx = parseInt(input.dataset.section);
+            const iIdx = parseInt(input.dataset.item);
+            const subIdx = parseInt(input.dataset.sub);
+            if (skknOutlineData && skknOutlineData.sections[sIdx]?.items[iIdx]?.subItems) {
+                skknOutlineData.sections[sIdx].items[iIdx].subItems[subIdx] = input.value;
             }
         }
         
@@ -4468,15 +4675,15 @@ D. [Đáp án D]
                 });
                 
                 // Update progress bar
-                const totalWords = total;
-                const pct = Math.round(newValue / totalWords * 100);
+                const pct = Math.round(newValue / total * 100);
                 const progressBar = input.parentElement.querySelector('.outline-progress-fill');
                 if (progressBar) {
                     progressBar.style.width = pct + '%';
                 }
                 
                 // Update total display
-                document.getElementById('outlineTotalWords').textContent = total.toLocaleString() + ' từ';
+                const totalEl = document.getElementById('outlineTotalWords');
+                if (totalEl) totalEl.textContent = total.toLocaleString() + ' từ';
                 
                 // Update pending meta
                 if (skknPendingMeta) {
@@ -4496,6 +4703,7 @@ D. [Đáp án D]
             skknPendingApiKey = null;
         }
         
+        // ========== BƯỚC 2: Bắt đầu soạn SKKN ==========
         async function confirmOutlineAndGenerate() {
             if (!skknPendingMeta || !skknPendingApiKey) {
                 showToast('Lỗi: Thiếu thông tin', true);
@@ -5017,6 +5225,49 @@ KHI VIẾT, BẠN PHẢI:
             const numSolutions = targetWords >= 7000 ? 5 : (targetWords >= 5000 ? 4 : 3);
             const wordsPerSolution = Math.round(wordDistribution.cacGiaiPhap / numSolutions);
             
+            // Lấy tiêu đề và giải pháp từ customOutline nếu có
+            let outlineLabels = {};
+            let solutionTitles = [];
+            if (customOutline && customOutline.sections) {
+                customOutline.sections.forEach(section => {
+                    section.items.forEach(item => {
+                        outlineLabels[item.id] = item.label;
+                        if (item.subItems) {
+                            solutionTitles = item.subItems;
+                        }
+                    });
+                });
+            }
+            
+            // Xây dựng phần giải pháp với tiêu đề từ AI
+            let solutionsPrompt = '';
+            for (let i = 0; i < numSolutions; i++) {
+                const solutionTitle = solutionTitles[i] || `3.${i+1}. Giải pháp ${i+1}: [Tên giải pháp cụ thể]`;
+                solutionsPrompt += `
+**${solutionTitle}** (~${wordsPerSolution.toLocaleString()} từ)
+
+   a) Mục tiêu của giải pháp:
+      • Giải pháp này nhằm giải quyết vấn đề gì?
+      • Kết quả mong đợi là gì?
+
+   b) Nội dung giải pháp:
+      • Mô tả chi tiết nội dung
+      • Các thành phần/yếu tố cấu thành
+
+   c) Cách thức thực hiện:
+      • Bước 1: [Mô tả chi tiết]
+      • Bước 2: [Mô tả chi tiết]
+      • Bước 3: [Mô tả chi tiết]
+
+   d) Điều kiện thực hiện:
+      • Về nhân lực, cơ sở vật chất, thời gian, kinh phí
+
+   e) Ví dụ minh họa cụ thể:
+      • Mô tả một trường hợp áp dụng thực tế
+
+`;
+            }
+            
             return `${getSystemInstruction()}
 
 === ĐIỀU CHỈNH THEO VAI TRÒ: ${position} ===
@@ -5133,49 +5384,13 @@ CẤU TRÚC CỦA SÁNG KIẾN (Theo PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT)
 **3. Các giải pháp** (~${wordDistribution.cacGiaiPhap.toLocaleString()} từ)
 (Giải pháp được đề xuất để cải tiến, nâng cao chất lượng công tác liên quan đến đề tài nghiên cứu)
 
-⚠️ MỖI GIẢI PHÁP ĐƯỢC TRÌNH BÀY THÀNH MỤC RIÊNG, BÁO GỒM:
-   - Tên giải pháp
+⚠️ MỖI GIẢI PHÁP ĐƯỢC TRÌNH BÀY THÀNH MỤC RIÊNG, BAO GỒM:
+   - Tên giải pháp (ĐÃ ĐƯỢC USER PHÊ DUYỆT - VIẾT ĐÚNG THEO TÊN DƯỚI ĐÂY)
    - Mục tiêu của giải pháp
-   - Nội dung
+   - Nội dung chi tiết
    - Cách thức và điều kiện thực hiện giải pháp
 
-**3.1. Giải pháp 1: [Tên giải pháp cụ thể]** (~${wordsPerSolution.toLocaleString()} từ)
-
-   a) Mục tiêu của giải pháp:
-      • Giải pháp này nhằm giải quyết vấn đề gì?
-      • Kết quả mong đợi là gì?
-
-   b) Nội dung giải pháp:
-      • Mô tả chi tiết nội dung
-      • Các thành phần/yếu tố cấu thành
-
-   c) Cách thức thực hiện:
-      • Bước 1: [Mô tả chi tiết]
-      • Bước 2: [Mô tả chi tiết]
-      • Bước 3: [Mô tả chi tiết]
-      • ...
-
-   d) Điều kiện thực hiện:
-      • Về nhân lực: (yêu cầu năng lực, số lượng người)
-      • Về cơ sở vật chất: (thiết bị, phương tiện cần thiết)
-      • Về thời gian: (thời lượng cần thiết)
-      • Về kinh phí: (chi phí thấp hoặc miễn phí)
-
-   e) Ví dụ minh họa cụ thể:
-      • Mô tả một trường hợp áp dụng thực tế
-      • Kết quả đạt được từ ví dụ
-
-**3.2. Giải pháp 2: [Tên giải pháp cụ thể]** (~${wordsPerSolution.toLocaleString()} từ)
-(Viết tương tự cấu trúc Giải pháp 1)
-
-**3.3. Giải pháp 3: [Tên giải pháp cụ thể]** (~${wordsPerSolution.toLocaleString()} từ)
-(Viết tương tự cấu trúc Giải pháp 1)
-
-${numSolutions >= 4 ? `**3.4. Giải pháp 4: [Tên giải pháp cụ thể]** (~${wordsPerSolution.toLocaleString()} từ)
-(Viết tương tự cấu trúc Giải pháp 1)` : ''}
-
-${numSolutions >= 5 ? `**3.5. Giải pháp 5: [Tên giải pháp cụ thể]** (~${wordsPerSolution.toLocaleString()} từ)
-(Viết tương tự cấu trúc Giải pháp 1)` : ''}
+${solutionsPrompt}
 
 **Mối quan hệ giữa các giải pháp** (nếu có):
    • Giải pháp nào là tiền đề cho giải pháp khác
