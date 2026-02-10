@@ -4777,10 +4777,24 @@ LƯU Ý QUAN TRỌNG:
             // Lưu outline vào meta để sử dụng trong prompt
             skknPendingMeta.customOutline = skknOutlineData;
             
-            closeOutlineModal();
+            // Lưu lại giá trị trước khi đóng modal (vì closeOutlineModal sẽ reset về null)
+            const meta = { ...skknPendingMeta };
+            const apiKey = skknPendingApiKey;
+            
+            // Đóng modal (không await)
+            const modal = document.getElementById('outlineModalOverlay');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.remove(), 300);
+            }
+            
+            // Reset state
+            skknOutlineData = null;
+            skknPendingMeta = null;
+            skknPendingApiKey = null;
             
             // Bắt đầu generate với outline đã customize
-            await generateSKKNWithGemini(skknPendingMeta, skknPendingApiKey);
+            await generateSKKNWithGemini(meta, apiKey);
         }
 
         // ========== Generate SKKN ==========
