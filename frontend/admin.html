@@ -1133,6 +1133,10 @@
         }
         
         async function generateSKKNContent(apiKey, topic, role, subject, wordCount) {
+            // Chia thành nhiều phần để đạt số từ yêu cầu
+            // Mỗi lần gọi API tối đa ~4000-5000 từ
+            const numSolutions = wordCount >= 15000 ? 7 : (wordCount >= 10000 ? 6 : (wordCount >= 7000 ? 5 : 4));
+            
             // Phân bổ số từ theo QĐ 658/QĐ-SGDĐT
             const wordDistribution = {
                 phanMoDau: Math.round(wordCount * 0.15),
@@ -1144,132 +1148,73 @@
                 taiLieu: Math.round(wordCount * 0.02)
             };
             
-            const numSolutions = wordCount >= 7000 ? 5 : (wordCount >= 5000 ? 4 : 3);
             const wordsPerSolution = Math.round(wordDistribution.cacGiaiPhap / numSolutions);
             
-            // Build giải pháp prompt
-            let solutionsPrompt = '';
-            for (let i = 1; i <= numSolutions; i++) {
-                solutionsPrompt += `
-**3.${i}. Giải pháp ${i}: [Tên giải pháp cụ thể liên quan đến "${topic}"]** (~${wordsPerSolution.toLocaleString()} từ)
-
-   a) Mục tiêu của giải pháp:
-      • Giải pháp này nhằm giải quyết vấn đề gì?
-      • Kết quả mong đợi là gì?
-
-   b) Nội dung giải pháp:
-      • Mô tả chi tiết nội dung
-      • Các thành phần/yếu tố cấu thành
-
-   c) Cách thức thực hiện:
-      • Bước 1: [Mô tả chi tiết]
-      • Bước 2: [Mô tả chi tiết]
-      • Bước 3: [Mô tả chi tiết]
-
-   d) Điều kiện thực hiện:
-      • Về nhân lực, cơ sở vật chất, thời gian, kinh phí
-
-   e) Ví dụ minh họa cụ thể:
-      • Mô tả một trường hợp áp dụng thực tế
-
-`;
+            // Tạo SKKN theo nhiều phần
+            let fullContent = '';
+            const parts = [
+                { 
+                    name: 'Phần I - Mở đầu', 
+                    words: wordDistribution.phanMoDau,
+                    prompt: buildPart1Prompt(topic, role, subject, wordDistribution.phanMoDau)
+                },
+                { 
+                    name: 'Phần II.1-2 - Cơ sở lý luận & Thực trạng', 
+                    words: wordDistribution.coSoLyLuan + wordDistribution.thucTrang,
+                    prompt: buildPart2aPrompt(topic, role, subject, wordDistribution.coSoLyLuan, wordDistribution.thucTrang)
+                }
+            ];
+            
+            // Thêm các giải pháp (mỗi giải pháp 1 phần riêng nếu > 10000 từ)
+            if (wordCount >= 10000) {
+                // Chia giải pháp thành 2 phần
+                const halfSolutions = Math.ceil(numSolutions / 2);
+                parts.push({
+                    name: `Giải pháp 1-${halfSolutions}`,
+                    words: wordsPerSolution * halfSolutions,
+                    prompt: buildSolutionsPrompt(topic, role, subject, 1, halfSolutions, wordsPerSolution)
+                });
+                parts.push({
+                    name: `Giải pháp ${halfSolutions + 1}-${numSolutions}`,
+                    words: wordsPerSolution * (numSolutions - halfSolutions),
+                    prompt: buildSolutionsPrompt(topic, role, subject, halfSolutions + 1, numSolutions, wordsPerSolution)
+                });
+            } else {
+                parts.push({
+                    name: 'Các giải pháp',
+                    words: wordDistribution.cacGiaiPhap,
+                    prompt: buildSolutionsPrompt(topic, role, subject, 1, numSolutions, wordsPerSolution)
+                });
             }
             
-            const prompt = `Bạn là chuyên gia viết SKKN giáo dục Việt Nam, với vai trò ${role} dạy môn ${subject}.
-
-=== THÔNG TIN ĐỀ TÀI SKKN ===
-• Tên đề tài: "${topic}"
-• Môn học/Lĩnh vực: ${subject}
-• Vị trí tác giả: ${role}
-
-=== YÊU CẦU THEO PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT ===
-• Số trang: 14-40 trang giấy A4, size 14
-• Số từ yêu cầu: ${wordCount.toLocaleString()} từ (~${Math.round(wordCount/350)} trang A4)
-
-=== PHÂN BỔ NỘI DUNG ===
-• Phần I - Mở đầu: ~${wordDistribution.phanMoDau.toLocaleString()} từ (15%)
-• Phần II.1 - Cơ sở lý luận: ~${wordDistribution.coSoLyLuan.toLocaleString()} từ (10%)
-• Phần II.2 - Thực trạng: ~${wordDistribution.thucTrang.toLocaleString()} từ (15%)
-• Phần II.3 - Các giải pháp (${numSolutions} GP x ${wordsPerSolution.toLocaleString()} từ): ~${wordDistribution.cacGiaiPhap.toLocaleString()} từ (40%)
-• Phần II.4 - Kết quả khảo nghiệm: ~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} từ (12%)
-• Phần III - Kết luận, kiến nghị: ~${wordDistribution.ketLuanKienNghi.toLocaleString()} từ (6%)
-• Tài liệu tham khảo: ~${wordDistribution.taiLieu.toLocaleString()} từ (2%)
-
-============================================================
-CẤU TRÚC CỦA SÁNG KIẾN (Theo PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT)
-============================================================
-
-**I. PHẦN MỞ ĐẦU** (~${wordDistribution.phanMoDau.toLocaleString()} từ)
-
-**1. Lý do chọn đề tài**
-   a) Cơ sở pháp lý:
-      • Trích dẫn Nghị quyết 29-NQ/TW (2013) về đổi mới căn bản, toàn diện GD-ĐT
-      • Chương trình GDPT 2018 - phát triển năng lực, phẩm chất người học
-      • Thông tư 32/2018/TT-BGDĐT ban hành CT GDPT
-      • Các văn bản khác liên quan trực tiếp đến "${topic}"
-   
-   b) Cơ sở thực tiễn:
-      • Mô tả thực trạng tại đơn vị công tác
-      • Những hạn chế, khó khăn cần khắc phục
-      • Yêu cầu cấp thiết từ thực tế giảng dạy/quản lý
-
-**2. Mục tiêu, nhiệm vụ của đề tài**
-   a) Mục tiêu: (3-5 mục tiêu cụ thể, đo lường được)
-   b) Nhiệm vụ: (Các nhiệm vụ cần thực hiện để đạt mục tiêu)
-
-**3. Đối tượng, phạm vi nghiên cứu**
-   • Đối tượng nghiên cứu
-   • Phạm vi: Không gian, Thời gian, Nội dung
-
-**4. Giới hạn của đề tài**
-
-**5. Phương pháp nghiên cứu**
-   • Phương pháp nghiên cứu lý luận
-   • Phương pháp nghiên cứu thực tiễn
-
-**II. PHẦN NỘI DUNG** (~${(wordDistribution.coSoLyLuan + wordDistribution.thucTrang + wordDistribution.cacGiaiPhap + wordDistribution.ketQuaKhaoNghiem).toLocaleString()} từ)
-
-**1. Cơ sở lý luận** (~${wordDistribution.coSoLyLuan.toLocaleString()} từ)
-   • Định nghĩa các khái niệm cốt lõi
-   • Cơ sở tâm lý học, giáo dục học
-   • Lý thuyết nền tảng cho các giải pháp
-
-**2. Thực trạng vấn đề nghiên cứu** (~${wordDistribution.thucTrang.toLocaleString()} từ)
-   a) Thực trạng vấn đề
-   b) Kết quả khảo sát đầu vào (có bảng số liệu)
-   c) Phân tích nguyên nhân
-
-**3. Các giải pháp** (~${wordDistribution.cacGiaiPhap.toLocaleString()} từ)
-${solutionsPrompt}
-**Mối quan hệ giữa các giải pháp**
-
-**4. Kết quả khảo nghiệm** (~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} từ)
-   a) Kết quả định lượng (có bảng so sánh TRƯỚC - SAU)
-   b) Kết quả định tính
-   c) Giá trị khoa học
-   d) Phạm vi và hiệu quả ứng dụng
-
-**III. PHẦN KẾT LUẬN, KIẾN NGHỊ** (~${wordDistribution.ketLuanKienNghi.toLocaleString()} từ)
-
-**1. Kết luận**
-**2. Kiến nghị** (Đối với Sở, Phòng, Nhà trường, Giáo viên)
-
-**TÀI LIỆU THAM KHẢO** (8-12 tài liệu)
-
-=== YÊU CẦU ĐẦU RA ===
-✓ Viết đầy đủ ${wordCount.toLocaleString()} từ theo phân bổ trên
-✓ TUÂN THỦ ĐÚNG cấu trúc PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT
-✓ Nội dung LIÊN QUAN TRỰC TIẾP đến "${topic}"
-✓ Văn phong học thuật, mạch lạc, logic
-✓ Số liệu thực tế, có độ biến thiên hợp lý (không quá hoàn hảo)
-✓ Trích dẫn văn bản pháp quy chính xác
-✓ KHÔNG tóm tắt, KHÔNG rút gọn
-✓ Mỗi giải pháp phải có: Tên, Mục tiêu, Nội dung, Cách thức và Điều kiện thực hiện
-✓ KHÔNG viết các dòng phân cách như: ---, ===, ***, ___
-✓ Viết liền mạch, đầy đủ nội dung ngay từ đầu
-
-BẮT ĐẦU VIẾT NGAY:`;
-
+            // Phần kết quả và kết luận
+            parts.push({
+                name: 'Kết quả & Kết luận',
+                words: wordDistribution.ketQuaKhaoNghiem + wordDistribution.ketLuanKienNghi + wordDistribution.taiLieu,
+                prompt: buildPart3Prompt(topic, role, subject, wordDistribution.ketQuaKhaoNghiem, wordDistribution.ketLuanKienNghi)
+            });
+            
+            // Gọi API cho từng phần
+            for (let i = 0; i < parts.length; i++) {
+                const part = parts[i];
+                updateProgress(i + 1, parts.length + 1, `Đang viết: ${part.name} (~${part.words.toLocaleString()} từ)...`);
+                
+                try {
+                    const partContent = await callGeminiAPI(apiKey, part.prompt);
+                    if (partContent) {
+                        fullContent += '\n\n' + partContent;
+                    }
+                    // Delay giữa các phần
+                    await new Promise(r => setTimeout(r, 1500));
+                } catch (e) {
+                    console.error(`Error generating ${part.name}:`, e);
+                }
+            }
+            
+            return fullContent.trim();
+        }
+        
+        async function callGeminiAPI(apiKey, prompt) {
             try {
                 const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
@@ -1280,16 +1225,223 @@ BẮT ĐẦU VIẾT NGAY:`;
                     body: JSON.stringify({
                         model: 'google/gemini-2.0-flash-001',
                         messages: [{ role: 'user', content: prompt }],
-                        max_tokens: 32000
+                        max_tokens: 16000,
+                        temperature: 0.7
                     })
                 });
                 
                 const data = await response.json();
                 return data.choices?.[0]?.message?.content || null;
             } catch (e) {
-                console.error('Error generating SKKN:', e);
+                console.error('API Error:', e);
                 return null;
             }
+        }
+        
+        function buildPart1Prompt(topic, role, subject, wordCount) {
+            return `Bạn là ${role} chuyên viết SKKN giáo dục, môn ${subject}.
+
+VIẾT PHẦN I - MỞ ĐẦU cho SKKN với đề tài: "${topic}"
+
+YÊU CẦU: Viết đầy đủ ${wordCount.toLocaleString()} từ, theo cấu trúc QĐ 658/QĐ-SGDĐT:
+
+**I. PHẦN MỞ ĐẦU**
+
+**1. Lý do chọn đề tài**
+
+a) Cơ sở pháp lý: (viết chi tiết 400-500 từ)
+   - Trích dẫn Nghị quyết 29-NQ/TW ngày 04/11/2013 về đổi mới căn bản, toàn diện GD-ĐT
+   - Chương trình GDPT 2018, Thông tư 32/2018/TT-BGDĐT
+   - Các văn bản liên quan đến "${topic}"
+
+b) Cơ sở thực tiễn: (viết chi tiết 500-600 từ)
+   - Thực trạng tại đơn vị công tác
+   - Những khó khăn, hạn chế cần khắc phục
+   - Yêu cầu cấp thiết từ thực tế
+
+c) Lý do cá nhân: (100-150 từ)
+   - Động lực của tác giả khi chọn đề tài
+
+**2. Mục tiêu, nhiệm vụ của đề tài** (300-400 từ)
+   a) Mục tiêu: 4-5 mục tiêu cụ thể, đo lường được
+   b) Nhiệm vụ: Các nhiệm vụ cần thực hiện
+
+**3. Đối tượng, phạm vi nghiên cứu** (200-250 từ)
+   - Đối tượng nghiên cứu
+   - Phạm vi: Không gian, Thời gian, Nội dung
+
+**4. Giới hạn của đề tài** (100-150 từ)
+
+**5. Phương pháp nghiên cứu** (300-400 từ)
+   - PP nghiên cứu lý luận
+   - PP nghiên cứu thực tiễn (quan sát, điều tra, thực nghiệm, thống kê)
+
+CHÚ Ý:
+- Viết đầy đủ, chi tiết, không tóm tắt
+- Văn phong học thuật, mạch lạc
+- KHÔNG dùng ---, ===, ***
+- Viết liền mạch ngay từ đầu`;
+        }
+        
+        function buildPart2aPrompt(topic, role, subject, lyLuanWords, thucTrangWords) {
+            return `Bạn là ${role} chuyên viết SKKN giáo dục, môn ${subject}.
+
+TIẾP TỤC VIẾT PHẦN II.1 và II.2 cho SKKN với đề tài: "${topic}"
+
+YÊU CẦU: Viết đầy đủ ${(lyLuanWords + thucTrangWords).toLocaleString()} từ
+
+**II. PHẦN NỘI DUNG**
+
+**1. Cơ sở lý luận** (~${lyLuanWords.toLocaleString()} từ)
+
+1.1. Các khái niệm cốt lõi (định nghĩa chi tiết từng khái niệm liên quan đến "${topic}")
+
+1.2. Cơ sở tâm lý học, giáo dục học
+   - Lý thuyết học tập liên quan
+   - Đặc điểm tâm sinh lý học sinh
+
+1.3. Cơ sở khoa học của đề tài
+   - Các nghiên cứu trong và ngoài nước
+   - Lý thuyết nền tảng cho giải pháp
+
+**2. Thực trạng vấn đề nghiên cứu** (~${thucTrangWords.toLocaleString()} từ)
+
+2.1. Thực trạng vấn đề
+   - Mô tả chi tiết thực trạng hiện tại
+   - Những vấn đề đang tồn tại
+
+2.2. Kết quả khảo sát đầu vào
+
+📊 BẢNG 1: KHẢO SÁT THỰC TRẠNG BAN ĐẦU
+| Tiêu chí đánh giá | Tốt | Khá | TB | Yếu | Tổng |
+|-------------------|-----|-----|-----|-----|------|
+| Mức độ hứng thú học tập | 12% | 25% | 38% | 25% | 100% |
+| Kết quả học tập | 15% | 28% | 35% | 22% | 100% |
+| Khả năng vận dụng | 10% | 22% | 40% | 28% | 100% |
+| Kỹ năng thực hành | 8% | 20% | 42% | 30% | 100% |
+
+(Ghi chú: Số liệu khảo sát N = 120 học sinh, trước khi áp dụng giải pháp)
+
+2.3. Phân tích nguyên nhân
+   a) Nguyên nhân khách quan: (điều kiện, môi trường, chính sách...)
+   b) Nguyên nhân chủ quan: (nhận thức, năng lực, thái độ...)
+
+CHÚ Ý:
+- Viết đầy đủ, chi tiết
+- Số liệu thực tế, có độ biến thiên hợp lý
+- KHÔNG dùng ---, ===, ***`;
+        }
+        
+        function buildSolutionsPrompt(topic, role, subject, startNum, endNum, wordsPerSolution) {
+            let solutionsDetail = '';
+            for (let i = startNum; i <= endNum; i++) {
+                solutionsDetail += `
+**3.${i}. Giải pháp ${i}: [Đặt tên giải pháp cụ thể, sáng tạo liên quan đến "${topic}"]**
+
+a) Mục tiêu của giải pháp: (150-200 từ)
+   - Giải pháp nhằm giải quyết vấn đề gì?
+   - Kết quả mong đợi là gì?
+
+b) Nội dung và cách thức thực hiện: (${Math.round(wordsPerSolution * 0.6)} từ)
+   - Mô tả chi tiết nội dung giải pháp
+   - Các bước thực hiện cụ thể:
+     + Bước 1: [Chi tiết]
+     + Bước 2: [Chi tiết]
+     + Bước 3: [Chi tiết]
+     + Bước 4: [Chi tiết]
+
+c) Điều kiện thực hiện: (100-150 từ)
+   - Về nhân lực, cơ sở vật chất
+   - Về thời gian, kinh phí
+
+d) Ví dụ minh họa cụ thể: (300-400 từ)
+   - Mô tả chi tiết một trường hợp áp dụng thực tế
+   - Kết quả đạt được từ ví dụ
+
+`;
+            }
+            
+            const totalWords = wordsPerSolution * (endNum - startNum + 1);
+            
+            return `Bạn là ${role} chuyên viết SKKN giáo dục, môn ${subject}.
+
+TIẾP TỤC VIẾT PHẦN CÁC GIẢI PHÁP (từ GP ${startNum} đến GP ${endNum}) cho SKKN: "${topic}"
+
+YÊU CẦU: Viết đầy đủ ${totalWords.toLocaleString()} từ cho ${endNum - startNum + 1} giải pháp
+
+**3. Các giải pháp**
+${solutionsDetail}
+
+CHÚ Ý QUAN TRỌNG:
+- Mỗi giải pháp viết đủ ~${wordsPerSolution.toLocaleString()} từ
+- Tên giải pháp phải CỤ THỂ, SÁNG TẠO, liên quan trực tiếp đến "${topic}"
+- Nội dung chi tiết, có ví dụ minh họa thực tế
+- KHÔNG tóm tắt, KHÔNG rút gọn
+- KHÔNG dùng ---, ===, ***`;
+        }
+        
+        function buildPart3Prompt(topic, role, subject, ketQuaWords, ketLuanWords) {
+            return `Bạn là ${role} chuyên viết SKKN giáo dục, môn ${subject}.
+
+TIẾP TỤC VIẾT PHẦN KẾT QUẢ VÀ KẾT LUẬN cho SKKN: "${topic}"
+
+YÊU CẦU: Viết đầy đủ ${(ketQuaWords + ketLuanWords + 200).toLocaleString()} từ
+
+**4. Kết quả khảo nghiệm, giá trị khoa học** (~${ketQuaWords.toLocaleString()} từ)
+
+4.1. Kết quả định lượng
+
+📊 BẢNG 2: SO SÁNH TRƯỚC VÀ SAU KHI ÁP DỤNG GIẢI PHÁP
+| Tiêu chí | TRƯỚC | SAU | Tăng/Giảm |
+|----------|-------|-----|-----------|
+| Mức độ hứng thú (Tốt+Khá) | 37% | 82% | +45% |
+| Kết quả học tập (Tốt+Khá) | 43% | 85% | +42% |
+| Khả năng vận dụng (Tốt+Khá) | 32% | 78% | +46% |
+| Kỹ năng thực hành (Tốt+Khá) | 28% | 76% | +48% |
+
+📊 BẢNG 3: ĐÁNH GIÁ HIỆU QUẢ TỪNG GIẢI PHÁP
+| Giải pháp | Rất hiệu quả | Hiệu quả | Bình thường | Không HQ |
+|-----------|--------------|----------|-------------|----------|
+| GP 3.1 | 45% | 38% | 12% | 5% |
+| GP 3.2 | 42% | 40% | 13% | 5% |
+| GP 3.3 | 48% | 35% | 12% | 5% |
+| GP 3.4 | 40% | 42% | 14% | 4% |
+| GP 3.5 | 44% | 39% | 13% | 4% |
+
+4.2. Kết quả định tính
+   - Nhận xét của đồng nghiệp (3-4 ý kiến cụ thể)
+   - Phản hồi từ học sinh (3-4 ý kiến)
+   - Đánh giá từ Ban Giám hiệu
+
+4.3. Giá trị khoa học
+   - Đóng góp về mặt lý luận
+   - Đóng góp về mặt thực tiễn
+
+4.4. Phạm vi và hiệu quả ứng dụng
+   - Khả năng nhân rộng
+   - Điều kiện áp dụng
+
+**III. PHẦN KẾT LUẬN, KIẾN NGHỊ** (~${ketLuanWords.toLocaleString()} từ)
+
+**1. Kết luận**
+   - Tóm tắt các nội dung đã thực hiện
+   - Khẳng định tính hiệu quả, khả thi
+
+**2. Kiến nghị**
+   a) Đối với Sở GD&ĐT
+   b) Đối với Phòng GD&ĐT
+   c) Đối với nhà trường
+   d) Đối với giáo viên
+
+**TÀI LIỆU THAM KHẢO** (10-12 tài liệu)
+1. Ban Chấp hành TW (2013), Nghị quyết 29-NQ/TW...
+2. Bộ GD&ĐT (2018), Thông tư 32/2018/TT-BGDĐT...
+3-12. [Thêm 10 tài liệu liên quan đến ${subject} và "${topic}"]
+
+CHÚ Ý:
+- Viết đầy đủ, chi tiết
+- Số liệu SAU hợp lý (75-85%, không 100%)
+- KHÔNG dùng ---, ===, ***`;
         }
         
         function downloadAsWord(title, content) {
