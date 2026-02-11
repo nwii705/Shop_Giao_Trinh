@@ -775,42 +775,35 @@
         }
         
         function buildExamPrompt({ subjectName, grade, content, mcqCount, essayCount, levels, examTypeName, variantLetter, schoolName }) {
-            return `Bạn là giáo viên ${subjectName} giỏi, hãy tạo ĐỀ KIỂM TRA hoàn chỉnh.
+            return `TẠO ĐỀ KIỂM TRA - CHỈ XUẤT NỘI DUNG ĐỀ, KHÔNG CÓ LỜI GIỚI THIỆU HAY BÌNH LUẬN
 
-THÔNG TIN:
+THÔNG TIN ĐỀ:
 - Môn: ${subjectName} - Lớp ${grade}
 - Loại: ${examTypeName}
 - Mã đề: ${variantLetter}
-- Nội dung: ${content}
+- Nội dung kiến thức: ${content}
 - Trường: ${schoolName}
 
-CẤU TRÚC ĐỀ:
-I. TRẮC NGHIỆM (${mcqCount} câu x 0.25đ = ${mcqCount * 0.25}đ)
-   - Nhận biết: ${Math.round(mcqCount * levels.nb / 100)} câu
-   - Thông hiểu: ${Math.round(mcqCount * levels.th / 100)} câu
-   - Vận dụng: ${Math.round(mcqCount * levels.vd / 100)} câu
-   - Vận dụng cao: ${Math.round(mcqCount * levels.vdc / 100)} câu
+CẤU TRÚC:
+• Trắc nghiệm: ${mcqCount} câu (Nhận biết: ${Math.round(mcqCount * levels.nb / 100)}, Thông hiểu: ${Math.round(mcqCount * levels.th / 100)}, Vận dụng: ${Math.round(mcqCount * levels.vd / 100)}, VD cao: ${Math.round(mcqCount * levels.vdc / 100)})
+• Tự luận: ${essayCount} câu
 
-II. TỰ LUẬN (${essayCount} câu, tổng ${10 - mcqCount * 0.25}đ)
-   - Phân bổ theo 4 mức độ tương tự
+⚠️ QUY TẮC BẮT BUỘC:
+1. KHÔNG viết câu mở đầu như "Tuyệt vời!", "Đây là đề...", "Tôi sẽ..."
+2. KHÔNG ghi "Mức độ Nhận biết", "Mức độ Thông hiểu" - chỉ đánh số câu liên tục
+3. KHÔNG ghi đáp án trong đề
+4. BẮT ĐẦU NGAY với tên trường
 
-YÊU CẦU:
-1. Câu hỏi rõ ràng, chính xác về mặt khoa học
-2. 4 phương án A, B, C, D cho trắc nghiệm (chỉ 1 đáp án đúng)
-3. Câu tự luận có phân điểm cụ thể
-4. Đa dạng dạng câu hỏi
-5. KHÔNG ghi đáp án trong đề, chỉ ghi câu hỏi
+📄 FORMAT CHUẨN (BẮT ĐẦU CHÍNH XÁC NHƯ SAU):
 
-FORMAT ĐỀ:
----
 ${schoolName.toUpperCase()}
-${examTypeName}
+ĐỀ ${examTypeName.toUpperCase()}
 Môn: ${subjectName} - Lớp ${grade}
 Thời gian: ${currentExamType === '15p' ? '15' : currentExamType === '45p' ? '45' : '90'} phút
 Mã đề: ${variantLetter}
----
 
 I. PHẦN TRẮC NGHIỆM (${mcqCount * 0.25} điểm)
+Chọn phương án đúng nhất cho mỗi câu hỏi sau:
 
 Câu 1: [Nội dung câu hỏi]
 A. [Phương án A]
@@ -818,40 +811,45 @@ B. [Phương án B]
 C. [Phương án C]
 D. [Phương án D]
 
-... (tiếp tục đến câu ${mcqCount})
+Câu 2: ...
+(tiếp tục đến Câu ${mcqCount})
 
-II. PHẦN TỰ LUẬN (${10 - mcqCount * 0.25} điểm)
+II. PHẦN TỰ LUẬN (${(10 - mcqCount * 0.25).toFixed(2)} điểm)
 
-Câu 1 (X điểm): [Nội dung câu hỏi]
-
-... (tiếp tục)
+Câu 1 (... điểm): [Nội dung câu hỏi]
 
 ---HẾT---`;
         }
         
         function buildAnswerPrompt(examContent, subjectName) {
-            return `Dựa vào đề ${subjectName} sau, hãy tạo ĐÁP ÁN CHI TIẾT:
+            return `TẠO ĐÁP ÁN - CHỈ XUẤT NỘI DUNG, KHÔNG CÓ LỜI GIỚI THIỆU
 
+Đề thi:
 ${examContent}
 
-YÊU CẦU:
-1. Trắc nghiệm: Liệt kê đáp án đúng (VD: 1-A, 2-B, 3-C...)
-2. Tự luận: Lời giải chi tiết từng bước, có biểu điểm
+⚠️ QUY TẮC BẮT BUỘC:
+1. KHÔNG viết câu mở đầu như "Dưới đây là...", "Đây là đáp án..."
+2. BẮT ĐẦU NGAY với tiêu đề ĐÁP ÁN
 
-FORMAT:
----
+📄 FORMAT CHUẨN:
+
 ĐÁP ÁN VÀ HƯỚNG DẪN CHẤM
+Môn: ${subjectName}
 
-I. TRẮC NGHIỆM:
-1-A, 2-B, 3-C, ...
+I. PHẦN TRẮC NGHIỆM:
+1-A, 2-B, 3-C, 4-D, 5-A, 6-B, 7-C, 8-D...
+(Liệt kê tất cả đáp án trên 1-2 dòng)
 
-II. TỰ LUẬN:
+II. PHẦN TỰ LUẬN:
 
-Câu 1 (X điểm):
-- Bước 1: ... (x điểm)
-- Bước 2: ... (x điểm)
+Câu 1 (... điểm):
+• Ý 1: ... (... điểm)
+• Ý 2: ... (... điểm)
+
+Câu 2 (... điểm):
 ...
----`;
+
+---HẾT---`;
         }
         
         async function callAI(apiKey, prompt) {
@@ -901,8 +899,10 @@ Câu 1 (X điểm):
         }
         
         function formatExamContent(content) {
-            // Clean up raw markdown and format nicely
+            // Loại bỏ câu mở đầu thừa của AI
             let formatted = content
+                .replace(/^(Tuyệt vời|Đây là|Dưới đây là|Tôi sẽ|Được rồi|Chắc chắn|Xin chào|Vâng).+?\n/gim, '')
+                
                 // Remove raw markdown symbols
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')
@@ -910,23 +910,26 @@ Câu 1 (X điểm):
                 // Format header section (school name, exam title)
                 .replace(/^---\s*$/gm, '') // Remove --- separators
                 .replace(/^(TRƯỜNG|SỞ|PHÒNG|UBND).+$/gim, '<div style="text-align:center; font-weight:bold; font-size:1rem; margin-top:0.5rem;">$&</div>')
-                .replace(/^(ĐỀ KIỂM TRA|KIỂM TRA|BÀI KIỂM TRA|ĐỀ THI).+$/gim, '<div style="text-align:center; font-weight:bold; font-size:1.3rem; color:#667eea; margin:1rem 0;">$&</div>')
-                .replace(/^(Môn:.+)$/gim, '<div style="text-align:center; font-style:italic; margin-bottom:0.5rem;">$1</div>')
-                .replace(/^(Thời gian:.+)$/gim, '<div style="text-align:center; font-style:italic; margin-bottom:0.5rem;">$1</div>')
+                .replace(/^(ĐỀ KIỂM TRA|ĐỀ CUỐI KỲ|ĐỀ GIỮA KỲ|KIỂM TRA|BÀI KIỂM TRA|ĐỀ THI).+$/gim, '<div style="text-align:center; font-weight:bold; font-size:1.3rem; color:#667eea; margin:1rem 0;">$&</div>')
+                .replace(/^(Môn:.+)$/gim, '<div style="text-align:center; font-style:italic; margin-bottom:0.3rem;">$1</div>')
+                .replace(/^(Thời gian:.+)$/gim, '<div style="text-align:center; font-style:italic; margin-bottom:0.3rem;">$1</div>')
                 .replace(/^(Mã đề:.+)$/gim, '<div style="text-align:center; font-weight:bold; margin-bottom:1rem;">$1</div>')
                 
                 // Format section headers
-                .replace(/^(I\.|II\.|III\.|IV\.)\s*(PHẦN|TRẮC NGHIỆM|TỰ LUẬN|CÂU HỎI).+$/gim, '<div style="font-weight:bold; font-size:1.1rem; color:#f59e0b; margin:1.5rem 0 1rem; border-bottom:2px solid #f59e0b; padding-bottom:0.3rem;">$&</div>')
+                .replace(/^(I\.|II\.|III\.|IV\.)\s*(PHẦN|TRẮC NGHIỆM|TỰ LUẬN|CÂU HỎI).+$/gim, '<div style="font-weight:bold; font-size:1.1rem; color:#f59e0b; margin:1.5rem 0 0.8rem; border-bottom:2px solid #f59e0b; padding-bottom:0.3rem;">$&</div>')
+                
+                // "Chọn phương án..." instruction
+                .replace(/^(Chọn phương án.+)$/gim, '<div style="font-style:italic; margin-bottom:0.5rem;">$1</div>')
                 
                 // Format questions
-                .replace(/^(Câu \d+)([:.])(.*)$/gim, '<div style="margin-top:1rem;"><strong style="color:#10b981;">$1$2</strong>$3</div>')
+                .replace(/^(Câu \d+)([:.])(.*)$/gim, '<div style="margin-top:0.8rem;"><strong style="color:#10b981;">$1$2</strong>$3</div>')
                 
                 // Format options A, B, C, D
-                .replace(/^([A-D])([.)])(.*)$/gm, '<div style="margin-left:1.5rem; margin-top:0.3rem;"><span style="font-weight:bold; color:#667eea;">$1$2</span>$3</div>')
+                .replace(/^([A-D])([.)])(.*)$/gm, '<div style="margin-left:1.5rem; margin-top:0.2rem;"><span style="font-weight:bold; color:#667eea;">$1$2</span>$3</div>')
                 
                 // Format ending
-                .replace(/^-+\s*HẾT\s*-+$/gim, '<div style="text-align:center; font-weight:bold; margin-top:2rem; padding:1rem; border-top:2px solid #667eea;">--- HẾT ---</div>')
-                .replace(/^HẾT$/gim, '<div style="text-align:center; font-weight:bold; margin-top:2rem; padding:1rem; border-top:2px solid #667eea;">--- HẾT ---</div>')
+                .replace(/^-+\s*HẾT\s*-+$/gim, '<div style="text-align:center; font-weight:bold; margin-top:1.5rem; padding:0.8rem; border-top:2px solid #667eea;">--- HẾT ---</div>')
+                .replace(/^HẾT$/gim, '<div style="text-align:center; font-weight:bold; margin-top:1.5rem; padding:0.8rem; border-top:2px solid #667eea;">--- HẾT ---</div>')
                 
                 // Clean up line breaks
                 .replace(/\n{3,}/g, '\n\n')
@@ -1083,11 +1086,14 @@ ${formattedContent}
         }
         
         function formatContentForWord(content) {
-            // Clean markdown symbols
+            // Loại bỏ các câu mở đầu thừa của AI
             let html = content
+                .replace(/^(Tuyệt vời|Đây là|Dưới đây là|Tôi sẽ|Được rồi|Chắc chắn|Xin chào|Vâng).+?\n/gim, '')
                 .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
                 .replace(/\*(.+?)\*/g, '<i>$1</i>')
-                .replace(/^---+$/gm, ''); // Remove --- separators
+                .replace(/^---+$/gm, '')
+                .replace(/^___+$/gm, '')
+                .replace(/^\*\*\*+$/gm, '');
             
             // Split into lines for processing
             const lines = html.split('\n');
@@ -1096,60 +1102,71 @@ ${formattedContent}
             
             for (let line of lines) {
                 line = line.trim();
-                if (!line) {
-                    result.push('<br>');
-                    continue;
-                }
+                if (!line) continue; // Skip empty lines, will add proper spacing
+                
+                // Skip AI introductions
+                if (/^(Tuyệt vời|Đây là|Dưới đây|Tôi sẽ|Được rồi|Chắc chắn)/i.test(line)) continue;
                 
                 // School/Organization name
                 if (/^(TRƯỜNG|SỞ|PHÒNG|UBND)/i.test(line)) {
-                    result.push(`<div class="header-block"><span class="school-name">${line}</span></div>`);
+                    result.push(`<p align="center" style="margin:0;"><b>${line}</b></p>`);
                 }
                 // Exam title
-                else if (/^(ĐỀ KIỂM TRA|KIỂM TRA|BÀI KIỂM TRA|ĐỀ THI)/i.test(line)) {
-                    result.push(`<div class="header-block"><span class="exam-title">${line}</span></div>`);
+                else if (/^(ĐỀ KIỂM TRA|ĐỀ CUỐI KỲ|ĐỀ GIỮA KỲ|KIỂM TRA|BÀI KIỂM TRA|ĐỀ THI)/i.test(line)) {
+                    result.push(`<p align="center" style="margin:12pt 0;"><b style="font-size:14pt;">${line}</b></p>`);
                 }
                 // Subject info
                 else if (/^Môn:/i.test(line)) {
-                    result.push(`<div class="header-block"><span class="exam-info">${line}</span></div>`);
+                    result.push(`<p align="center" style="margin:3pt 0;"><i>${line}</i></p>`);
                 }
                 // Time info
                 else if (/^Thời gian:/i.test(line)) {
-                    result.push(`<div class="header-block"><span class="exam-info">${line}</span></div>`);
+                    result.push(`<p align="center" style="margin:3pt 0;"><i>${line}</i></p>`);
                 }
                 // Exam code
                 else if (/^Mã đề:/i.test(line)) {
-                    result.push(`<div class="header-block"><span class="exam-code">${line}</span></div>`);
+                    result.push(`<p align="center" style="margin:6pt 0 12pt;"><b>${line}</b></p>`);
+                }
+                // "Chọn phương án đúng nhất..." instruction
+                else if (/^Chọn phương án/i.test(line)) {
+                    result.push(`<p style="margin:6pt 0;"><i>${line}</i></p>`);
                 }
                 // Section headers (I. PHẦN TRẮC NGHIỆM, II. PHẦN TỰ LUẬN)
                 else if (/^(I\.|II\.|III\.|IV\.)\s*(PHẦN|TRẮC NGHIỆM|TỰ LUẬN|CÂU HỎI)/i.test(line)) {
-                    result.push(`<div class="section-title">${line}</div>`);
+                    result.push(`<p style="margin:15pt 0 8pt;"><b><u>${line}</u></b></p>`);
+                    inOptions = false;
                 }
                 // Questions (Câu 1, Câu 2, ...)
                 else if (/^Câu \d+/i.test(line)) {
                     inOptions = true;
-                    result.push(`<div class="question"><span class="question-number">${line.replace(/^(Câu \d+)/, '<b>$1</b>')}</span></div>`);
+                    const formatted = line.replace(/^(Câu \d+[:.)]?)/, '<b>$1</b>');
+                    result.push(`<p style="margin:10pt 0 3pt;">${formatted}</p>`);
                 }
                 // Options A, B, C, D
                 else if (/^[A-D][.)]/i.test(line) && inOptions) {
-                    result.push(`<div class="options"><span class="option"><span class="option-letter">${line.charAt(0)}.</span>${line.substring(2)}</span></div>`);
+                    const letter = line.charAt(0);
+                    const rest = line.substring(2).trim();
+                    result.push(`<p style="margin:2pt 0 2pt 25pt;"><b>${letter}.</b> ${rest}</p>`);
                 }
-                // Answer key format (1-A, 2-B, ...)
-                else if (/^\d+-[A-D]/i.test(line)) {
-                    result.push(`<div style="margin-left: 20pt;">${line}</div>`);
+                // Answer key format (1-A, 2-B, ... or multiple on one line)
+                else if (/\d+-[A-D]/i.test(line)) {
+                    result.push(`<p style="margin:6pt 0 6pt 20pt;">${line}</p>`);
                 }
                 // Ending
                 else if (/HẾT/i.test(line)) {
-                    result.push(`<div class="ending">--- HẾT ---</div>`);
+                    result.push(`<p align="center" style="margin:20pt 0; border-top:1pt solid black; padding-top:10pt;"><b>--- HẾT ---</b></p>`);
                 }
                 // Answer section header
                 else if (/^(ĐÁP ÁN|HƯỚNG DẪN CHẤM)/i.test(line)) {
-                    result.push(`<div class="header-block"><span class="exam-title">${line}</span></div>`);
+                    result.push(`<p align="center" style="margin:12pt 0;"><b style="font-size:14pt;">${line}</b></p>`);
+                }
+                // Bullet points (• or -)
+                else if (/^[•\-]\s/.test(line)) {
+                    result.push(`<p style="margin:2pt 0 2pt 20pt;">${line}</p>`);
                 }
                 // Regular text
                 else {
-                    result.push(`<p>${line}</p>`);
-                }
+                    result.push(`<p style="margin:3pt 0;">${line}</p>`);
             }
             
             return result.join('\n');
