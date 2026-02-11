@@ -57,6 +57,34 @@ const OrderSchema = new mongoose.Schema({
 });
 const Order = mongoose.model('Order', OrderSchema);
 
+// Chat Model - Tin nhắn
+const ChatSchema = new mongoose.Schema({
+    oderId: String, // Liên kết với đơn hàng (optional)
+    senderType: { type: String, enum: ['user', 'admin'], required: true },
+    senderName: String,
+    senderEmail: String,
+    message: { type: String, required: true },
+    read: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+});
+const Chat = mongoose.model('Chat', ChatSchema);
+
+// Settings Model - Cài đặt hệ thống
+const SettingsSchema = new mongoose.Schema({
+    key: { type: String, required: true, unique: true },
+    value: mongoose.Schema.Types.Mixed,
+    updatedAt: { type: Date, default: Date.now }
+});
+const Settings = mongoose.model('Settings', SettingsSchema);
+
+// Admin credentials (nên lưu trong .env nhưng để đơn giản)
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'edushop2026';
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'edushop-secret-key-2026';
+
+// Simple token storage (trong production nên dùng Redis)
+const adminTokens = new Set();
+
 // Kết nối MongoDB
 const MONGO_URI = process.env.MONGO_URI || '';
 
@@ -102,6 +130,204 @@ function loadLocalData() {
 }
 
 // ==================== API ROUTES ====================
+
+// ========== ADMIN AUTH API ==========
+// Middleware kiểm tra admin token
+function requireAdmin(req, res, next) {
+    const token = req.headers['x-admin-token'] || req.query.token;
+    if (!token || !adminTokens.has(token)) {
+        return res.status(401).json({ error: 'Unauthorized - Invalid admin token' });
+    }
+    next();
+}
+
+// POST /api/admin/login - Đăng nhập admin
+app.post('/api/admin/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    if (username === ADMIN_USER && password === ADMIN_PASS) {
+        // Tạo token đơn giản (trong production nên dùng JWT)
+        const token = `admin_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        adminTokens.add(token);
+        
+        // Token hết hạn sau 24h
+        setTimeout(() => adminTokens.delete(token), 24 * 60 * 60 * 1000);
+        
+        console.log(`🔐 Admin login: ${username} - Token: ${token.substr(0, 20)}...`);
+        res.json({ success: true, token });
+    } else {
+        console.log(`❌ Admin login failed: ${username}`);
+        res.status(401).json({ error: 'Sai tên đăng nhập hoặc mật khẩu' });
+    }
+});
+
+// POST /api/admin/logout - Đăng xuất
+app.post('/api/admin/logout', (req, res) => {
+    const token = req.headers['x-admin-token'];
+    if (token) {
+        adminTokens.delete(token);
+    }
+    res.json({ success: true });
+});
+
+// GET /api/admin/verify - Kiểm tra token còn hợp lệ
+app.get('/api/admin/verify', (req, res) => {
+    const token = req.headers['x-admin-token'];
+    if (token && adminTokens.has(token)) {
+        res.json({ valid: true });
+    } else {
+        res.status(401).json({ valid: false });
+    }
+});
+
+// ========== CHAT API ==========
+// Local chat storage for fallback
+let localChats = [];
+
+// GET /api/chats - Lấy tất cả tin nhắn (admin)
+app.get('/api/chats', async (req, res) => {
+    try {
+        if (useLocalData) {
+            return res.json(localChats.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+        }
+        const chats = await Chat.find().sort({ createdAt: -1 }).limit(100);
+        res.json(chats);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /api/chats - Gửi tin nhắn mới
+app.post('/api/chats', async (req, res) => {
+    try {
+        const { senderType, senderName, senderEmail, message } = req.body;
+        
+        if (!message || !senderType) {
+            return res.status(400).json({ error: 'Thiếu thông tin tin nhắn' });
+        }
+        
+        const chatData = {
+            senderType,
+            senderName: senderName || 'Khách',
+            senderEmail: senderEmail || '',
+            message,
+            read: senderType === 'admin',
+            createdAt: new Date()
+        };
+        
+        if (useLocalData) {
+            chatData._id = `chat_${Date.now()}`;
+            localChats.push(chatData);
+            return res.json({ success: true, chat: chatData });
+        }
+        
+        const chat = new Chat(chatData);
+        await chat.save();
+        res.json({ success: true, chat });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// PUT /api/chats/read - Đánh dấu đã đọc
+app.put('/api/chats/read', async (req, res) => {
+    try {
+        if (useLocalData) {
+            localChats.forEach(c => c.read = true);
+            return res.json({ success: true });
+        }
+        await Chat.updateMany({ read: false }, { read: true });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /api/chats/unread - Đếm tin nhắn chưa đọc
+app.get('/api/chats/unread', async (req, res) => {
+    try {
+        if (useLocalData) {
+            const count = localChats.filter(c => !c.read && c.senderType === 'user').length;
+            return res.json({ count });
+        }
+        const count = await Chat.countDocuments({ read: false, senderType: 'user' });
+        res.json({ count });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ========== SETTINGS API ==========
+// GET /api/settings - Lấy cài đặt
+app.get('/api/settings', async (req, res) => {
+    try {
+        const defaults = {
+            autoRefillEnabled: true,
+            minStock: 3,
+            refillAmount: 3
+        };
+        
+        if (useLocalData) {
+            return res.json(defaults);
+        }
+        
+        const settings = await Settings.find();
+        const result = { ...defaults };
+        settings.forEach(s => result[s.key] = s.value);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// PUT /api/settings - Cập nhật cài đặt
+app.put('/api/settings', async (req, res) => {
+    try {
+        const { autoRefillEnabled, minStock, refillAmount } = req.body;
+        
+        if (useLocalData) {
+            return res.json({ success: true, message: 'Local mode - settings not persisted' });
+        }
+        
+        if (typeof autoRefillEnabled !== 'undefined') {
+            await Settings.findOneAndUpdate(
+                { key: 'autoRefillEnabled' },
+                { key: 'autoRefillEnabled', value: autoRefillEnabled, updatedAt: new Date() },
+                { upsert: true }
+            );
+        }
+        if (typeof minStock !== 'undefined') {
+            await Settings.findOneAndUpdate(
+                { key: 'minStock' },
+                { key: 'minStock', value: parseInt(minStock), updatedAt: new Date() },
+                { upsert: true }
+            );
+        }
+        if (typeof refillAmount !== 'undefined') {
+            await Settings.findOneAndUpdate(
+                { key: 'refillAmount' },
+                { key: 'refillAmount', value: parseInt(refillAmount), updatedAt: new Date() },
+                { upsert: true }
+            );
+        }
+        
+        console.log('⚙️ Settings updated:', { autoRefillEnabled, minStock, refillAmount });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /api/settings/refill-now - Kích hoạt refill ngay
+app.post('/api/settings/refill-now', async (req, res) => {
+    try {
+        console.log('⚡ Manual refill triggered!');
+        autoRefillCheck();
+        res.json({ success: true, message: 'Refill process started' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // ========== DEEP RESEARCH API ==========
 // POST /api/deep-research - Thực hiện nghiên cứu sâu cho SKKN
@@ -647,11 +873,26 @@ async function autoRefillCheck() {
         return;
     }
     
+    // Đọc settings từ DB
+    let settings = { autoRefillEnabled: true, minStock: 3, refillAmount: 3 };
+    try {
+        const dbSettings = await Settings.find();
+        dbSettings.forEach(s => settings[s.key] = s.value);
+    } catch (e) {
+        console.log('⚠️ Không đọc được settings, dùng mặc định');
+    }
+    
+    if (!settings.autoRefillEnabled) {
+        console.log('⏸️ Auto-refill đang tắt');
+        return;
+    }
+    
     console.log('🔍 Kiểm tra kho hàng...');
+    console.log(`   ⚙️ Settings: minStock=${settings.minStock}, refillAmount=${settings.refillAmount}`);
     
     const categories = ['ai', 'stem', 'method', 'skill'];
-    const MIN_STOCK = 3;
-    const REFILL_AMOUNT = 3;
+    const MIN_STOCK = settings.minStock || 3;
+    const REFILL_AMOUNT = settings.refillAmount || 3;
     
     for (const category of categories) {
         const count = await Product.countDocuments({ category, status: 'available' });
@@ -685,6 +926,13 @@ async function autoRefillCheck() {
     
     console.log('✅ Hoàn tất kiểm tra kho!');
 }
+
+// Lên lịch auto-refill mỗi 6 giờ
+setInterval(() => {
+    if (!useLocalData) {
+        autoRefillCheck();
+    }
+}, 6 * 60 * 60 * 1000);
 
 // ==================== START SERVER ====================
 const PORT = process.env.PORT || 5000;

@@ -329,20 +329,109 @@
                 <div class="chat-message bot">
                     <div class="message-avatar">🤖</div>
                     <div class="message-content">
-                        <p>📱 <strong>Liên hệ hỗ trợ:</strong></p>
-                        <p>• Lỗi website, vấn đề kỹ thuật: <strong>Zalo 0865063436</strong></p>
-                        <p>• Vấn đề đơn hàng, thanh toán: <strong>...</strong></p>
+                        <p>Nhập tin nhắn bên dưới để chat với Admin!</p>
                     </div>
                 </div>
             </div>
             <div class="chat-input-area">
-                <input type="text" class="chat-input" placeholder="Nhập tin nhắn..." disabled>
-                <button class="chat-send" disabled>📤</button>
+                <input type="text" class="chat-input" id="userChatInput" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter')sendUserChat()">
+                <button class="chat-send" onclick="sendUserChat()">📤</button>
             </div>
         </div>
     </div>
 
     <script src="data.js"></script>
     <script src="app.js"></script>
+    
+    <script>
+        // Chat functionality - synced with server
+        const CHAT_API = window.location.origin + '/api';
+        
+        document.getElementById('chatToggle').addEventListener('click', function() {
+            document.getElementById('chatBox').classList.toggle('active');
+            loadUserChats();
+        });
+        
+        document.getElementById('chatClose').addEventListener('click', function() {
+            document.getElementById('chatBox').classList.remove('active');
+        });
+        
+        async function loadUserChats() {
+            try {
+                const res = await fetch(`${CHAT_API}/chats`);
+                const chats = await res.json();
+                
+                const container = document.getElementById('chatMessages');
+                
+                // Keep welcome messages and add real chats
+                let html = `
+                    <div class="chat-message bot">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            <p>Xin chào! Chào mừng bạn đến với EduShop! 👋</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Sort chats by time
+                chats.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                
+                chats.forEach(c => {
+                    if (c.senderType === 'user') {
+                        html += `
+                            <div class="chat-message user">
+                                <div class="message-content">
+                                    <p>${c.message}</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="chat-message bot">
+                                <div class="message-avatar">👨‍💼</div>
+                                <div class="message-content">
+                                    <p>${c.message}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                container.innerHTML = html;
+                container.scrollTop = container.scrollHeight;
+            } catch (e) {
+                console.error('Error loading chats:', e);
+            }
+        }
+        
+        async function sendUserChat() {
+            const input = document.getElementById('userChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Get user info if available
+            const userEmail = localStorage.getItem('userEmail') || '';
+            const userName = localStorage.getItem('userName') || 'Khách';
+            
+            try {
+                await fetch(`${CHAT_API}/chats`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        senderType: 'user',
+                        senderName: userName,
+                        senderEmail: userEmail,
+                        message
+                    })
+                });
+                
+                input.value = '';
+                loadUserChats();
+            } catch (e) {
+                console.error('Error sending message:', e);
+                alert('Không thể gửi tin nhắn. Vui lòng thử lại!');
+            }
+        }
+    </script>
 </body>
 </html>
