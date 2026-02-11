@@ -5180,7 +5180,18 @@ LƯU Ý QUAN TRỌNG:
                 </div>
             `;
             
-            showToast(`✅ Hoàn thành! ${wordCount.toLocaleString()} từ (~${Math.round(wordCount/350)} trang)`);
+            showToast(`✅ Hoàn thành! ${wordCount.toLocaleString()} từ (~${Math.round(wordCount/350)} trang) - Đang xuất Word...`);
+            
+            // Auto export Word after 1 second
+            setTimeout(() => {
+                try {
+                    exportToWord();
+                    showToast(`📄 Đã tự động tải file Word!`);
+                } catch (e) {
+                    console.error('Auto export error:', e);
+                    showToast(`⚠️ Vui lòng bấm "Xuất Word" để tải file`, true);
+                }
+            }, 1500);
         }
         
         // ========== Format SKKN for Display ==========
