@@ -125,6 +125,8 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 0.75rem;
             margin-bottom: 1rem;
+            position: relative;
+            z-index: 10;
         }
         
         .exam-type-btn {
@@ -136,26 +138,33 @@
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
+            position: relative;
+            z-index: 11;
+            pointer-events: auto;
         }
         
         .exam-type-btn:hover {
             border-color: #f59e0b;
             background: rgba(245, 158, 11, 0.1);
+            transform: translateY(-2px);
         }
         
         .exam-type-btn.active {
             border-color: #f59e0b;
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
         }
         
         .exam-type-btn .icon {
             font-size: 1.5rem;
             margin-bottom: 0.5rem;
+            pointer-events: none;
         }
         
         .exam-type-btn .label {
             font-size: 0.85rem;
             color: var(--text-secondary);
+            pointer-events: none;
         }
         
         .difficulty-grid {
@@ -650,6 +659,18 @@
         let currentExamType = '45p';
         let generatedExams = [];
         let generatedAnswers = [];
+        
+        // Initialize exam type buttons with event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.exam-type-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const type = this.dataset.type;
+                    selectExamType(type);
+                });
+            });
+        });
         
         function selectExamType(type) {
             currentExamType = type;
