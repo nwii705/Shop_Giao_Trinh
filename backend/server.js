@@ -176,6 +176,53 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+// 1.5 Tạo sản phẩm mới (AI Generator upload)
+app.post('/api/products', async (req, res) => {
+    try {
+        const { title, category, categoryName, categoryIcon, price, originalPrice, features, status } = req.body;
+        
+        if (!title || !category || !price) {
+            return res.status(400).json({ error: 'Thiếu thông tin: title, category, price' });
+        }
+        
+        if (useLocalData) {
+            // Local mode
+            const newProduct = {
+                _id: Date.now().toString(),
+                title,
+                category,
+                categoryName: categoryName || category,
+                categoryIcon: categoryIcon || '📄',
+                price: parseInt(price),
+                originalPrice: originalPrice || Math.round(price * 1.25),
+                features: features || ['SKKN', 'AI Generated', 'Word'],
+                status: status || 'available',
+                createdAt: new Date()
+            };
+            localProducts.unshift(newProduct);
+            return res.json({ success: true, product: newProduct });
+        }
+        
+        // MongoDB mode
+        const newProduct = new Product({
+            title,
+            category,
+            categoryName: categoryName || category,
+            categoryIcon: categoryIcon || '📄',
+            price: parseInt(price),
+            originalPrice: originalPrice || Math.round(price * 1.25),
+            features: features || ['SKKN', 'AI Generated', 'Word'],
+            status: status || 'available'
+        });
+        
+        await newProduct.save();
+        res.json({ success: true, product: newProduct });
+    } catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // 2. Lấy thống kê
 app.get('/api/stats', async (req, res) => {
     try {
