@@ -356,12 +356,16 @@ function setupEventListeners() {
     // Reset button
     resetBtn.addEventListener('click', resetProducts);
 
-    // Category tabs
-    categoryTabs.addEventListener('click', (e) => {
-        const tab = e.target.closest('.category-tab');
-        if (tab) {
-            filterByCategory(tab.dataset.category);
-        }
+    // Category tabs - bind directly to each button for reliability
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const category = tab.dataset.category;
+            if (category) {
+                filterByCategory(category);
+            }
+        });
     });
 
     // Nav links

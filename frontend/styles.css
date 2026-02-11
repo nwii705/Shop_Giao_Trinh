@@ -790,6 +790,11 @@ body {
 
 .tab-icon {
     font-size: 1.2rem;
+    pointer-events: none;
+}
+
+.tab-text {
+    pointer-events: none;
 }
 
 .tab-count {
@@ -798,6 +803,7 @@ body {
     border-radius: var(--radius-xl);
     font-size: 0.75rem;
     font-weight: 600;
+    pointer-events: none;
 }
 
 .category-tab.active .tab-count {

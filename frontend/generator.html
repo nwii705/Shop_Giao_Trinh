@@ -4594,7 +4594,7 @@ LƯU Ý QUAN TRỌNG:
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <input type="number" id="outlineTotalInput" 
                                     value="${meta.targetWords}" 
-                                    min="3000" max="20000" step="500"
+                                    min="3000" max="14000" step="500"
                                     onchange="redistributeOutlineWords(this.value)"
                                     style="width: 100px; padding: 0.5rem 0.75rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; color: var(--success); font-size: 1.1rem; font-weight: 700; text-align: center;">
                                 <span style="color: var(--success); font-weight: 600;">từ</span>
@@ -5096,8 +5096,37 @@ LƯU Ý QUAN TRỌNG:
             }
         }
         
+        // ========== Clean SKKN Content - Remove separator lines ==========
+        function cleanSKKNContent(text) {
+            if (!text) return text;
+            
+            // Xóa các dòng chỉ chứa dấu gạch ngang, gạch dưới, dấu bằng, sao, chấm lặp lại
+            text = text.replace(/^[-]{3,}$/gm, '');  // ---
+            text = text.replace(/^[=]{3,}$/gm, '');  // ===
+            text = text.replace(/^[*]{3,}$/gm, '');  // ***
+            text = text.replace(/^[_]{3,}$/gm, '');  // ___
+            text = text.replace(/^[~]{3,}$/gm, '');  // ~~~
+            text = text.replace(/^[.]{3,}$/gm, '');  // ...
+            text = text.replace(/^[\s]*[-=*_~.]{4,}[\s]*$/gm, ''); // Mixed separators
+            
+            // Xóa các dòng có pattern lặp lại ký tự (ví dụ: "---- ---- ----")
+            text = text.replace(/^[\s]*(?:[-]{2,}[\s]*)+$/gm, '');
+            text = text.replace(/^[\s]*(?:[=]{2,}[\s]*)+$/gm, '');
+            
+            // Xóa nhiều dòng trống liên tiếp, chỉ giữ 1 dòng trống
+            text = text.replace(/\n{3,}/g, '\n\n');
+            
+            // Xóa dòng trống ở đầu
+            text = text.replace(/^\n+/, '');
+            
+            return text.trim();
+        }
+        
         // ========== Finalize SKKN Content ==========
         function finalizeSKKNContent(text, meta) {
+            // Clean up dấu gạch ngang và các ký tự lặp lại vô nghĩa
+            text = cleanSKKNContent(text);
+            
             const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
             
             // Store content for export
@@ -5212,9 +5241,14 @@ TUYỆT ĐỐI KHÔNG ĐƯỢC:
 ❌ Viết "Dưới đây là bản nháp chi tiết...", "Mặc dù đề tài có vẻ..."
 ❌ Tự giới thiệu bản thân hoặc diễn giải ý định
 ❌ Viết những câu không thuộc nội dung SKKN
-❌ KHÔNG viết các dòng phân cách vô nghĩa như: ---, ---, ===, ***, ___, ~~~~
-❌ KHÔNG spam các dấu gạch ngang hoặc gạch dưới để tạo đường kẻ
-❌ KHÔNG viết các dòng trống hoặc dấu chấm liên tục (.........)
+
+QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
+🚫 TUYỆT ĐỐI CẤM viết các dòng phân cách như: ---, ===, ***, ___, ~~~~, ......
+🚫 TUYỆT ĐỐI CẤM tạo đường kẻ bằng cách lặp lại ký tự (ví dụ: ----------, ========)
+🚫 TUYỆT ĐỐI CẤM viết các dòng trống liên tiếp (chỉ được 1 dòng trống giữa các đoạn)
+🚫 KHÔNG được viết quá 40 trang A4 (tối đa 14,000 từ)
+✅ Chỉ dùng: Số thứ tự (1., 2., a), b)), dấu bullet (•, -), in đậm (**text**)
+✅ Viết súc tích, đi thẳng vào nội dung, không lan man
 
 → BẮT ĐẦU VIẾT THẲNG VÀO NỘI DUNG SKKN TỪ PHẦN "I. PHẦN MỞ ĐẦU"`;
         }
