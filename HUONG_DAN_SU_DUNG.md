@@ -30,7 +30,7 @@
 ### Công nghệ
 - **Backend:** Node.js + Express, MongoDB Atlas
 - **Hosting:** Railway (tự động deploy từ GitHub)
-- **AI:** OpenRouter API (Gemini 2.0 Flash)
+- **AI:** OpenRouter API (Gemini 2.5 Flash)
 
 ---
 
@@ -258,16 +258,21 @@ Tạo SKKN hàng loạt để bán:
 
 ## 5. HẠN CHẾ & LƯU Ý
 
-### ⚠️ Chưa hoàn thiện
+### ✅ Đã hoàn thiện (cập nhật)
 
-| Tính năng | Vấn đề |
-|-----------|--------|
+| Tính năng | Trạng thái |
+|-----------|------------|
+| Admin bảo mật server-side | ✅ Token-based auth qua API |
+| Chat real-time | ✅ Đồng bộ qua MongoDB |
+| Auto-Refill | ✅ Có UI + API + logic hoạt động |
+
+### ⚠️ Lưu ý còn lại
+
+| Vấn đề | Mô tả |
+|--------|-------|
 | Đăng nhập User | Không có - chỉ lưu localStorage |
-| Bảo mật Admin | Chỉ check client-side, dễ bypass |
-| Gửi file tự động | Không có - phải gửi thủ công |
-| Chat real-time | Không đồng bộ giữa user/admin |
-| Auto-Refill | UI có nhưng logic chưa kết nối |
-| Thanh toán | Chỉ hiển thị QR, không verify |
+| Gửi file tự động | Không có - phải gửi thủ công qua email |
+| Thanh toán | Chỉ hiển thị QR, không verify tự động |
 
 ### 🔑 Về API Key
 

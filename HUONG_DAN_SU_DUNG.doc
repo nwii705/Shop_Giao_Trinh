@@ -1,0 +1,291 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+    body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.5; margin: 2cm; }
+    h1 { font-size: 20pt; color: #1a365d; text-align: center; margin-bottom: 20px; }
+    h2 { font-size: 16pt; color: #2c5282; border-bottom: 2px solid #4299e1; padding-bottom: 5px; margin-top: 25px; }
+    h3 { font-size: 14pt; color: #2b6cb0; margin-top: 20px; }
+    h4 { font-size: 13pt; color: #3182ce; margin-top: 15px; }
+    table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #e2e8f0; font-weight: bold; }
+    .info-box { background-color: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px 15px; margin: 15px 0; }
+    .warning-box { background-color: #fffaf0; border-left: 4px solid #ed8936; padding: 10px 15px; margin: 15px 0; }
+    .success { color: #38a169; }
+    .warning { color: #dd6b20; }
+    ul, ol { margin-left: 20px; }
+    li { margin: 5px 0; }
+    code { background-color: #edf2f7; padding: 2px 6px; border-radius: 3px; font-family: Consolas, monospace; }
+    a { color: #3182ce; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+    .header-info { text-align: center; color: #718096; margin-bottom: 30px; }
+</style>
+</head>
+<body>
+
+<h1>📚 EduShop - Hướng Dẫn Sử Dụng</h1>
+
+<div class="header-info">
+    <p><strong>Phiên bản:</strong> 1.0 | <strong>Cập nhật:</strong> Tháng 2/2026</p>
+    <p><strong>Website:</strong> <a href="https://docs-google.up.railway.app/">https://docs-google.up.railway.app/</a></p>
+</div>
+
+<hr>
+
+<h2>📋 MỤC LỤC</h2>
+<ol>
+    <li>Tổng quan</li>
+    <li>Dành cho khách hàng</li>
+    <li>Dành cho Admin</li>
+    <li>Các tính năng hoạt động</li>
+    <li>Hạn chế & Lưu ý</li>
+</ol>
+
+<hr>
+
+<h2>1. TỔNG QUAN</h2>
+
+<h3>Địa chỉ truy cập</h3>
+<table>
+    <tr><th>Trang</th><th>URL</th></tr>
+    <tr><td>Trang chủ</td><td><a href="https://docs-google.up.railway.app/">https://docs-google.up.railway.app/</a></td></tr>
+    <tr><td>Tự soạn KHBD/SKKN</td><td><a href="https://docs-google.up.railway.app/generator.html">https://docs-google.up.railway.app/generator.html</a></td></tr>
+    <tr><td>Tạo đề thi</td><td><a href="https://docs-google.up.railway.app/exam-generator.html">https://docs-google.up.railway.app/exam-generator.html</a></td></tr>
+    <tr><td>Lịch sử</td><td><a href="https://docs-google.up.railway.app/history.html">https://docs-google.up.railway.app/history.html</a></td></tr>
+    <tr><td>Admin</td><td><a href="https://docs-google.up.railway.app/admin.html">https://docs-google.up.railway.app/admin.html</a></td></tr>
+</table>
+
+<h3>Công nghệ</h3>
+<ul>
+    <li><strong>Backend:</strong> Node.js + Express, MongoDB Atlas</li>
+    <li><strong>Hosting:</strong> Railway (tự động deploy từ GitHub)</li>
+    <li><strong>AI:</strong> OpenRouter API (Gemini 2.0 Flash)</li>
+</ul>
+
+<hr>
+
+<h2>2. DÀNH CHO KHÁCH HÀNG</h2>
+
+<h3>2.1. Xem & Mua giáo trình <span class="success">✅ Hoạt động</span></h3>
+
+<p><strong>Cách dùng:</strong></p>
+<ol>
+    <li>Vào trang chủ</li>
+    <li>Lọc theo danh mục: AI, STEM, Phương pháp, Kỹ năng</li>
+    <li>Click sản phẩm để xem chi tiết</li>
+    <li>Nhập thông tin: Họ tên, Email, SĐT</li>
+    <li>Thanh toán qua QR (hiển thị mã QR)</li>
+    <li>Đợi Admin xác nhận và gửi tài liệu qua email</li>
+</ol>
+
+<div class="warning-box">
+    <strong>Lưu ý:</strong> Quy trình thanh toán là <strong>thủ công</strong> - Admin cần kiểm tra và gửi file. Không có hệ thống tự động gửi file.
+</div>
+
+<h3>2.2. Tự soạn KHBD <span class="success">✅ Hoạt động</span></h3>
+
+<p><strong>Địa chỉ:</strong> <code>/generator.html</code> → Tab <strong>KHBD</strong></p>
+
+<p><strong>Cách dùng:</strong></p>
+<ol>
+    <li>Nhập <strong>API Key</strong> (do bạn cung cấp)</li>
+    <li>Bấm <strong>"Kiểm tra"</strong> để xác nhận key hoạt động</li>
+    <li>(Tùy chọn) Upload file sách PDF/ảnh</li>
+    <li>Chọn: Cấp học → Lớp → Môn → Bộ sách → Bài học</li>
+    <li>Bấm <strong>"🚀 Tạo KHBD"</strong></li>
+    <li>Đợi AI soạn (1-3 phút)</li>
+    <li>Bấm <strong>"📄 Xuất Word"</strong> để tải file</li>
+</ol>
+
+<p><strong>Môn học hỗ trợ:</strong></p>
+<ul>
+    <li><strong>THCS (Lớp 6-9):</strong> Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử, Địa lý, GDCD, Tin học, Công nghệ, Âm nhạc, Mỹ thuật, HĐTN</li>
+    <li><strong>THPT (Lớp 10-12):</strong> Tương tự + Vật lý, Hóa học, Sinh học riêng</li>
+</ul>
+
+<p><strong>Bộ sách:</strong> Kết nối tri thức, Chân trời sáng tạo, Cánh diều</p>
+
+<h3>2.3. Tự soạn SKKN <span class="success">✅ Hoạt động</span></h3>
+
+<p><strong>Địa chỉ:</strong> <code>/generator.html</code> → Tab <strong>SKKN</strong></p>
+
+<p><strong>Cách dùng:</strong></p>
+<ol>
+    <li>Nhập <strong>API Key</strong></li>
+    <li>Bấm <strong>"Kiểm tra"</strong></li>
+    <li>Điền thông tin: Vai trò, Môn học, Cấp học, Đề tài</li>
+    <li>(Tùy chọn) Cấu hình: Số từ 5000-20000, Số giải pháp 3-7, Deep Research</li>
+    <li>Bấm <strong>"🚀 Tạo SKKN"</strong></li>
+    <li>Đợi AI soạn (3-10 phút tùy độ dài)</li>
+    <li>Xuất Word khi hoàn thành</li>
+</ol>
+
+<p><strong>Cấu trúc SKKN:</strong> Theo QĐ 658/QĐ-SGDĐT</p>
+<ul>
+    <li>Phần I: Mở đầu (lý do, mục đích, đối tượng, phương pháp)</li>
+    <li>Phần II: Nội dung (cơ sở lý luận, thực trạng, giải pháp)</li>
+    <li>Phần III: Kết quả, kết luận, kiến nghị</li>
+</ul>
+
+<h3>2.4. Tạo đề thi <span class="success">✅ Hoạt động</span></h3>
+
+<p><strong>Địa chỉ:</strong> <code>/exam-generator.html</code></p>
+
+<p><strong>Cách dùng:</strong></p>
+<ol>
+    <li>Nhập <strong>API Key</strong></li>
+    <li>Chọn <strong>Môn học</strong> (12 môn)</li>
+    <li>Chọn <strong>Lớp</strong> (6-12)</li>
+    <li>Chọn <strong>Loại đề</strong>: 15 phút, 45 phút, Giữa kỳ, Cuối kỳ</li>
+    <li>Nhập <strong>Nội dung kiến thức</strong></li>
+    <li>Chọn <strong>Số mã đề</strong> (1-4)</li>
+    <li>Bấm <strong>"⚡ Tạo đề thi"</strong></li>
+    <li>Tải: Đề thi Word + Đáp án Word</li>
+</ol>
+
+<p><strong>Ma trận đề:</strong> Theo Thông tư 22/2021 - Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao</p>
+
+<h3>2.5. Lịch sử tài liệu <span class="success">✅ Hoạt động</span></h3>
+<p>Địa chỉ: <code>/history.html</code> - Xem lại KHBD/SKKN đã tạo, lọc và xóa tài liệu.</p>
+<div class="warning-box">Dữ liệu lưu trong <strong>localStorage</strong> của trình duyệt. Nếu xóa cache sẽ mất.</div>
+
+<hr>
+
+<h2>3. DÀNH CHO ADMIN</h2>
+
+<h3>3.1. Đăng nhập Admin</h3>
+<p><strong>Địa chỉ:</strong> <code>/admin.html</code></p>
+<p><strong>Tài khoản:</strong> <code>admin</code> / <code>edushop2026</code></p>
+
+<div class="info-box">
+    <strong>Bảo mật:</strong> Đăng nhập qua API server-side với token, hết hạn sau 24h.
+</div>
+
+<h3>3.2. Dashboard <span class="success">✅ Hoạt động</span></h3>
+<ul>
+    <li>Thống kê số sản phẩm theo danh mục</li>
+    <li>Tổng sản phẩm / Đã bán</li>
+    <li>Server mode (MongoDB/Local)</li>
+</ul>
+
+<h3>3.3. Quản lý sản phẩm <span class="success">✅ Hoạt động</span></h3>
+<ul>
+    <li>Xem danh sách sản phẩm</li>
+    <li><strong>Seed Data:</strong> Tạo dữ liệu mẫu (21 sản phẩm)</li>
+    <li><strong>Reset:</strong> Khôi phục sản phẩm mặc định</li>
+    <li><strong>Xóa:</strong> Xóa từng sản phẩm hoặc xóa hết</li>
+</ul>
+
+<h3>3.4. AI SKKN Generator <span class="success">✅ Hoạt động</span></h3>
+<p>Tạo SKKN hàng loạt để bán:</p>
+<ol>
+    <li>Nhập API Key, chọn danh mục, số lượng</li>
+    <li>Điền vai trò, môn học, đề tài</li>
+    <li>Đặt giá, số từ</li>
+    <li>Tích "Tự động upload lên Shop" và "Xuất file Word"</li>
+    <li>Bấm "Bắt đầu tạo SKKN"</li>
+</ol>
+
+<h3>3.5. Quản lý đơn hàng <span class="success">✅ Hoạt động</span></h3>
+<ul>
+    <li>Xem: Mã đơn, sản phẩm, khách hàng, email, SĐT, số tiền</li>
+    <li>✅ <strong>Xác nhận:</strong> Khi đã nhận tiền</li>
+    <li>❌ <strong>Từ chối:</strong> Nếu có vấn đề</li>
+</ul>
+<div class="warning-box">Sau khi xác nhận, bạn cần <strong>TỰ GỬI file qua email</strong> cho khách!</div>
+
+<h3>3.6. Chat Support <span class="success">✅ Hoạt động</span></h3>
+<ul>
+    <li>Xem tin nhắn từ khách hàng</li>
+    <li>Trả lời trực tiếp</li>
+    <li>Đồng bộ qua MongoDB</li>
+</ul>
+
+<h3>3.7. Cài đặt Auto-Refill <span class="success">✅ Hoạt động</span></h3>
+<ul>
+    <li>Bật/tắt tự động bổ sung kho</li>
+    <li>Cấu hình ngưỡng kho tối thiểu</li>
+    <li>Cấu hình số lượng bổ sung</li>
+    <li>Nút "Kiểm tra & Bổ sung ngay"</li>
+</ul>
+
+<hr>
+
+<h2>4. CÁC TÍNH NĂNG HOẠT ĐỘNG</h2>
+
+<table>
+    <tr><th>Tính năng</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+    <tr><td>Xem/lọc sản phẩm</td><td class="success">✅ OK</td><td>Lọc theo danh mục, tìm kiếm</td></tr>
+    <tr><td>Mua sản phẩm</td><td class="success">✅ OK</td><td>Tạo đơn hàng, hiển thị QR</td></tr>
+    <tr><td>Tự soạn KHBD</td><td class="success">✅ OK</td><td>Cần API Key</td></tr>
+    <tr><td>Tự soạn SKKN</td><td class="success">✅ OK</td><td>Cần API Key</td></tr>
+    <tr><td>Tạo đề thi</td><td class="success">✅ OK</td><td>Cần API Key</td></tr>
+    <tr><td>Xuất Word</td><td class="success">✅ OK</td><td>KHBD, SKKN, Đề thi</td></tr>
+    <tr><td>Lịch sử tài liệu</td><td class="success">✅ OK</td><td>Lưu localStorage</td></tr>
+    <tr><td>Admin - Dashboard</td><td class="success">✅ OK</td><td></td></tr>
+    <tr><td>Admin - Sản phẩm</td><td class="success">✅ OK</td><td>CRUD đầy đủ</td></tr>
+    <tr><td>Admin - Đơn hàng</td><td class="success">✅ OK</td><td>Xem, xác nhận, từ chối</td></tr>
+    <tr><td>Admin - AI Generator</td><td class="success">✅ OK</td><td>Tạo SKKN hàng loạt</td></tr>
+    <tr><td>Admin - Chat</td><td class="success">✅ OK</td><td>Đồng bộ MongoDB</td></tr>
+    <tr><td>Admin - Auto-Refill</td><td class="success">✅ OK</td><td>Cấu hình & kích hoạt</td></tr>
+    <tr><td>Mobile responsive</td><td class="success">✅ OK</td><td>Sidebar toggle</td></tr>
+</table>
+
+<hr>
+
+<h2>5. HẠN CHẾ & LƯU Ý</h2>
+
+<h3>⚠️ Lưu ý còn lại</h3>
+<table>
+    <tr><th>Vấn đề</th><th>Mô tả</th></tr>
+    <tr><td>Đăng nhập User</td><td>Không có - chỉ lưu localStorage</td></tr>
+    <tr><td>Gửi file tự động</td><td>Không có - phải gửi thủ công qua email</td></tr>
+    <tr><td>Thanh toán</td><td>Chỉ hiển thị QR, không verify tự động</td></tr>
+</table>
+
+<h3>🔑 Về API Key</h3>
+<ul>
+    <li>Khách cần API Key để sử dụng các tính năng AI</li>
+    <li>Bạn tự tạo key và cấp cho khách</li>
+    <li>Nguồn key: OpenRouter hoặc Google AI Studio</li>
+</ul>
+
+<h3>⏱️ Rate Limit</h3>
+<ul>
+    <li>Nếu tạo nhiều SKKN liên tục có thể bị giới hạn API</li>
+    <li>Hệ thống đã có retry tự động (10s → 20s → 40s)</li>
+    <li>Khuyến nghị: Không tạo quá 3 SKKN/lần</li>
+</ul>
+
+<h3>💾 Lưu trữ</h3>
+<ul>
+    <li><strong>Sản phẩm, Đơn hàng, Chat:</strong> MongoDB Atlas (bền vững)</li>
+    <li><strong>Lịch sử tạo tài liệu:</strong> localStorage (mất khi xóa cache)</li>
+</ul>
+
+<hr>
+
+<h2>📞 HỖ TRỢ</h2>
+<ul>
+    <li><strong>Lỗi kỹ thuật:</strong> Zalo 0865063436</li>
+    <li><strong>Đơn hàng:</strong> Email từ form liên hệ</li>
+</ul>
+
+<hr>
+
+<p style="text-align: center; color: #718096; font-style: italic;">
+    © 2026 EduShop - Phiên bản MVP
+</p>
+
+</body>
+</html>

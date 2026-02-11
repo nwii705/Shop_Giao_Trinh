@@ -26,8 +26,8 @@ class Settings(BaseSettings):
     
     # Gemini AI - Sử dụng Flash để tối ưu chi phí
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.0-flash"  # Model mới nhất, chi phí thấp
-    GEMINI_MODEL_SIMPLE: str = "gemini-2.0-flash"  # Cho tác vụ đơn giản
+    GEMINI_MODEL: str = "gemini-2.5-flash"  # Model mới nhất, chi phí thấp
+    GEMINI_MODEL_SIMPLE: str = "gemini-2.5-flash"  # Cho tác vụ đơn giản
     
     # AI Generation Settings
     AI_TEMPERATURE: float = 0.7  # Cân bằng giữa sáng tạo và nhất quán
