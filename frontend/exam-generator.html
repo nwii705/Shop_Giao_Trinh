@@ -247,6 +247,8 @@
             cursor: pointer;
             font-size: 0.85rem;
             transition: all 0.3s;
+            position: relative;
+            z-index: 10;
         }
         
         .btn-action:hover {
@@ -258,6 +260,12 @@
             background: linear-gradient(135deg, #f59e0b, #ef4444);
             border: none;
             color: white;
+            cursor: pointer;
+        }
+        
+        .btn-action.primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
         }
         
         .preview-content {
@@ -893,51 +901,175 @@ Câu 1 (X điểm):
         }
         
         function formatExamContent(content) {
-            return content
+            // Clean up raw markdown and format nicely
+            let formatted = content
+                // Remove raw markdown symbols
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                .replace(/^(Câu \d+)/gm, '<br><strong>$1</strong>')
-                .replace(/^(I\.|II\.)/gm, '<br><strong style="font-size:1.1rem;">$1</strong>')
-                .replace(/^([A-D])\./gm, '&nbsp;&nbsp;&nbsp;$1.')
-                .replace(/---(.+?)---/g, '<div style="text-align:center; font-weight:bold; margin: 1rem 0;">$1</div>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                
+                // Format header section (school name, exam title)
+                .replace(/^---\s*$/gm, '') // Remove --- separators
+                .replace(/^(TRƯỜNG|SỞ|PHÒNG|UBND).+$/gim, '<div style="text-align:center; font-weight:bold; font-size:1rem; margin-top:0.5rem;">$&</div>')
+                .replace(/^(ĐỀ KIỂM TRA|KIỂM TRA|BÀI KIỂM TRA|ĐỀ THI).+$/gim, '<div style="text-align:center; font-weight:bold; font-size:1.3rem; color:#667eea; margin:1rem 0;">$&</div>')
+                .replace(/^(Môn:.+)$/gim, '<div style="text-align:center; font-style:italic; margin-bottom:0.5rem;">$1</div>')
+                .replace(/^(Thời gian:.+)$/gim, '<div style="text-align:center; font-style:italic; margin-bottom:0.5rem;">$1</div>')
+                .replace(/^(Mã đề:.+)$/gim, '<div style="text-align:center; font-weight:bold; margin-bottom:1rem;">$1</div>')
+                
+                // Format section headers
+                .replace(/^(I\.|II\.|III\.|IV\.)\s*(PHẦN|TRẮC NGHIỆM|TỰ LUẬN|CÂU HỎI).+$/gim, '<div style="font-weight:bold; font-size:1.1rem; color:#f59e0b; margin:1.5rem 0 1rem; border-bottom:2px solid #f59e0b; padding-bottom:0.3rem;">$&</div>')
+                
+                // Format questions
+                .replace(/^(Câu \d+)([:.])(.*)$/gim, '<div style="margin-top:1rem;"><strong style="color:#10b981;">$1$2</strong>$3</div>')
+                
+                // Format options A, B, C, D
+                .replace(/^([A-D])([.)])(.*)$/gm, '<div style="margin-left:1.5rem; margin-top:0.3rem;"><span style="font-weight:bold; color:#667eea;">$1$2</span>$3</div>')
+                
+                // Format ending
+                .replace(/^-+\s*HẾT\s*-+$/gim, '<div style="text-align:center; font-weight:bold; margin-top:2rem; padding:1rem; border-top:2px solid #667eea;">--- HẾT ---</div>')
+                .replace(/^HẾT$/gim, '<div style="text-align:center; font-weight:bold; margin-top:2rem; padding:1rem; border-top:2px solid #667eea;">--- HẾT ---</div>')
+                
+                // Clean up line breaks
+                .replace(/\n{3,}/g, '\n\n')
                 .replace(/\n/g, '<br>');
+            
+            return formatted;
         }
         
         function downloadWord() {
-            if (generatedExams.length === 0) return;
+            if (generatedExams.length === 0) {
+                alert('Chưa có đề thi để tải!');
+                return;
+            }
             
-            generatedExams.forEach(exam => {
-                downloadAsWord(`De_${exam.variant}`, exam.content);
+            generatedExams.forEach((exam, index) => {
+                setTimeout(() => {
+                    downloadAsWord(`De_${exam.variant}`, exam.content);
+                }, index * 300);
             });
         }
         
         function downloadAnswer() {
-            if (generatedAnswers.length === 0) return;
+            if (generatedAnswers.length === 0) {
+                alert('Chưa có đáp án để tải!');
+                return;
+            }
             
-            generatedAnswers.forEach(answer => {
-                downloadAsWord(`DapAn_${answer.variant}`, answer.content);
+            generatedAnswers.forEach((answer, index) => {
+                setTimeout(() => {
+                    downloadAsWord(`DapAn_${answer.variant}`, answer.content);
+                }, index * 300);
             });
         }
         
         function downloadAll() {
-            downloadWord();
-            setTimeout(() => downloadAnswer(), 500);
+            if (generatedExams.length === 0) {
+                alert('Chưa có đề thi để tải!');
+                return;
+            }
+            
+            // Download đề trước
+            generatedExams.forEach((exam, index) => {
+                setTimeout(() => {
+                    downloadAsWord(`De_${exam.variant}`, exam.content);
+                }, index * 300);
+            });
+            
+            // Download đáp án sau
+            const delay = generatedExams.length * 300 + 500;
+            generatedAnswers.forEach((answer, index) => {
+                setTimeout(() => {
+                    downloadAsWord(`DapAn_${answer.variant}`, answer.content);
+                }, delay + index * 300);
+            });
         }
         
         function downloadAsWord(filename, content) {
+            // Format content properly for Word
+            const formattedContent = formatContentForWord(content);
+            
             const htmlContent = `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: 21cm 29.7cm; margin: 2cm; }
-        body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.5; }
-        h1 { text-align: center; font-size: 14pt; }
-        h2 { font-size: 13pt; font-weight: bold; }
-        .header { text-align: center; margin-bottom: 1cm; }
+        @page { 
+            size: 21cm 29.7cm; 
+            margin: 2cm 2cm 2cm 3cm; 
+        }
+        body { 
+            font-family: 'Times New Roman', serif; 
+            font-size: 13pt; 
+            line-height: 1.6; 
+        }
+        .header-block {
+            text-align: center;
+            margin-bottom: 15pt;
+        }
+        .school-name {
+            font-weight: bold;
+            font-size: 13pt;
+            text-transform: uppercase;
+        }
+        .exam-title {
+            font-weight: bold;
+            font-size: 14pt;
+            text-transform: uppercase;
+            margin: 10pt 0;
+        }
+        .exam-info {
+            font-style: italic;
+            font-size: 12pt;
+            margin: 5pt 0;
+        }
+        .exam-code {
+            font-weight: bold;
+            font-size: 13pt;
+            margin: 10pt 0;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 13pt;
+            margin-top: 15pt;
+            margin-bottom: 10pt;
+            text-decoration: underline;
+        }
+        .question {
+            margin-top: 10pt;
+            margin-bottom: 5pt;
+        }
+        .question-number {
+            font-weight: bold;
+        }
+        .options {
+            margin-left: 20pt;
+        }
+        .option {
+            margin: 3pt 0;
+        }
+        .option-letter {
+            font-weight: bold;
+        }
+        .ending {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20pt;
+            border-top: 1pt solid black;
+            padding-top: 10pt;
+        }
+        table.answer-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10pt 0;
+        }
+        table.answer-table td, table.answer-table th {
+            border: 1pt solid black;
+            padding: 5pt;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    ${content.replace(/\n/g, '<br>')}
+${formattedContent}
 </body>
 </html>`;
             
@@ -948,6 +1080,79 @@ Câu 1 (X điểm):
             a.download = `${filename}.doc`;
             a.click();
             URL.revokeObjectURL(url);
+        }
+        
+        function formatContentForWord(content) {
+            // Clean markdown symbols
+            let html = content
+                .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+                .replace(/\*(.+?)\*/g, '<i>$1</i>')
+                .replace(/^---+$/gm, ''); // Remove --- separators
+            
+            // Split into lines for processing
+            const lines = html.split('\n');
+            let result = [];
+            let inOptions = false;
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) {
+                    result.push('<br>');
+                    continue;
+                }
+                
+                // School/Organization name
+                if (/^(TRƯỜNG|SỞ|PHÒNG|UBND)/i.test(line)) {
+                    result.push(`<div class="header-block"><span class="school-name">${line}</span></div>`);
+                }
+                // Exam title
+                else if (/^(ĐỀ KIỂM TRA|KIỂM TRA|BÀI KIỂM TRA|ĐỀ THI)/i.test(line)) {
+                    result.push(`<div class="header-block"><span class="exam-title">${line}</span></div>`);
+                }
+                // Subject info
+                else if (/^Môn:/i.test(line)) {
+                    result.push(`<div class="header-block"><span class="exam-info">${line}</span></div>`);
+                }
+                // Time info
+                else if (/^Thời gian:/i.test(line)) {
+                    result.push(`<div class="header-block"><span class="exam-info">${line}</span></div>`);
+                }
+                // Exam code
+                else if (/^Mã đề:/i.test(line)) {
+                    result.push(`<div class="header-block"><span class="exam-code">${line}</span></div>`);
+                }
+                // Section headers (I. PHẦN TRẮC NGHIỆM, II. PHẦN TỰ LUẬN)
+                else if (/^(I\.|II\.|III\.|IV\.)\s*(PHẦN|TRẮC NGHIỆM|TỰ LUẬN|CÂU HỎI)/i.test(line)) {
+                    result.push(`<div class="section-title">${line}</div>`);
+                }
+                // Questions (Câu 1, Câu 2, ...)
+                else if (/^Câu \d+/i.test(line)) {
+                    inOptions = true;
+                    result.push(`<div class="question"><span class="question-number">${line.replace(/^(Câu \d+)/, '<b>$1</b>')}</span></div>`);
+                }
+                // Options A, B, C, D
+                else if (/^[A-D][.)]/i.test(line) && inOptions) {
+                    result.push(`<div class="options"><span class="option"><span class="option-letter">${line.charAt(0)}.</span>${line.substring(2)}</span></div>`);
+                }
+                // Answer key format (1-A, 2-B, ...)
+                else if (/^\d+-[A-D]/i.test(line)) {
+                    result.push(`<div style="margin-left: 20pt;">${line}</div>`);
+                }
+                // Ending
+                else if (/HẾT/i.test(line)) {
+                    result.push(`<div class="ending">--- HẾT ---</div>`);
+                }
+                // Answer section header
+                else if (/^(ĐÁP ÁN|HƯỚNG DẪN CHẤM)/i.test(line)) {
+                    result.push(`<div class="header-block"><span class="exam-title">${line}</span></div>`);
+                }
+                // Regular text
+                else {
+                    result.push(`<p>${line}</p>`);
+                }
+            }
+            
+            return result.join('\n');
         }
     </script>
 </body>
