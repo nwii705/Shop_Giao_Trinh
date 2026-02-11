@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Sử Dụng - EduShop</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(15, 12, 41, 0.95);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .hero-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .hero h1 {
+            font-size: 36px;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.12);
+            border-color: #667eea;
+        }
+        
+        .feature-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card p {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        /* Section */
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .section-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            color: white;
+        }
+        
+        /* Steps */
+        .steps {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .step {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content strong {
+            color: #a78bfa;
+        }
+        
+        /* Info Box */
+        .info-box {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 4px solid #3b82f6;
+            padding: 20px 25px;
+            margin: 20px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .info-box.warning {
+            background: rgba(245, 158, 11, 0.2);
+            border-left-color: #f59e0b;
+        }
+        
+        .info-box.success {
+            background: rgba(34, 197, 94, 0.2);
+            border-left-color: #22c55e;
+        }
+        
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        /* FAQ */
+        .faq-item {
+            margin-bottom: 20px;
+        }
+        
+        .faq-question {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Support Box */
+        .support-box {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));
+            border-radius: 16px;
+            margin-top: 40px;
+        }
+        
+        .support-box h3 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .support-phone {
+            font-size: 32px;
+            font-weight: 700;
+            color: #a78bfa;
+            margin: 20px 0;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 40px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .logo-text {
+                font-size: 18px;
+            }
+            
+            .hero h1 {
+                font-size: 28px;
+            }
+            
+            .section {
+                padding: 25px;
+            }
+            
+            .section-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="index.html" class="logo">
+            <span class="logo-icon">📚</span>
+            <span class="logo-text">EduShop</span>
+        </a>
+        <a href="index.html" class="back-btn">← Về Trang Chủ</a>
+    </header>
+    
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-icon">📖</div>
+            <h1>Hướng Dẫn Sử Dụng</h1>
+            <p>Tất cả những gì bạn cần biết để sử dụng EduShop hiệu quả nhất</p>
+        </div>
+        
+        <!-- Features Overview -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3>Tự Soạn KHBD</h3>
+                <p>Soạn giáo án theo chuẩn Bộ GD&ĐT chỉ trong 1-3 phút</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3>Tự Soạn SKKN</h3>
+                <p>Viết sáng kiến 5.000-20.000 từ theo QĐ 658</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Tạo Đề Thi</h3>
+                <p>Đề kiểm tra theo ma trận Thông tư 22/2021</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>Mua Giáo Trình</h3>
+                <p>Kho tài liệu chất lượng cao, giá phải chăng</p>
+            </div>
+        </div>
+        
+        <!-- Section 1: Buy Products -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <div class="section-title">Xem & Mua Giáo Trình</div>
+            </div>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        Truy cập <strong>Trang chủ</strong> EduShop
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Lọc theo danh mục:</strong> AI, STEM, Phương pháp, Kỹ năng
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <strong>Click vào sản phẩm</strong> để xem chi tiết
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <strong>Nhập thông tin:</strong> Họ tên, Email, Số điện thoại
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <strong>Quét mã QR MoMo</strong> và chuyển đúng số tiền
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        Bấm <strong>"Xác nhận đã thanh toán"</strong> và đợi nhận tài liệu qua email
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-box-title">📧 Lưu ý</div>
+                <p>Tài liệu sẽ được gửi qua email trong vòng <strong>24 giờ</strong> sau khi thanh toán được xác nhận.</p>
+            </div>
+        </div>
+        
+        <!-- Section 2: KHBD -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <div class="section-title">Tự Soạn Kế Hoạch Bài Dạy (KHBD)</div>
+            </div>
+            
+            <p style="margin-bottom: 20px;">Công cụ AI giúp bạn soạn giáo án theo đúng chuẩn Bộ GD&ĐT.</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        Truy cập trang <strong>Tự soạn</strong> → Chọn tab <strong>KHBD</strong>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Nhập API Key</strong> (được cấp khi đăng ký) → Bấm <strong>"Kiểm tra"</strong>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        Chọn: <strong>Cấp học → Lớp → Môn học → Bộ sách → Bài học</strong>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        (Tùy chọn) <strong>Upload file sách</strong> PDF/ảnh để AI tham khảo chính xác hơn
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        Bấm <strong>"Tạo KHBD"</strong> và đợi 1-3 phút
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        Bấm <strong>"Xuất Word"</strong> để tải file .docx về máy
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>Cấp học</th>
+                        <th>Môn học hỗ trợ</th>
+                    </tr>
+                    <tr>
+                        <td>THCS (Lớp 6-9)</td>
+                        <td>Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử, Địa lý, GDCD, Tin học, Công nghệ, Âm nhạc, Mỹ thuật, HĐTN</td>
+                    </tr>
+                    <tr>
+                        <td>THPT (Lớp 10-12)</td>
+                        <td>Tương tự + Vật lý, Hóa học, Sinh học riêng</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="info-box success">
+                <div class="info-box-title">✅ Bộ sách hỗ trợ</div>
+                <p>Kết nối tri thức, Chân trời sáng tạo, Cánh diều</p>
+            </div>
+        </div>
+        
+        <!-- Section 3: SKKN -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <div class="section-title">Tự Soạn Sáng Kiến Kinh Nghiệm (SKKN)</div>
+            </div>
+            
+            <p style="margin-bottom: 20px;">Viết SKKN theo chuẩn QĐ 658/QĐ-SGDĐT với độ dài từ 5.000 đến 20.000 từ.</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        Truy cập trang <strong>Tự soạn</strong> → Chọn tab <strong>SKKN</strong>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Nhập API Key</strong> → Bấm <strong>"Kiểm tra"</strong>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        Điền: <strong>Vai trò, Môn học, Cấp học, Đề tài</strong>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        Cấu hình: <strong>Số từ</strong> (5.000-20.000), <strong>Số giải pháp</strong> (3-7)
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        Bấm <strong>"Tạo SKKN"</strong> và đợi 3-10 phút tùy độ dài
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        Bấm <strong>"Xuất Word"</strong> để tải file về máy
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-box-title">📖 Cấu trúc SKKN theo QĐ 658</div>
+                <p><strong>Phần I:</strong> Mở đầu (Lý do, mục đích, đối tượng, phương pháp)</p>
+                <p><strong>Phần II:</strong> Nội dung (Cơ sở lý luận, thực trạng, giải pháp)</p>
+                <p><strong>Phần III:</strong> Kết quả, kết luận, kiến nghị</p>
+            </div>
+        </div>
+        
+        <!-- Section 4: Exam -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <div class="section-title">Tạo Đề Thi Tự Động</div>
+            </div>
+            
+            <p style="margin-bottom: 20px;">Tạo đề kiểm tra với ma trận theo Thông tư 22/2021/TT-BGDĐT.</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        Truy cập trang <strong>Đề thi</strong>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Nhập API Key</strong> → Bấm <strong>"Kiểm tra"</strong>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        Chọn: <strong>Môn học → Lớp → Loại đề</strong> (15 phút, 45 phút, Giữa kỳ, Cuối kỳ)
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        Nhập <strong>Nội dung kiến thức</strong> cần ra đề
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        Chọn <strong>Số mã đề</strong> (1-4) nếu cần nhiều phiên bản
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        Bấm <strong>"Tạo đề thi"</strong> → Tải <strong>Đề thi + Đáp án</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>Mức độ</th>
+                        <th>Tỷ lệ</th>
+                        <th>Mô tả</th>
+                    </tr>
+                    <tr>
+                        <td>Nhận biết</td>
+                        <td>~30%</td>
+                        <td>Câu hỏi cơ bản, ghi nhớ kiến thức</td>
+                    </tr>
+                    <tr>
+                        <td>Thông hiểu</td>
+                        <td>~30%</td>
+                        <td>Hiểu và giải thích kiến thức</td>
+                    </tr>
+                    <tr>
+                        <td>Vận dụng</td>
+                        <td>~25%</td>
+                        <td>Áp dụng vào bài tập quen thuộc</td>
+                    </tr>
+                    <tr>
+                        <td>Vận dụng cao</td>
+                        <td>~15%</td>
+                        <td>Bài tập nâng cao, tình huống mới</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Section 5: History -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <div class="section-title">Quản Lý Lịch Sử Tài Liệu</div>
+            </div>
+            
+            <p style="margin-bottom: 20px;">Xem lại và quản lý các tài liệu bạn đã tạo.</p>
+            
+            <div class="features-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="feature-card">
+                    <div class="feature-icon">📜</div>
+                    <h3>Xem Lịch Sử</h3>
+                    <p>Danh sách tất cả KHBD, SKKN đã tạo</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Tìm Kiếm</h3>
+                    <p>Tìm nhanh theo tên tài liệu</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📂</div>
+                    <h3>Lọc Theo Loại</h3>
+                    <p>Lọc riêng KHBD hoặc SKKN</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📥</div>
+                    <h3>Tải Lại</h3>
+                    <p>Xuất Word lại bất cứ lúc nào</p>
+                </div>
+            </div>
+            
+            <div class="info-box warning">
+                <div class="info-box-title">⚠️ Lưu ý quan trọng</div>
+                <p>Dữ liệu lịch sử được lưu trong trình duyệt. Nếu bạn xóa cache hoặc đổi trình duyệt, dữ liệu sẽ mất!</p>
+                <p style="margin-top: 10px;"><strong>Khuyến nghị:</strong> Luôn xuất file Word và lưu về máy tính ngay sau khi tạo xong.</p>
+            </div>
+        </div>
+        
+        <!-- FAQ -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-number">?</div>
+                <div class="section-title">Câu Hỏi Thường Gặp</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ API Key là gì? Lấy ở đâu?</div>
+                <div class="info-box">
+                    <p>API Key là mã để sử dụng dịch vụ AI. Liên hệ Zalo <strong>0865063436</strong> để được cấp key.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ Tạo SKKN mất bao lâu?</div>
+                <div class="info-box">
+                    <p>• 5.000 từ: ~3-5 phút</p>
+                    <p>• 10.000 từ: ~5-8 phút</p>
+                    <p>• 20.000 từ: ~8-12 phút</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ Lỗi "Rate Limit" là gì?</div>
+                <div class="info-box warning">
+                    <p>Khi tạo quá nhiều tài liệu liên tục, hệ thống tạm dừng để tránh quá tải.</p>
+                    <p><strong>Giải pháp:</strong> Đợi 1-2 phút rồi thử lại.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">❓ Đã thanh toán nhưng chưa nhận được tài liệu?</div>
+                <div class="info-box">
+                    <p>1. Kiểm tra email (kể cả thư mục Spam)</p>
+                    <p>2. Đợi tối đa 24 giờ</p>
+                    <p>3. Liên hệ Zalo: <strong>0865063436</strong></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Support -->
+        <div class="support-box">
+            <h3>📞 Cần Hỗ Trợ?</h3>
+            <p>Liên hệ với chúng tôi qua Zalo</p>
+            <div class="support-phone">0865063436</div>
+            <p style="opacity: 0.7;">Thời gian hỗ trợ: 8h - 22h hàng ngày</p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 EduShop - Nền tảng tự soạn Giáo án & SKKN bằng AI</p>
+        </div>
+    </div>
+</body>
+</html>
