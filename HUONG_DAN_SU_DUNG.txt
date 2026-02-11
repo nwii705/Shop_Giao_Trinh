@@ -1,0 +1,222 @@
+EDUSHOP - HUONG DAN SU DUNG
+============================
+
+Phien ban: 1.0 | Cap nhat: Thang 2/2026
+Website: https://docs-google.up.railway.app/
+
+================================================================================
+1. TONG QUAN
+================================================================================
+
+DIA CHI TRUY CAP:
+-----------------
+- Trang chu:          https://docs-google.up.railway.app/
+- Tu soan KHBD/SKKN:  https://docs-google.up.railway.app/generator.html
+- Tao de thi:         https://docs-google.up.railway.app/exam-generator.html
+- Lich su:            https://docs-google.up.railway.app/history.html
+- Admin:              https://docs-google.up.railway.app/admin.html
+
+CONG NGHE:
+----------
+- Backend: Node.js + Express, MongoDB Atlas
+- Hosting: Railway (tu dong deploy tu GitHub)
+- AI: OpenRouter API (Gemini 2.5 Flash)
+
+================================================================================
+2. DANH CHO KHACH HANG
+================================================================================
+
+2.1. XEM & MUA GIAO TRINH [OK]
+------------------------------
+Cach dung:
+1. Vao trang chu
+2. Loc theo danh muc: AI, STEM, Phuong phap, Ky nang
+3. Click san pham de xem chi tiet
+4. Nhap thong tin: Ho ten, Email, SDT
+5. Thanh toan qua QR (hien thi ma QR)
+6. Doi Admin xac nhan va gui tai lieu qua email
+
+Luu y: Quy trinh thanh toan la THU CONG - Admin can kiem tra va gui file.
+
+2.2. TU SOAN KHBD [OK]
+----------------------
+Dia chi: /generator.html -> Tab KHBD
+
+Cach dung:
+1. Nhap API Key (do ban cung cap)
+2. Bam "Kiem tra" de xac nhan key hoat dong
+3. (Tuy chon) Upload file sach PDF/anh
+4. Chon: Cap hoc -> Lop -> Mon -> Bo sach -> Bai hoc
+5. Bam "Tao KHBD"
+6. Doi AI soan (1-3 phut)
+7. Bam "Xuat Word" de tai file
+
+Mon hoc ho tro:
+- THCS (Lop 6-9): Toan, Ngu van, Tieng Anh, KHTN, Lich su, Dia ly, GDCD, 
+                   Tin hoc, Cong nghe, Am nhac, My thuat, HDTN
+- THPT (Lop 10-12): Tuong tu + Vat ly, Hoa hoc, Sinh hoc rieng
+
+Bo sach: Ket noi tri thuc, Chan troi sang tao, Canh dieu
+
+2.3. TU SOAN SKKN [OK]
+----------------------
+Dia chi: /generator.html -> Tab SKKN
+
+Cach dung:
+1. Nhap API Key
+2. Bam "Kiem tra"
+3. Dien thong tin: Vai tro, Mon hoc, Cap hoc, De tai
+4. (Tuy chon) Cau hinh: So tu 5000-20000, So giai phap 3-7, Deep Research
+5. Bam "Tao SKKN"
+6. Doi AI soan (3-10 phut tuy do dai)
+7. Xuat Word khi hoan thanh
+
+Cau truc SKKN: Theo QD 658/QD-SGDDT
+- Phan I: Mo dau (ly do, muc dich, doi tuong, phuong phap)
+- Phan II: Noi dung (co so ly luan, thuc trang, giai phap)
+- Phan III: Ket qua, ket luan, kien nghi
+
+2.4. TAO DE THI [OK]
+--------------------
+Dia chi: /exam-generator.html
+
+Cach dung:
+1. Nhap API Key
+2. Chon Mon hoc (12 mon)
+3. Chon Lop (6-12)
+4. Chon Loai de: 15 phut, 45 phut, Giua ky, Cuoi ky
+5. Nhap Noi dung kien thuc
+6. Chon So ma de (1-4)
+7. Bam "Tao de thi"
+8. Tai: De thi Word + Dap an Word
+
+Ma tran de: Theo Thong tu 22/2021
+- Nhan biet, Thong hieu, Van dung, Van dung cao
+
+2.5. LICH SU TAI LIEU [OK]
+--------------------------
+Dia chi: /history.html
+- Xem lai KHBD/SKKN da tao
+- Loc theo loai, tim kiem theo ten
+- Xoa tai lieu khong can
+
+Luu y: Du lieu luu trong localStorage cua trinh duyet. Neu xoa cache se mat.
+
+================================================================================
+3. DANH CHO ADMIN
+================================================================================
+
+3.1. DANG NHAP ADMIN
+--------------------
+Dia chi: /admin.html
+Tai khoan: admin / edushop2026
+
+Bao mat: Dang nhap qua API server-side voi token, het han sau 24h.
+
+3.2. DASHBOARD [OK]
+-------------------
+- Thong ke so san pham theo danh muc
+- Tong san pham / Da ban
+- Server mode (MongoDB/Local)
+
+3.3. QUAN LY SAN PHAM [OK]
+--------------------------
+- Xem danh sach san pham
+- Seed Data: Tao du lieu mau (21 san pham)
+- Reset: Khoi phuc san pham mac dinh
+- Xoa: Xoa tung san pham hoac xoa het
+
+3.4. AI SKKN GENERATOR [OK]
+---------------------------
+Tao SKKN hang loat de ban:
+1. Nhap API Key, chon danh muc, so luong
+2. Dien vai tro, mon hoc, de tai
+3. Dat gia, so tu
+4. Tich "Tu dong upload len Shop" va "Xuat file Word"
+5. Bam "Bat dau tao SKKN"
+
+3.5. QUAN LY DON HANG [OK]
+--------------------------
+- Xem: Ma don, san pham, khach hang, email, SDT, so tien
+- Xac nhan: Khi da nhan tien
+- Tu choi: Neu co van de
+
+Luu y: Sau khi xac nhan, ban can TU GUI file qua email cho khach!
+
+3.6. CHAT SUPPORT [OK]
+----------------------
+- Xem tin nhan tu khach hang
+- Tra loi truc tiep
+- Dong bo qua MongoDB
+
+3.7. CAI DAT AUTO-REFILL [OK]
+-----------------------------
+- Bat/tat tu dong bo sung kho
+- Cau hinh nguong kho toi thieu
+- Cau hinh so luong bo sung
+- Nut "Kiem tra & Bo sung ngay"
+
+================================================================================
+4. CAC TINH NANG HOAT DONG
+================================================================================
+
+Tinh nang              | Trang thai | Ghi chu
+-----------------------|------------|---------------------------
+Xem/loc san pham       | OK         | Loc theo danh muc, tim kiem
+Mua san pham           | OK         | Tao don hang, hien thi QR
+Tu soan KHBD           | OK         | Can API Key
+Tu soan SKKN           | OK         | Can API Key
+Tao de thi             | OK         | Can API Key
+Xuat Word              | OK         | KHBD, SKKN, De thi
+Lich su tai lieu       | OK         | Luu localStorage
+Admin - Dashboard      | OK         |
+Admin - San pham       | OK         | CRUD day du
+Admin - Don hang       | OK         | Xem, xac nhan, tu choi
+Admin - AI Generator   | OK         | Tao SKKN hang loat
+Admin - Chat           | OK         | Dong bo MongoDB
+Admin - Auto-Refill    | OK         | Cau hinh & kich hoat
+Mobile responsive      | OK         | Sidebar toggle
+
+================================================================================
+5. HAN CHE & LUU Y
+================================================================================
+
+LUU Y CON LAI:
+--------------
+- Dang nhap User: Khong co - chi luu localStorage
+- Gui file tu dong: Khong co - phai gui thu cong qua email
+- Thanh toan: Chi hien thi QR, khong verify tu dong
+
+VE API KEY:
+-----------
+- Khach can API Key de su dung cac tinh nang AI
+- Ban tu tao key va cap cho khach
+- Nguon key: OpenRouter hoac Google AI Studio
+
+RATE LIMIT:
+-----------
+- Neu tao nhieu SKKN lien tuc co the bi gioi han API
+- He thong da co retry tu dong (10s -> 20s -> 40s)
+- Khuyen nghi: Khong tao qua 3 SKKN/lan
+
+LUU TRU:
+--------
+- San pham, Don hang, Chat: MongoDB Atlas (ben vung)
+- Lich su tao tai lieu: localStorage (mat khi xoa cache)
+
+================================================================================
+6. HO TRO
+================================================================================
+
+- Loi ky thuat: Zalo 0865063436
+- Don hang: Email tu form lien he
+
+================================================================================
+(c) 2026 EduShop - Phien ban MVP
+================================================================================
+
+
+API key test: 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
+- Admin:              https://docs-google.up.railway.app/admin.html
+TK admin: admin
+MK admin: edushop2026
