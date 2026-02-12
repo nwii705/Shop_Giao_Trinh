@@ -5018,25 +5018,19 @@ LƯU Ý QUAN TRỌNG:
                                                           fullText.includes('Tài liệu tham khảo') ||
                                                           fullText.includes('DANH MỤC TÀI LIỆU');
                                     
-                                    // Auto-stop CHỈ KHI:
-                                    // 1. Đã có TÀI LIỆU THAM KHẢO VÀ đạt ít nhất 85% số từ
-                                    // 2. HOẶC vượt quá 115% số từ (dừng ngay)
-                                    if (!isFinalized) {
-                                        if (hasReferences && wordCount >= targetWords * 0.85) {
-                                            console.log(`📊 Đã hoàn thành cấu trúc + ${wordCount} từ - Auto finalizing...`);
-                                            isFinalized = true;
-                                            window.currentSKKNStreamingData.isFinalized = true;
-                                            if (streamTimeout) clearTimeout(streamTimeout);
-                                            finalizeSKKNContent(fullText, meta);
-                                            break;
-                                        } else if (wordCount >= targetWords * 1.15) {
-                                            console.log(`⚠️ Vượt 115% (${wordCount} từ) - Force stop...`);
-                                            isFinalized = true;
-                                            window.currentSKKNStreamingData.isFinalized = true;
-                                            if (streamTimeout) clearTimeout(streamTimeout);
-                                            finalizeSKKNContent(fullText, meta);
-                                            break;
-                                        }
+                                    // CHỈ dừng KHI đã có TÀI LIỆU THAM KHẢO (bài hoàn chỉnh)
+                                    // Không giới hạn số từ - để AI viết xong bài
+                                    if (!isFinalized && hasReferences) {
+                                        // Đợi thêm 1-2 giây để AI viết nốt danh sách tài liệu
+                                        setTimeout(() => {
+                                            if (!isFinalized) {
+                                                console.log(`📊 Đã hoàn thành SKKN với ${wordCount} từ`);
+                                                isFinalized = true;
+                                                window.currentSKKNStreamingData.isFinalized = true;
+                                                if (streamTimeout) clearTimeout(streamTimeout);
+                                                finalizeSKKNContent(window.currentSKKNStreamingData.fullText, meta);
+                                            }
+                                        }, 3000);
                                     }
                                 }
                             } catch (e) {
@@ -5345,30 +5339,51 @@ LƯU Ý QUAN TRỌNG:
         
         // ========== Format SKKN for Display ==========
         function formatSKKNForDisplay(text, meta) {
-            // Add professional cover page style header
+            // TRANG BÌA
             let html = `
-                <div style="text-align: center; margin-bottom: 40px; min-height: 500px; display: flex; flex-direction: column; justify-content: center; page-break-after: always;">
-                    <p style="margin: 0; font-size: 12pt; font-weight: bold;">SỞ GIÁO DỤC VÀ ĐÀO TẠO ...........</p>
-                    ${meta.unit ? `<p style="margin: 5px 0; font-size: 12pt; font-weight: bold; text-transform: uppercase;">${meta.unit}</p>` : '<p style="margin: 5px 0; font-size: 12pt; font-weight: bold;">TRƯỜNG ...........................</p>'}
-                    <div style="margin: 50px 0;">
-                        <div style="width: 100px; height: 100px; margin: 0 auto; border: 3px double #1a5f7a; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f5f7fa, #e4e8ec);">
-                            <span style="font-size: 40px;">🎓</span>
-                        </div>
+                <div style="text-align: center; min-height: 700px; display: flex; flex-direction: column; justify-content: center; page-break-after: always;">
+                    <p style="margin: 0; font-size: 13pt; font-weight: bold;">SỞ GIÁO DỤC VÀ ĐÀO TẠO ĐẮK LẮK</p>
+                    ${meta.unit ? `<p style="margin: 8px 0; font-size: 13pt; font-weight: bold; text-transform: uppercase;">${meta.unit}</p>` : '<p style="margin: 8px 0; font-size: 13pt; font-weight: bold;">TRƯỜNG ...........................</p>'}
+                    <div style="margin: 60px 0 40px;">
+                        <p style="font-size: 14pt; letter-spacing: 5px; color: #333;">❖ ❖ ❖</p>
                     </div>
-                    <h1 style="margin: 30px 0 15px; color: #1a237e; font-size: 20pt; text-transform: uppercase; letter-spacing: 3px;">SÁNG KIẾN KINH NGHIỆM</h1>
-                    <div style="border: 2px solid #1a5f7a; padding: 20px 30px; margin: 20px auto; max-width: 80%; background: linear-gradient(135deg, #f8f9fa, #fff);">
-                        <h2 style="margin: 0; color: #1a5f7a; font-size: 15pt; font-weight: bold; line-height: 1.6; text-transform: uppercase;">${meta.title || 'Tên đề tài'}</h2>
+                    <h1 style="margin: 20px 0 15px; color: #000; font-size: 18pt; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;">SÁNG KIẾN KINH NGHIỆM</h1>
+                    <div style="border: 2px solid #000; padding: 25px 35px; margin: 30px auto; max-width: 85%;">
+                        <h2 style="margin: 0; color: #000; font-size: 14pt; font-weight: bold; line-height: 1.6; text-transform: uppercase;">${meta.title || 'Tên đề tài'}</h2>
                     </div>
-                    <div style="margin: 40px 0; text-align: left; padding-left: 35%;">
-                        ${meta.author ? `<p style="margin: 10px 0; font-size: 13pt;"><strong>Tác giả:</strong> ${meta.author}</p>` : '<p style="margin: 10px 0; font-size: 13pt;"><strong>Tác giả:</strong> ................................</p>'}
+                    <p style="margin: 30px 0 10px; font-size: 13pt;"><strong>Lĩnh vực/Môn:</strong> ${meta.subject}</p>
+                    <p style="margin: 10px 0; font-size: 13pt;"><strong>Cấp học:</strong> ${meta.level || 'THPT'}</p>
+                    <div style="margin: 50px 0; text-align: left; padding-left: 30%;">
+                        ${meta.author ? `<p style="margin: 10px 0; font-size: 13pt;"><strong>Họ và tên:</strong> ${meta.author}</p>` : '<p style="margin: 10px 0; font-size: 13pt;"><strong>Họ và tên:</strong> ................................</p>'}
                         <p style="margin: 10px 0; font-size: 13pt;"><strong>Chức vụ:</strong> ${meta.position || 'Giáo viên'}</p>
-                        <p style="margin: 10px 0; font-size: 13pt;"><strong>Lĩnh vực:</strong> ${meta.subject}</p>
-                        <p style="margin: 10px 0; font-size: 13pt;"><strong>Cấp học:</strong> ${meta.level || 'THPT'}</p>
-                        ${meta.year ? `<p style="margin: 10px 0; font-size: 13pt;"><strong>Năm học:</strong> ${meta.year}</p>` : ''}
+                        ${meta.unit ? `<p style="margin: 10px 0; font-size: 13pt;"><strong>Đơn vị:</strong> ${meta.unit}</p>` : ''}
                     </div>
-                    <p style="margin-top: 50px; font-size: 13pt; font-style: italic;">Năm ${new Date().getFullYear()}</p>
+                    <p style="margin-top: 60px; font-size: 13pt; font-weight: bold;">Năm học ${meta.year || new Date().getFullYear()}</p>
                 </div>
-                <div style="page-break-before: always;"></div>
+            `;
+            
+            // MỤC LỤC
+            html += `
+                <div style="page-break-before: always; page-break-after: always;">
+                    <h2 style="text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 30px; text-transform: uppercase;">MỤC LỤC</h2>
+                    <table style="width: 100%; border: none; font-size: 13pt; line-height: 2;">
+                        <tr><td style="border: none;">I. PHẦN MỞ ĐẦU</td><td style="border: none; text-align: right; width: 50px;">1</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">1. Lý do chọn đề tài</td><td style="border: none; text-align: right;">1</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">2. Mục tiêu, nhiệm vụ của đề tài</td><td style="border: none; text-align: right;">2</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">3. Đối tượng, phạm vi nghiên cứu</td><td style="border: none; text-align: right;">3</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">4. Giới hạn của đề tài</td><td style="border: none; text-align: right;">3</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">5. Phương pháp nghiên cứu</td><td style="border: none; text-align: right;">4</td></tr>
+                        <tr><td style="border: none;">II. PHẦN NỘI DUNG</td><td style="border: none; text-align: right;">5</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">1. Cơ sở lý luận</td><td style="border: none; text-align: right;">5</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">2. Thực trạng vấn đề nghiên cứu</td><td style="border: none; text-align: right;">7</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">3. Các giải pháp</td><td style="border: none; text-align: right;">10</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">4. Kết quả khảo nghiệm</td><td style="border: none; text-align: right;">25</td></tr>
+                        <tr><td style="border: none;">III. PHẦN KẾT LUẬN, KIẾN NGHỊ</td><td style="border: none; text-align: right;">30</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">1. Kết luận</td><td style="border: none; text-align: right;">30</td></tr>
+                        <tr><td style="border: none; padding-left: 20px;">2. Kiến nghị</td><td style="border: none; text-align: right;">31</td></tr>
+                        <tr><td style="border: none;">TÀI LIỆU THAM KHẢO</td><td style="border: none; text-align: right;">32</td></tr>
+                    </table>
+                </div>
             `;
             
             // Convert markdown to professional HTML with page breaks for major sections
@@ -5971,15 +5986,12 @@ LƯU Ý: Viết NGẮN GỌN, KHÔNG cần đưa số liệu (theo QĐ 658)
 
 ---
 
-# YÊU CẦU NGHIÊM NGẶT VỀ SỐ TỪ
+# YÊU CẦU QUAN TRỌNG
 
-**GIỚI HẠN TUYỆT ĐỐI: ${targetWords.toLocaleString()} từ**
+**ĐỘ DÀI YÊU CẦU: 25-35 trang A4 (khoảng ${targetWords.toLocaleString()} từ)**
 
-- KHÔNG ĐƯỢC viết quá ${Math.round(targetWords * 1.10).toLocaleString()} từ (tối đa +10%)
-- Viết NGẮN GỌN, SÚC TÍCH - đi thẳng vào vấn đề
-- Mỗi phần viết ĐÚNG số từ đã phân bổ ở trên
-- Khi gần đạt số từ, nhanh chóng kết thúc bằng TÀI LIỆU THAM KHẢO
-- KHÔNG viết dài dòng, lặp lại ý
+VIẾT ĐẦY ĐỦ TẤT CẢ các phần từ I đến III và TÀI LIỆU THAM KHẢO.
+KHÔNG được dừng giữa chừng - phải hoàn thành TOÀN BỘ SKKN.
 
 **CHECKLIST BẮT BUỘC:**
 
@@ -5989,7 +6001,7 @@ LƯU Ý: Viết NGẮN GỌN, KHÔNG cần đưa số liệu (theo QĐ 658)
 4. Số liệu thực tế, có độ biến thiên hợp lý
 5. Bảng biểu rõ ràng với nguồn số liệu
 6. Giọng văn phù hợp với vai trò ${position}
-7. Hướng đến điểm LOẠI A (85-100 điểm)
+7. PHẢI có đủ: Phần mở đầu, Nội dung (Cơ sở lý luận, Thực trạng, Giải pháp, Kết quả), Kết luận kiến nghị, Tài liệu tham khảo
 
 BẮT ĐẦU VIẾT NGAY:`;
         }
