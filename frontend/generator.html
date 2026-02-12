@@ -3818,10 +3818,9 @@
             // Headers with page breaks for major sections
             const majorSections = ['PHẦN I', 'PHẦN II', 'PHẦN III', 'CHƯƠNG', 'MỤC LỤC', 'PHỤ LỤC', 'TÀI LIỆU THAM KHẢO'];
             
-            // Loại bỏ các ký tự đặc biệt không cần thiết trước
-            html = html.replace(/□/g, ''); // Loại bỏ checkbox □
-            html = html.replace(/■/g, ''); // Loại bỏ ■
-            html = html.replace(/®/g, ''); // Loại bỏ ®
+            // Loại bỏ TẤT CẢ các ký tự đặc biệt/icon không dùng trong giáo trình
+            html = html.replace(/[□■®◼▶►●○◆★☆✦✓✔✗✘⚠️✅❌⭐🔹🔸💡📌📝📚🎯💬👉👆✨🌟⚡️➡️➔→⇒⇨]/g, '');
+            html = html.replace(/[\u2610-\u2612\u25A0-\u25FF\u2700-\u27BF]/g, ''); // Unicode ranges cho symbols
             
             html = html.replace(/^\s*# (.+)$/gm, (match, title) => {
                 const shouldBreak = addPageBreaks && majorSections.some(s => title.toUpperCase().includes(s));
@@ -3838,8 +3837,8 @@
             html = html.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
             html = html.replace(/_([^_\n]+)_/g, '<em>$1</em>');
             
-            // Bullet lists - với khoảng cách dòng gọn hơn
-            html = html.replace(/^\s*[\*\-•●○▪►] (.+)$/gm, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 2pt; text-align: left; line-height: 1.4;">$1</li>');
+            // Bullet lists - chỉ xử lý dấu - và *
+            html = html.replace(/^\s*[\*\-] (.+)$/gm, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 2pt; text-align: left; line-height: 1.4;">$1</li>');
             
             // Numbered lists  
             html = html.replace(/^\s*\d+\.\s+(.+)$/gm, '<numli>$1</numli>');
