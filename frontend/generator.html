@@ -5491,39 +5491,42 @@ QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
             // Xây dựng phần giải pháp với cấu trúc 3 lớp theo QĐ 658
             let solutionsPrompt = '';
             for (let i = 0; i < numSolutions; i++) {
-                const solutionTitle = solutionTitles[i] || `3.${i+1}. Giải pháp ${i+1}: [Tên giải pháp cụ thể - nêu bật bản chất thay đổi]`;
+                const solutionTitle = solutionTitles[i] || `Giải pháp ${i+1}: Tên giải pháp cụ thể - nêu bật bản chất thay đổi`;
                 solutionsPrompt += `
-**${solutionTitle}** (~${wordsPerSolution.toLocaleString()} từ)
+#### **3.${i+1}. ${solutionTitle}** (~${wordsPerSolution.toLocaleString()} từ)
 
-   **a) Mục tiêu của giải pháp:**
-      • Giải quyết khía cạnh nào của vấn đề?
-      • Kết quả mong đợi cụ thể (đo lường được)?
-      • Năng lực/phẩm chất học sinh hướng tới?
+**a) Mục tiêu của giải pháp:**
 
-   **b) Nội dung và cách thức thực hiện:**
-      ► Bước 1 - Chuẩn bị: [Mô tả chi tiết - GV chuẩn bị gì? HS chuẩn bị gì?]
-      ► Bước 2 - Tổ chức: [Mô tả chi tiết - GV tổ chức ra sao? HS tham gia thế nào?]
-      ► Bước 3 - Thực hiện: [Mô tả chi tiết - Quy trình cụ thể từng hoạt động]
-      ► Bước 4 - Đánh giá: [Mô tả chi tiết - Tiêu chí đánh giá, cách thu thập dữ liệu]
+- Giải quyết khía cạnh nào của vấn đề?
+- Kết quả mong đợi cụ thể (đo lường được)?
+- Năng lực/phẩm chất học sinh hướng tới?
 
-   **c) Điều kiện thực hiện giải pháp:**
-      • Yêu cầu về nhân lực (GV, HS, phụ huynh)
-      • Yêu cầu về cơ sở vật chất, thiết bị, học liệu
-      • Yêu cầu về thời gian, thời điểm áp dụng
-      • Yêu cầu về kinh phí (nếu có)
+**b) Nội dung và cách thức thực hiện:**
 
-   **d) Ví dụ minh họa cụ thể:**
-      [Mô tả 1-2 trường hợp áp dụng thực tế trong bài học/hoạt động cụ thể]
-      [Kèm hình ảnh, phiếu học tập nếu phù hợp]
+- **Bước 1 - Chuẩn bị:** Mô tả chi tiết - GV chuẩn bị gì? HS chuẩn bị gì?
+- **Bước 2 - Tổ chức:** Mô tả chi tiết - GV tổ chức ra sao? HS tham gia thế nào?
+- **Bước 3 - Thực hiện:** Mô tả chi tiết - Quy trình cụ thể từng hoạt động
+- **Bước 4 - Đánh giá:** Mô tả chi tiết - Tiêu chí đánh giá, cách thu thập dữ liệu
+
+**c) Điều kiện thực hiện giải pháp:**
+
+- Yêu cầu về nhân lực (GV, HS, phụ huynh)
+- Yêu cầu về cơ sở vật chất, thiết bị, học liệu
+- Yêu cầu về thời gian, thời điểm áp dụng
+- Yêu cầu về kinh phí (nếu có)
+
+**d) Ví dụ minh họa cụ thể:**
+
+Mô tả 1-2 trường hợp áp dụng thực tế trong bài học/hoạt động cụ thể, kèm hình ảnh, phiếu học tập nếu phù hợp.
 
 `;
             }
             
             // ============================================================
-            // MASTER PROMPT V2.0 - SKKN LOẠI A THEO QĐ 658/QĐ-SGDĐT ĐẮK LẮK
+            // MASTER PROMPT V2.1 - SKKN LOẠI A THEO QĐ 658/QĐ-SGDĐT ĐẮK LẮK
             // ============================================================
-            return `# 🎯 PERSONA & VAI TRÒ
-Bạn là **Chuyên gia Nghiên cứu Khoa học Sư phạm Ứng dụng cấp Cao** và **Thành viên Hội đồng Thẩm định SKKN cấp Tỉnh** với 20 năm kinh nghiệm.
+            return `# PERSONA & VAI TRÒ
+Bạn là Chuyên gia Nghiên cứu Khoa học Sư phạm Ứng dụng cấp Cao và Thành viên Hội đồng Thẩm định SKKN cấp Tỉnh với 20 năm kinh nghiệm.
 
 Bạn có chuyên môn sâu về:
 - Nghiên cứu khoa học giáo dục và thực nghiệm sư phạm
@@ -5531,234 +5534,301 @@ Bạn có chuyên môn sâu về:
 - Chương trình GDPT 2018 và phát triển năng lực, phẩm chất học sinh
 - Thống kê giáo dục và xử lý số liệu nghiên cứu
 
-# ⚠️ NEGATIVE PROMPTING - TUYỆT ĐỐI KHÔNG ĐƯỢC:
-❌ Viết chung chung, sáo rỗng, thiếu ví dụ cụ thể
-❌ Copy nguyên văn từ internet hoặc SKKN khác
-❌ Số liệu quá hoàn hảo (100% tốt) - thiếu độ tin cậy
-❌ Thiếu bảng biểu, số liệu định lượng
-❌ Cơ sở lý luận quá dài (>10% tổng số từ)
-❌ Kết luận dài dòng, lặp lại nội dung
-❌ Viết dưới dạng KHBD/giáo án (sai loại văn bản)
-❌ Sử dụng ngôn ngữ không học thuật
+# QUY TẮC ĐỊNH DẠNG OUTPUT (BẮT BUỘC TUÂN THỦ)
 
-# 📊 THANG ĐIỂM XẾP LOẠI A (85-100 điểm) - QĐ 658:
+1. TIÊU ĐỀ CẤP 1: Dùng ## (2 dấu #), in đậm, viết HOA
+   Ví dụ: ## **I. PHẦN MỞ ĐẦU**
+
+2. TIÊU ĐỀ CẤP 2: Dùng ### (3 dấu #), in đậm
+   Ví dụ: ### **1. Lý do chọn đề tài**
+
+3. TIÊU ĐỀ CẤP 3: Dùng #### (4 dấu #), in đậm
+   Ví dụ: #### **a) Cơ sở pháp lý:**
+
+4. DANH SÁCH: Dùng dấu gạch đầu dòng (-), KHÔNG dùng •, ►, ✓
+   Ví dụ:
+   - Nội dung thứ nhất
+   - Nội dung thứ hai
+
+5. DANH SÁCH CON: Thụt lề 3 space + dấu +
+   Ví dụ:
+   - Mục chính
+      + Mục con 1
+      + Mục con 2
+
+6. BẢNG: Dùng markdown table chuẩn, căn trái
+   Ví dụ:
+   | Cột 1 | Cột 2 | Cột 3 |
+   |-------|-------|-------|
+   | Dữ liệu | Dữ liệu | Dữ liệu |
+
+7. ĐOẠN VĂN: Viết liền mạch, KHÔNG xuống dòng giữa chừng. Mỗi đoạn cách nhau 1 dòng trống.
+
+8. KHÔNG SỬ DỤNG: emoji, ký tự đặc biệt (━, ═, ✓, ►, •), dấu gạch dài
+
+9. KHOẢNG CÁCH: Sau mỗi phần lớn (I, II, III) có 1 dòng trống. Sau mỗi tiểu mục có 1 dòng trống.
+
+10. CHÚ THÍCH BẢNG: Viết nghiêng, đặt ngay dưới bảng
+    Ví dụ: *(Nguồn: Khảo sát của tác giả, tháng 9/2024)*
+
+# NEGATIVE PROMPTING - TUYỆT ĐỐI KHÔNG ĐƯỢC:
+- Viết chung chung, sáo rỗng, thiếu ví dụ cụ thể
+- Copy nguyên văn từ internet hoặc SKKN khác
+- Số liệu quá hoàn hảo (100% tốt) - thiếu độ tin cậy
+- Thiếu bảng biểu, số liệu định lượng
+- Cơ sở lý luận quá dài (>10% tổng số từ)
+- Kết luận dài dòng, lặp lại nội dung
+- Viết dưới dạng KHBD/giáo án (sai loại văn bản)
+- Sử dụng ngôn ngữ không học thuật
+- Dùng emoji, ký tự đặc biệt (━, ═, ✓, ►, •)
+
+# THANG ĐIỂM XẾP LOẠI A (85-100 điểm) - QĐ 658:
+
 | Tiêu chuẩn | Điểm tối đa | Trọng tâm |
 |------------|-------------|-----------|
 | Tính mới và Sáng tạo | 20 | Giải pháp KHÔNG trùng lặp, có tính đột phá |
 | Tính Khoa học | 25 | Lập luận logic, cơ sở lý luận vững, văn phong chuẩn |
-| Hiệu quả và Lợi ích | 35 | **QUAN TRỌNG NHẤT** - Số liệu định lượng + định tính |
+| Hiệu quả và Lợi ích | 35 | QUAN TRỌNG NHẤT - Số liệu định lượng + định tính |
 | Khả năng áp dụng | 20 | Nhân rộng được trong đơn vị/toàn ngành |
 
-# 📝 ĐIỀU CHỈNH THEO VAI TRÒ: ${position}
-• Góc nhìn: ${roleTone.focus}
-• Ví dụ phù hợp: ${roleTone.examples}
-• Giọng văn: ${roleTone.voice}
+# ĐIỀU CHỈNH THEO VAI TRÒ: ${position}
+- Góc nhìn: ${roleTone.focus}
+- Ví dụ phù hợp: ${roleTone.examples}
+- Giọng văn: ${roleTone.voice}
 
-# 📋 THÔNG TIN ĐỀ TÀI SKKN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• **Tên đề tài:** "${title}"
-• **Lĩnh vực/Môn:** ${subject}
-• **Cấp học:** ${level}
-• **Vị trí tác giả:** ${position}
-${author ? `• **Tác giả:** ${author}` : ''}
-${unit ? `• **Đơn vị công tác:** ${unit}` : ''}
-${year ? `• **Năm học:** ${year}` : ''}
-${digital ? `• **Lĩnh vực chuyển đổi số:** ${digital}` : ''}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# THÔNG TIN ĐỀ TÀI SKKN
 
-# 🔍 THỰC TRẠNG DO TÁC GIẢ CUNG CẤP:
+- **Tên đề tài:** "${title}"
+- **Lĩnh vực/Môn:** ${subject}
+- **Cấp học:** ${level}
+- **Vị trí tác giả:** ${position}
+${author ? `- **Tác giả:** ${author}` : ''}
+${unit ? `- **Đơn vị công tác:** ${unit}` : ''}
+${year ? `- **Năm học:** ${year}` : ''}
+${digital ? `- **Lĩnh vực chuyển đổi số:** ${digital}` : ''}
+
+# THỰC TRẠNG DO TÁC GIẢ CUNG CẤP:
 ${problem}
 
-# 💡 GIẢI PHÁP DO TÁC GIẢ ĐỀ XUẤT:
+# GIẢI PHÁP DO TÁC GIẢ ĐỀ XUẤT:
 ${solution}
 
-${result ? `# 🎯 KẾT QUẢ MONG ĐỢI:\n${result}` : ''}
+${result ? `# KẾT QUẢ MONG ĐỢI:\n${result}` : ''}
 
-# 📐 YÊU CẦU ĐỊNH DẠNG THEO QĐ 658:
-• **Số trang:** 14-40 trang giấy A4
-• **Cỡ chữ:** 14 (đặc thù Đắk Lắk)
-• **Số từ yêu cầu:** ${targetWords.toLocaleString()} từ (~${Math.round(targetWords/350)} trang A4)
+# YÊU CẦU ĐỊNH DẠNG THEO QĐ 658:
+- Số trang: 14-40 trang giấy A4
+- Cỡ chữ: 14 (đặc thù Đắk Lắk)
+- Số từ yêu cầu: ${targetWords.toLocaleString()} từ (~${Math.round(targetWords/350)} trang A4)
 
-# 📊 PHÂN BỔ NỘI DUNG TỐI ƯU:
+# PHÂN BỔ NỘI DUNG TỐI ƯU:
+
 | Phần | Số từ | Tỷ lệ | Ghi chú |
 |------|-------|-------|---------|
 | I. Mở đầu | ~${wordDistribution.phanMoDau.toLocaleString()} | 15% | 5 mục nhỏ |
-| II.1. Cơ sở lý luận | ~${wordDistribution.coSoLyLuan.toLocaleString()} | 8% | **NGẮN GỌN** |
+| II.1. Cơ sở lý luận | ~${wordDistribution.coSoLyLuan.toLocaleString()} | 8% | Ngắn gọn |
 | II.2. Thực trạng | ~${wordDistribution.thucTrang.toLocaleString()} | 15% | Có bảng khảo sát |
-| II.3. Các giải pháp | ~${wordDistribution.cacGiaiPhap.toLocaleString()} | 42% | **TRỌNG TÂM** - ${numSolutions} GP |
+| II.3. Các giải pháp | ~${wordDistribution.cacGiaiPhap.toLocaleString()} | 42% | TRỌNG TÂM - ${numSolutions} GP |
 | II.4. Kết quả khảo nghiệm | ~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} | 14% | Bảng so sánh trước/sau |
-| III. Kết luận, kiến nghị | ~${wordDistribution.ketLuanKienNghi.toLocaleString()} | 4% | **NGẮN GỌN**, không số liệu |
+| III. Kết luận, kiến nghị | ~${wordDistribution.ketLuanKienNghi.toLocaleString()} | 4% | Ngắn gọn, không số liệu |
 | Tài liệu tham khảo | ~${wordDistribution.taiLieu.toLocaleString()} | 2% | 8-12 tài liệu |
 
-════════════════════════════════════════════════════════════
-📖 CẤU TRÚC SÁNG KIẾN KINH NGHIỆM (PHỤ LỤC 1 - QĐ 658)
-════════════════════════════════════════════════════════════
+---
 
-# **I. PHẦN MỞ ĐẦU** (~${wordDistribution.phanMoDau.toLocaleString()} từ)
+# CẤU TRÚC SÁNG KIẾN KINH NGHIỆM (PHỤ LỤC 1 - QĐ 658)
 
-## **1. Lý do chọn đề tài** (Quan trọng - xác định tính cấp thiết)
-
-### a) Cơ sở pháp lý:
-• Nghị quyết số 29-NQ/TW ngày 04/11/2013 của Ban Chấp hành Trung ương Đảng về đổi mới căn bản, toàn diện giáo dục và đào tạo
-• Nghị quyết số 88/2014/QH13 về đổi mới chương trình, sách giáo khoa giáo dục phổ thông
-• Thông tư số 32/2018/TT-BGDĐT ngày 26/12/2018 ban hành Chương trình giáo dục phổ thông
-• [Các văn bản đặc thù liên quan trực tiếp đến "${title}"]
-
-### b) Cơ sở thực tiễn:
-• Bối cảnh đổi mới GDPT 2018: yêu cầu phát triển năng lực, phẩm chất
-• Thực trạng tại ${unit || 'đơn vị công tác'}: mô tả cụ thể khó khăn, bất cập
-• Mâu thuẫn giữa thực trạng với yêu cầu mới
-• Yêu cầu cấp thiết cần giải quyết
-
-### c) Lý do cá nhân:
-• Động lực chủ quan của tác giả
-• Trải nghiệm thực tế trong giảng dạy/quản lý
-• Kỳ vọng đóng góp cho đồng nghiệp và học sinh
-
-## **2. Mục tiêu, nhiệm vụ của đề tài**
-
-### a) Mục tiêu tổng quát:
-[Một câu khái quát mục đích chính của đề tài]
-
-### b) Mục tiêu cụ thể: (3-5 mục tiêu ĐO LƯỜNG ĐƯỢC)
-• Mục tiêu 1: [Sử dụng động từ Bloom: Xác định, Phân tích, Thiết kế, Đánh giá...]
-• Mục tiêu 2: [...]
-• Mục tiêu 3: [...]
-
-### c) Nhiệm vụ nghiên cứu:
-• Nhiệm vụ 1: Nghiên cứu cơ sở lý luận về [...]
-• Nhiệm vụ 2: Khảo sát thực trạng [...]
-• Nhiệm vụ 3: Đề xuất các giải pháp [...]
-• Nhiệm vụ 4: Thực nghiệm và đánh giá hiệu quả [...]
-
-## **3. Đối tượng, phạm vi nghiên cứu**
-
-### a) Đối tượng nghiên cứu:
-[Xác định rõ: Là BIỆN PHÁP/PHƯƠNG PHÁP/QUY TRÌNH gì?]
-
-### b) Phạm vi nghiên cứu:
-• **Về không gian:** [Trường/Lớp cụ thể]
-• **Về thời gian:** [Năm học/Học kỳ]
-• **Về nội dung:** [Giới hạn nội dung nghiên cứu]
-
-## **4. Giới hạn của đề tài**
-• Đề tài tập trung giải quyết: [...]
-• Đề tài KHÔNG đề cập đến: [...]
-
-## **5. Phương pháp nghiên cứu**
-
-### a) Nhóm phương pháp nghiên cứu lý luận:
-• Phương pháp phân tích và tổng hợp tài liệu
-• Phương pháp khái quát hóa, hệ thống hóa
-
-### b) Nhóm phương pháp nghiên cứu thực tiễn:
-• **Phương pháp quan sát sư phạm:** Quan sát hoạt động dạy-học trên lớp
-• **Phương pháp điều tra, khảo sát:** Phiếu hỏi dành cho GV/HS/PHHS
-• **Phương pháp thực nghiệm sư phạm:** Áp dụng giải pháp trên nhóm thực nghiệm
-• **Phương pháp phỏng vấn:** Thu thập ý kiến đánh giá
-• **Phương pháp nghiên cứu sản phẩm:** Phân tích bài kiểm tra, sản phẩm học tập
-
-### c) Phương pháp thống kê toán học:
-• Xử lý số liệu bằng công thức thống kê
-• Tính điểm trung bình: X̄ = (Σxi)/n
-• Tính tỷ lệ phần trăm, so sánh đối chứng
+BẮT ĐẦU VIẾT NỘI DUNG SKKN NGAY SAU DÒNG NÀY:
 
 ---
 
-# **II. PHẦN NỘI DUNG** (~${(wordDistribution.coSoLyLuan + wordDistribution.thucTrang + wordDistribution.cacGiaiPhap + wordDistribution.ketQuaKhaoNghiem).toLocaleString()} từ)
+## **I. PHẦN MỞ ĐẦU** (~${wordDistribution.phanMoDau.toLocaleString()} từ)
 
-## **1. Cơ sở lý luận** (~${wordDistribution.coSoLyLuan.toLocaleString()} từ)
-⚠️ **LƯU Ý: Viết NGẮN GỌN, chỉ nêu nội dung TRỰC TIẾP liên quan đến đề tài**
+### **1. Lý do chọn đề tài**
 
-### 1.1. Các khái niệm cốt lõi
-• Định nghĩa [khái niệm 1 liên quan đến "${title}"]
-• Định nghĩa [khái niệm 2]
-• Định nghĩa [khái niệm 3]
+#### **a) Cơ sở pháp lý:**
 
-### 1.2. Cơ sở tâm lý học, giáo dục học
-• Đặc điểm tâm lý lứa tuổi học sinh ${level}
-• Quan điểm dạy học phát triển năng lực theo GDPT 2018
+- Nghị quyết số 29-NQ/TW ngày 04/11/2013 của Ban Chấp hành Trung ương Đảng về đổi mới căn bản, toàn diện giáo dục và đào tạo
+- Nghị quyết số 88/2014/QH13 về đổi mới chương trình, sách giáo khoa giáo dục phổ thông
+- Thông tư số 32/2018/TT-BGDĐT ngày 26/12/2018 ban hành Chương trình giáo dục phổ thông
+- Các văn bản đặc thù liên quan trực tiếp đến "${title}"
 
-### 1.3. Lý thuyết nền tảng
-• [Lý thuyết/Học thuyết hỗ trợ cho các giải pháp]
+#### **b) Cơ sở thực tiễn:**
+
+- Bối cảnh đổi mới GDPT 2018: yêu cầu phát triển năng lực, phẩm chất
+- Thực trạng tại ${unit || 'đơn vị công tác'}: mô tả cụ thể khó khăn, bất cập
+- Mâu thuẫn giữa thực trạng với yêu cầu mới
+- Yêu cầu cấp thiết cần giải quyết
+
+#### **c) Lý do cá nhân:**
+
+- Động lực chủ quan của tác giả
+- Trải nghiệm thực tế trong giảng dạy/quản lý
+- Kỳ vọng đóng góp cho đồng nghiệp và học sinh
+
+### **2. Mục tiêu, nhiệm vụ của đề tài**
+
+#### **a) Mục tiêu tổng quát:**
+
+Một câu khái quát mục đích chính của đề tài.
+
+#### **b) Mục tiêu cụ thể:** (3-5 mục tiêu ĐO LƯỜNG ĐƯỢC)
+
+- Mục tiêu 1: Sử dụng động từ Bloom: Xác định, Phân tích, Thiết kế, Đánh giá...
+- Mục tiêu 2: ...
+- Mục tiêu 3: ...
+
+#### **c) Nhiệm vụ nghiên cứu:**
+
+- Nhiệm vụ 1: Nghiên cứu cơ sở lý luận về ...
+- Nhiệm vụ 2: Khảo sát thực trạng ...
+- Nhiệm vụ 3: Đề xuất các giải pháp ...
+- Nhiệm vụ 4: Thực nghiệm và đánh giá hiệu quả ...
+
+### **3. Đối tượng, phạm vi nghiên cứu**
+
+#### **a) Đối tượng nghiên cứu:**
+
+Xác định rõ: Là BIỆN PHÁP/PHƯƠNG PHÁP/QUY TRÌNH gì?
+
+#### **b) Phạm vi nghiên cứu:**
+
+- **Về không gian:** Trường/Lớp cụ thể
+- **Về thời gian:** Năm học/Học kỳ
+- **Về nội dung:** Giới hạn nội dung nghiên cứu
+
+### **4. Giới hạn của đề tài**
+
+- Đề tài tập trung giải quyết: ...
+- Đề tài KHÔNG đề cập đến: ...
+
+### **5. Phương pháp nghiên cứu**
+
+#### **a) Nhóm phương pháp nghiên cứu lý luận:**
+
+- Phương pháp phân tích và tổng hợp tài liệu
+- Phương pháp khái quát hóa, hệ thống hóa
+
+#### **b) Nhóm phương pháp nghiên cứu thực tiễn:**
+
+- **Phương pháp quan sát sư phạm:** Quan sát hoạt động dạy-học trên lớp
+- **Phương pháp điều tra, khảo sát:** Phiếu hỏi dành cho GV/HS/PHHS
+- **Phương pháp thực nghiệm sư phạm:** Áp dụng giải pháp trên nhóm thực nghiệm
+- **Phương pháp phỏng vấn:** Thu thập ý kiến đánh giá
+- **Phương pháp nghiên cứu sản phẩm:** Phân tích bài kiểm tra, sản phẩm học tập
+
+#### **c) Phương pháp thống kê toán học:**
+
+- Xử lý số liệu bằng công thức thống kê
+- Tính điểm trung bình, độ lệch chuẩn
+- Tính tỷ lệ phần trăm, so sánh đối chứng
 
 ---
 
-## **2. Thực trạng vấn đề nghiên cứu** (~${wordDistribution.thucTrang.toLocaleString()} từ)
-⚠️ **YÊU CẦU: Có số liệu minh họa CỤ THỂ, CHÍNH XÁC (theo QĐ 658)**
+## **II. PHẦN NỘI DUNG** (~${(wordDistribution.coSoLyLuan + wordDistribution.thucTrang + wordDistribution.cacGiaiPhap + wordDistribution.ketQuaKhaoNghiem).toLocaleString()} từ)
 
-### 2.1. Khái quát về địa bàn nghiên cứu
-• Giới thiệu ${unit || 'đơn vị công tác'}
-• Đặc điểm học sinh, giáo viên, cơ sở vật chất
+### **1. Cơ sở lý luận** (~${wordDistribution.coSoLyLuan.toLocaleString()} từ)
 
-### 2.2. Thực trạng vấn đề (từ input tác giả):
+LƯU Ý: Viết NGẮN GỌN, chỉ nêu nội dung TRỰC TIẾP liên quan đến đề tài.
+
+#### **1.1. Các khái niệm cốt lõi**
+
+- Định nghĩa khái niệm 1 liên quan đến "${title}"
+- Định nghĩa khái niệm 2
+- Định nghĩa khái niệm 3
+
+#### **1.2. Cơ sở tâm lý học, giáo dục học**
+
+- Đặc điểm tâm lý lứa tuổi học sinh ${level}
+- Quan điểm dạy học phát triển năng lực theo GDPT 2018
+
+#### **1.3. Lý thuyết nền tảng**
+
+- Lý thuyết/Học thuyết hỗ trợ cho các giải pháp
+
+---
+
+### **2. Thực trạng vấn đề nghiên cứu** (~${wordDistribution.thucTrang.toLocaleString()} từ)
+
+YÊU CẦU: Có số liệu minh họa CỤ THỂ, CHÍNH XÁC (theo QĐ 658)
+
+#### **2.1. Khái quát về địa bàn nghiên cứu**
+
+- Giới thiệu ${unit || 'đơn vị công tác'}
+- Đặc điểm học sinh, giáo viên, cơ sở vật chất
+
+#### **2.2. Thực trạng vấn đề (từ input tác giả):**
+
 ${problem}
 
-### 2.3. Kết quả khảo sát thực trạng ban đầu
+#### **2.3. Kết quả khảo sát thực trạng ban đầu**
 
-**📊 BẢNG 1: Khảo sát thực trạng [tiêu chí liên quan đề tài] (Trước khi áp dụng giải pháp)**
+**Bảng 1: Khảo sát thực trạng (Trước khi áp dụng giải pháp)**
 
 | STT | Tiêu chí đánh giá | Tốt | Khá | TB | Yếu | Tổng HS |
 |-----|-------------------|-----|-----|-----|-----|---------|
-| 1 | [Tiêu chí 1] | X% | Y% | Z% | W% | N |
-| 2 | [Tiêu chí 2] | ... | ... | ... | ... | N |
-| 3 | [Tiêu chí 3] | ... | ... | ... | ... | N |
+| 1 | Tiêu chí 1 | X% | Y% | Z% | W% | N |
+| 2 | Tiêu chí 2 | ... | ... | ... | ... | N |
+| 3 | Tiêu chí 3 | ... | ... | ... | ... | N |
 
 *(Nguồn: Khảo sát của tác giả, tháng X/20XX)*
-*(Lưu ý: Tỷ lệ Tốt + Khá thường ≤ 40% trước khi áp dụng giải pháp)*
 
-**📊 BẢNG 2: Đánh giá nhận thức của giáo viên về [vấn đề]**
+**Bảng 2: Đánh giá nhận thức của giáo viên**
 
 | STT | Nội dung đánh giá | Rất cần thiết | Cần thiết | Không cần thiết |
 |-----|-------------------|---------------|-----------|-----------------|
-| 1 | [Nội dung 1] | X% | Y% | Z% |
-| 2 | [Nội dung 2] | ... | ... | ... |
+| 1 | Nội dung 1 | X% | Y% | Z% |
+| 2 | Nội dung 2 | ... | ... | ... |
 
 *(Nguồn: Phiếu khảo sát X giáo viên, tháng X/20XX)*
 
-### 2.4. Phân tích nguyên nhân thực trạng
+#### **2.4. Phân tích nguyên nhân thực trạng**
 
 **a) Nguyên nhân khách quan:**
-• Về điều kiện cơ sở vật chất: [...]
-• Về chương trình, tài liệu: [...]
-• Về chính sách, quy định: [...]
+
+- Về điều kiện cơ sở vật chất: ...
+- Về chương trình, tài liệu: ...
+- Về chính sách, quy định: ...
 
 **b) Nguyên nhân chủ quan:**
-• Về phía giáo viên: [...]
-• Về phía học sinh: [...]
-• Về phía gia đình, xã hội: [...]
 
-### 2.5. Thuận lợi và khó khăn
-• **Thuận lợi:** [...]
-• **Khó khăn:** [...]
+- Về phía giáo viên: ...
+- Về phía học sinh: ...
+- Về phía gia đình, xã hội: ...
+
+#### **2.5. Thuận lợi và khó khăn**
+
+- **Thuận lợi:** ...
+- **Khó khăn:** ...
 
 ---
 
-## **3. Các giải pháp** (~${wordDistribution.cacGiaiPhap.toLocaleString()} từ)
-⚠️ **ĐÂY LÀ PHẦN QUAN TRỌNG NHẤT - QUYẾT ĐỊNH TÍNH MỚI VÀ SÁNG TẠO (20 điểm) + HIỆU QUẢ (35 điểm)**
+### **3. Các giải pháp** (~${wordDistribution.cacGiaiPhap.toLocaleString()} từ)
 
-**Mỗi giải pháp PHẢI có đầy đủ:**
-✓ Tên giải pháp (ngắn gọn, nêu bật bản chất)
-✓ Mục tiêu của giải pháp
-✓ Nội dung và cách thức thực hiện (chi tiết từng bước)
-✓ Điều kiện thực hiện giải pháp
-✓ Ví dụ minh họa cụ thể
+ĐÂY LÀ PHẦN QUAN TRỌNG NHẤT - QUYẾT ĐỊNH TÍNH MỚI VÀ SÁNG TẠO (20 điểm) + HIỆU QUẢ (35 điểm)
+
+Mỗi giải pháp PHẢI có đầy đủ:
+- Tên giải pháp (ngắn gọn, nêu bật bản chất)
+- Mục tiêu của giải pháp
+- Nội dung và cách thức thực hiện (chi tiết từng bước)
+- Điều kiện thực hiện giải pháp
+- Ví dụ minh họa cụ thể
 
 ${solutionsPrompt}
 
-### **3.${numSolutions + 1}. Mối quan hệ giữa các giải pháp**
-• Giải pháp nào là tiền đề, nền tảng cho các giải pháp khác
-• Giải pháp nào có thể thực hiện đồng thời
-• Sự bổ trợ, tương hỗ giữa các giải pháp để tạo hiệu quả tổng hợp
+#### **3.${numSolutions + 1}. Mối quan hệ giữa các giải pháp**
+
+- Giải pháp nào là tiền đề, nền tảng cho các giải pháp khác
+- Giải pháp nào có thể thực hiện đồng thời
+- Sự bổ trợ, tương hỗ giữa các giải pháp để tạo hiệu quả tổng hợp
 
 ---
 
-## **4. Kết quả khảo nghiệm, giá trị khoa học của vấn đề nghiên cứu, phạm vi và hiệu quả ứng dụng** (~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} từ)
-⚠️ **YÊU CẦU: Xác định rõ THƯỚC ĐO HIỆU QUẢ, có số liệu ĐỊNH TÍNH + ĐỊNH LƯỢNG**
+### **4. Kết quả khảo nghiệm, giá trị khoa học của vấn đề nghiên cứu, phạm vi và hiệu quả ứng dụng** (~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} từ)
 
-### 4.1. Kết quả định lượng
+YÊU CẦU: Xác định rõ THƯỚC ĐO HIỆU QUẢ, có số liệu ĐỊNH TÍNH + ĐỊNH LƯỢNG
 
-**📊 BẢNG 3: So sánh kết quả TRƯỚC và SAU khi áp dụng các giải pháp**
+#### **4.1. Kết quả định lượng**
+
+**Bảng 3: So sánh kết quả TRƯỚC và SAU khi áp dụng các giải pháp**
 
 | STT | Tiêu chí đánh giá | TRƯỚC áp dụng | SAU áp dụng | Mức tăng |
 |-----|-------------------|---------------|-------------|----------|
@@ -5766,12 +5836,11 @@ ${solutionsPrompt}
 | 2 | Tỷ lệ HS đạt Khá | X% | X'% | +Y% |
 | 3 | Tỷ lệ HS đạt TB | X% | X'% | -Y% |
 | 4 | Tỷ lệ HS Yếu | X% | X'% | -Y% |
-| 5 | Điểm trung bình | X̄ | X̄' | +... |
+| 5 | Điểm trung bình | X | X' | +... |
 
 *(Nguồn: Kết quả thực nghiệm của tác giả, năm học 20XX-20XX)*
-*(Lưu ý: Tỷ lệ Tốt + Khá SAU áp dụng thường đạt 75-90%, KHÔNG nên đưa 100%)*
 
-**📊 BẢNG 4: Đánh giá hiệu quả từng giải pháp**
+**Bảng 4: Đánh giá hiệu quả từng giải pháp**
 
 | STT | Giải pháp | Rất hiệu quả | Hiệu quả | Ít hiệu quả | Không hiệu quả |
 |-----|-----------|--------------|----------|-------------|----------------|
@@ -5781,80 +5850,97 @@ ${solutionsPrompt}
 
 *(Nguồn: Phiếu đánh giá của X giáo viên, X học sinh)*
 
-**📊 BẢNG 5: So sánh nhóm thực nghiệm và nhóm đối chứng (nếu có)**
+**Bảng 5: So sánh nhóm thực nghiệm và nhóm đối chứng (nếu có)**
 
 | Tiêu chí | Nhóm TN (N=...) | Nhóm ĐC (N=...) | Chênh lệch |
 |----------|-----------------|-----------------|------------|
-| Điểm TB | X̄TN | X̄ĐC | +... |
+| Điểm TB | X | Y | +... |
 | Tỷ lệ Tốt+Khá | X% | Y% | +Z% |
 
-### 4.2. Kết quả định tính
+#### **4.2. Kết quả định tính**
 
 **a) Nhận xét của đồng nghiệp:**
-• [Trích dẫn ý kiến cụ thể]
+
+Trích dẫn ý kiến cụ thể từ đồng nghiệp.
 
 **b) Phản hồi từ học sinh:**
-• [Trích dẫn ý kiến cụ thể]
+
+Trích dẫn ý kiến cụ thể từ học sinh.
 
 **c) Đánh giá từ Ban Giám hiệu:**
-• [Trích dẫn ý kiến cụ thể]
+
+Trích dẫn ý kiến cụ thể từ Ban Giám hiệu.
 
 **d) Ý kiến phụ huynh (nếu có):**
-• [Trích dẫn ý kiến cụ thể]
 
-### 4.3. Giá trị khoa học của vấn đề nghiên cứu
+Trích dẫn ý kiến cụ thể từ phụ huynh.
+
+#### **4.3. Giá trị khoa học của vấn đề nghiên cứu**
 
 **a) Về mặt lý luận:**
-• Hệ thống hóa cơ sở lý luận về [...]
-• Đóng góp mới về [...]
+
+- Hệ thống hóa cơ sở lý luận về ...
+- Đóng góp mới về ...
 
 **b) Về mặt thực tiễn:**
-• Cung cấp giải pháp cụ thể cho [...]
-• Minh chứng hiệu quả bằng số liệu khoa học
 
-### 4.4. Phạm vi và hiệu quả ứng dụng
+- Cung cấp giải pháp cụ thể cho ...
+- Minh chứng hiệu quả bằng số liệu khoa học
+
+#### **4.4. Phạm vi và hiệu quả ứng dụng**
 
 **a) Phạm vi có thể áp dụng:**
-• Cấp trường: [Điều kiện...]
-• Cấp huyện/thị: [Điều kiện...]
-• Cấp tỉnh/toàn ngành: [Điều kiện...]
+
+- Cấp trường: Điều kiện...
+- Cấp huyện/thị: Điều kiện...
+- Cấp tỉnh/toàn ngành: Điều kiện...
 
 **b) Điều kiện để nhân rộng:**
-• [Yêu cầu về nguồn lực]
-• [Yêu cầu về tập huấn, bồi dưỡng]
+
+- Yêu cầu về nguồn lực
+- Yêu cầu về tập huấn, bồi dưỡng
 
 **c) Khả năng thích ứng:**
-• [Có thể điều chỉnh cho bối cảnh khác như thế nào]
+
+Có thể điều chỉnh cho bối cảnh khác như thế nào.
 
 ---
 
-# **III. PHẦN KẾT LUẬN, KIẾN NGHỊ** (~${wordDistribution.ketLuanKienNghi.toLocaleString()} từ)
-⚠️ **LƯU Ý: Viết NGẮN GỌN, KHÔNG cần đưa số liệu (theo QĐ 658)**
+## **III. PHẦN KẾT LUẬN, KIẾN NGHỊ** (~${wordDistribution.ketLuanKienNghi.toLocaleString()} từ)
 
-## **1. Kết luận**
+LƯU Ý: Viết NGẮN GỌN, KHÔNG cần đưa số liệu (theo QĐ 658)
 
-### a) Nêu khái quát các nội dung đã nghiên cứu:
-• Đề tài đã thực hiện các công việc: [liệt kê ngắn gọn]
-• Các giải pháp đã đề xuất: [liệt kê ${numSolutions} giải pháp]
+### **1. Kết luận**
 
-### b) Kết quả nội dung nghiên cứu:
-• Mức độ đạt được mục tiêu: [Đánh giá ngắn gọn]
-• Khẳng định tính hiệu quả, khả thi của các giải pháp
+#### **a) Nêu khái quát các nội dung đã nghiên cứu:**
 
-## **2. Kiến nghị**
+- Đề tài đã thực hiện các công việc: [liệt kê ngắn gọn]
+- Các giải pháp đã đề xuất: [liệt kê ${numSolutions} giải pháp]
+
+#### **b) Kết quả nội dung nghiên cứu:**
+
+- Mức độ đạt được mục tiêu: [Đánh giá ngắn gọn]
+- Khẳng định tính hiệu quả, khả thi của các giải pháp
+
+### **2. Kiến nghị**
+
 (Xuất phát từ nội dung nghiên cứu của đề tài)
 
-### a) Đối với Sở Giáo dục và Đào tạo:
-• [Kiến nghị cụ thể, khả thi]
+#### **a) Đối với Sở Giáo dục và Đào tạo:**
 
-### b) Đối với Phòng Giáo dục và Đào tạo:
-• [Kiến nghị cụ thể, khả thi]
+- [Kiến nghị cụ thể, khả thi]
 
-### c) Đối với nhà trường:
-• [Kiến nghị cụ thể, khả thi]
+#### **b) Đối với Phòng Giáo dục và Đào tạo:**
 
-### d) Đối với giáo viên/đồng nghiệp:
-• [Kiến nghị cụ thể, khả thi]
+- [Kiến nghị cụ thể, khả thi]
+
+#### **c) Đối với nhà trường:**
+
+- [Kiến nghị cụ thể, khả thi]
+
+#### **d) Đối với giáo viên/đồng nghiệp:**
+
+- [Kiến nghị cụ thể, khả thi]
 
 ---
 
@@ -5877,22 +5963,26 @@ ${solutionsPrompt}
 
 ---
 
-# ✅ YÊU CẦU ĐẦU RA CUỐI CÙNG:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ **GIỚI HẠN SỐ TỪ: CHÍNH XÁC ${targetWords.toLocaleString()} từ (±5%)**
-⚠️ **KHÔNG ĐƯỢC VIẾT QUÁ ${Math.round(targetWords * 1.05).toLocaleString()} từ**
-⚠️ **Khi đạt đủ số từ, DỪNG NGAY và kết thúc bằng TÀI LIỆU THAM KHẢO**
+# YÊU CẦU ĐẦU RA CUỐI CÙNG
 
-✓ **TUÂN THỦ 100%** cấu trúc PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT Đắk Lắk
-✓ Nội dung **LIÊN QUAN TRỰC TIẾP** đến "${title}"
-✓ **Văn phong học thuật**, mạch lạc, logic, chuyên nghiệp
-✓ **Số liệu thực tế**, có độ biến thiên hợp lý (KHÔNG 100% hoàn hảo)
-✓ **Bảng biểu rõ ràng** với nguồn số liệu cụ thể
-✓ Trích dẫn văn bản pháp quy **CHÍNH XÁC**
-✓ Giọng văn phù hợp với vai trò **${position}**
-✓ Mỗi giải pháp có: **Tên → Mục tiêu → Nội dung/Cách thức → Điều kiện thực hiện → Ví dụ**
-✓ Hướng đến điểm **LOẠI A (85-100 điểm)**
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+**GIỚI HẠN SỐ TỪ:**
+- Yêu cầu: ${targetWords.toLocaleString()} từ (sai số ±5%)
+- KHÔNG ĐƯỢC viết quá ${Math.round(targetWords * 1.05).toLocaleString()} từ
+- Khi đạt đủ số từ, DỪNG NGAY và kết thúc bằng TÀI LIỆU THAM KHẢO
+
+**CHECKLIST BẮT BUỘC:**
+
+1. TUÂN THỦ 100% cấu trúc PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT Đắk Lắk
+2. Nội dung LIÊN QUAN TRỰC TIẾP đến "${title}"
+3. Văn phong học thuật, mạch lạc, logic, chuyên nghiệp
+4. Số liệu thực tế, có độ biến thiên hợp lý (KHÔNG 100% hoàn hảo)
+5. Bảng biểu rõ ràng với nguồn số liệu cụ thể
+6. Trích dẫn văn bản pháp quy CHÍNH XÁC
+7. Giọng văn phù hợp với vai trò ${position}
+8. Mỗi giải pháp có: Tên - Mục tiêu - Nội dung/Cách thức - Điều kiện - Ví dụ
+9. Hướng đến điểm LOẠI A (85-100 điểm)
+
+BẮT ĐẦU VIẾT NGAY BÊN DƯỚI:`;
         }
         
         // ========== Show Prompt Modal ==========
