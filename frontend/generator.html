@@ -5019,18 +5019,18 @@ LƯU Ý QUAN TRỌNG:
                                                           fullText.includes('DANH MỤC TÀI LIỆU');
                                     
                                     // Auto-stop CHỈ KHI:
-                                    // 1. Đã có TÀI LIỆU THAM KHẢO VÀ đạt ít nhất 90% số từ
-                                    // 2. HOẶC vượt quá 150% số từ (quá dài, phải dừng)
+                                    // 1. Đã có TÀI LIỆU THAM KHẢO VÀ đạt ít nhất 85% số từ
+                                    // 2. HOẶC vượt quá 115% số từ (dừng ngay)
                                     if (!isFinalized) {
-                                        if (hasReferences && wordCount >= targetWords * 0.90) {
+                                        if (hasReferences && wordCount >= targetWords * 0.85) {
                                             console.log(`📊 Đã hoàn thành cấu trúc + ${wordCount} từ - Auto finalizing...`);
                                             isFinalized = true;
                                             window.currentSKKNStreamingData.isFinalized = true;
                                             if (streamTimeout) clearTimeout(streamTimeout);
                                             finalizeSKKNContent(fullText, meta);
                                             break;
-                                        } else if (wordCount >= targetWords * 1.50) {
-                                            console.log(`⚠️ Vượt 150% (${wordCount} từ) - Force stop...`);
+                                        } else if (wordCount >= targetWords * 1.15) {
+                                            console.log(`⚠️ Vượt 115% (${wordCount} từ) - Force stop...`);
                                             isFinalized = true;
                                             window.currentSKKNStreamingData.isFinalized = true;
                                             if (streamTimeout) clearTimeout(streamTimeout);
@@ -5971,26 +5971,27 @@ LƯU Ý: Viết NGẮN GỌN, KHÔNG cần đưa số liệu (theo QĐ 658)
 
 ---
 
-# YÊU CẦU ĐẦU RA CUỐI CÙNG
+# YÊU CẦU NGHIÊM NGẶT VỀ SỐ TỪ
 
-**GIỚI HẠN SỐ TỪ:**
-- Yêu cầu: ${targetWords.toLocaleString()} từ (sai số ±5%)
-- KHÔNG ĐƯỢC viết quá ${Math.round(targetWords * 1.05).toLocaleString()} từ
-- Khi đạt đủ số từ, DỪNG NGAY và kết thúc bằng TÀI LIỆU THAM KHẢO
+**GIỚI HẠN TUYỆT ĐỐI: ${targetWords.toLocaleString()} từ**
+
+- KHÔNG ĐƯỢC viết quá ${Math.round(targetWords * 1.10).toLocaleString()} từ (tối đa +10%)
+- Viết NGẮN GỌN, SÚC TÍCH - đi thẳng vào vấn đề
+- Mỗi phần viết ĐÚNG số từ đã phân bổ ở trên
+- Khi gần đạt số từ, nhanh chóng kết thúc bằng TÀI LIỆU THAM KHẢO
+- KHÔNG viết dài dòng, lặp lại ý
 
 **CHECKLIST BẮT BUỘC:**
 
 1. TUÂN THỦ 100% cấu trúc PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT Đắk Lắk
 2. Nội dung LIÊN QUAN TRỰC TIẾP đến "${title}"
-3. Văn phong học thuật, mạch lạc, logic, chuyên nghiệp
-4. Số liệu thực tế, có độ biến thiên hợp lý (KHÔNG 100% hoàn hảo)
-5. Bảng biểu rõ ràng với nguồn số liệu cụ thể
-6. Trích dẫn văn bản pháp quy CHÍNH XÁC
-7. Giọng văn phù hợp với vai trò ${position}
-8. Mỗi giải pháp có: Tên - Mục tiêu - Nội dung/Cách thức - Điều kiện - Ví dụ
-9. Hướng đến điểm LOẠI A (85-100 điểm)
+3. Văn phong học thuật, mạch lạc, logic
+4. Số liệu thực tế, có độ biến thiên hợp lý
+5. Bảng biểu rõ ràng với nguồn số liệu
+6. Giọng văn phù hợp với vai trò ${position}
+7. Hướng đến điểm LOẠI A (85-100 điểm)
 
-BẮT ĐẦU VIẾT NGAY BÊN DƯỚI:`;
+BẮT ĐẦU VIẾT NGAY:`;
         }
         
         // ========== Show Prompt Modal ==========
