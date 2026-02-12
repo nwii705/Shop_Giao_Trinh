@@ -4972,6 +4972,8 @@ LƯU Ý QUAN TRỌNG:
                 streamTimeout = setTimeout(checkStreamTimeout, 8000);
                 
                 while (true) {
+                    if (isFinalized) break; // Đã đủ số từ, dừng stream
+                    
                     const { done, value } = await reader.read();
                     if (done) break;
                     
@@ -4980,6 +4982,8 @@ LƯU Ý QUAN TRỌNG:
                     const lines = chunk.split('\n');
                     
                     for (const line of lines) {
+                        if (isFinalized) break; // Check lại trong vòng for
+                        
                         if (line.startsWith('data: ')) {
                             const data = line.slice(6).trim();
                             if (data === '[DONE]') {
@@ -5000,6 +5004,16 @@ LƯU Ý QUAN TRỌNG:
                                     window.currentSKKNStreamingData.fullText = fullText;
                                     wordCount = fullText.split(/\s+/).filter(w => w.length > 0).length;
                                     updateSKKNStreamingUI(fullText, wordCount, targetWords);
+                                    
+                                    // Auto-stop khi đạt 110% số từ yêu cầu (có buffer)
+                                    if (wordCount >= targetWords * 1.10 && !isFinalized) {
+                                        console.log(`📊 Đạt ${wordCount} từ (>${targetWords * 1.10}) - Auto finalizing...`);
+                                        isFinalized = true;
+                                        window.currentSKKNStreamingData.isFinalized = true;
+                                        if (streamTimeout) clearTimeout(streamTimeout);
+                                        finalizeSKKNContent(fullText, meta);
+                                        break;
+                                    }
                                 }
                             } catch (e) {
                                 // Skip invalid JSON
@@ -5820,14 +5834,16 @@ ${solutionsPrompt}
 
 # ✅ YÊU CẦU ĐẦU RA CUỐI CÙNG:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ Viết **ĐẦY ĐỦ ${targetWords.toLocaleString()} từ** theo phân bổ trên (14-40 trang A4)
+⚠️ **GIỚI HẠN SỐ TỪ: CHÍNH XÁC ${targetWords.toLocaleString()} từ (±5%)**
+⚠️ **KHÔNG ĐƯỢC VIẾT QUÁ ${Math.round(targetWords * 1.05).toLocaleString()} từ**
+⚠️ **Khi đạt đủ số từ, DỪNG NGAY và kết thúc bằng TÀI LIỆU THAM KHẢO**
+
 ✓ **TUÂN THỦ 100%** cấu trúc PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT Đắk Lắk
 ✓ Nội dung **LIÊN QUAN TRỰC TIẾP** đến "${title}"
 ✓ **Văn phong học thuật**, mạch lạc, logic, chuyên nghiệp
 ✓ **Số liệu thực tế**, có độ biến thiên hợp lý (KHÔNG 100% hoàn hảo)
 ✓ **Bảng biểu rõ ràng** với nguồn số liệu cụ thể
 ✓ Trích dẫn văn bản pháp quy **CHÍNH XÁC**
-✓ **KHÔNG tóm tắt, KHÔNG rút gọn**, viết chi tiết đầy đủ
 ✓ Giọng văn phù hợp với vai trò **${position}**
 ✓ Mỗi giải pháp có: **Tên → Mục tiêu → Nội dung/Cách thức → Điều kiện thực hiện → Ví dụ**
 ✓ Hướng đến điểm **LOẠI A (85-100 điểm)**
