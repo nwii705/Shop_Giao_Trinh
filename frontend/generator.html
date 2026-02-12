@@ -3959,7 +3959,8 @@
         }
         
         // ========== Build KHBD Prompt ==========
-        // Build KHBD Prompt - Master Version 2.1 (theo Công văn 5512/BGDĐT-GDTrH)
+        // Build KHBD Prompt - Master Version 3.0 (theo Công văn 5512/BGDĐT-GDTrH)
+        // Tích hợp Advanced Prompt Engineering: Persona, Negative Prompting, Zero-shot Templating
         function buildKHBDPrompt(meta) {
             const { subject, grade, lesson, topic, periods, method, objectives, requirements } = meta;
             const totalMinutes = periods * 45;
@@ -3972,60 +3973,112 @@
                 vanDung: Math.round(totalMinutes * 0.15)        // 15% - Vận dụng
             };
             
-            return `${getSystemInstruction()}
+            return `# BỐI CẢNH VÀ VAI TRÒ (CONTEXT & PERSONA)
+Bạn là một **Chuyên gia Thiết kế Giáo án (Instructional Designer)** cấp cao và là **Giáo viên Cốt cán** có am hiểu sâu sắc, chuẩn xác về triết lý của Chương trình Giáo dục Phổ thông 2018 (GDPT 2018) tại Việt Nam. Bạn có khả năng xuất sắc trong việc thiết kế các Kế hoạch bài dạy (Giáo án) định hướng phát triển năng lực học sinh, lấy học sinh làm trung tâm, và tuân thủ tuyệt đối theo định dạng chuẩn mực của Công văn 5512/BGDĐT-GDTrH.
 
-=== SOẠN KẾ HOẠCH BÀI DẠY THEO CÔNG VĂN 5512/BGDĐT-GDTrH ===
-
-**THÔNG TIN BÀI DẠY:**
-• Môn học: ${subject}
-• Lớp: ${grade}
-• Tên bài/Chủ đề: ${lesson}
-${topic ? `• Thuộc chương/phần: ${topic}` : ''}
-• Số tiết: ${periods} tiết (${totalMinutes} phút)
-• Phương pháp dạy học chủ đạo: ${method}
+# NHIỆM VỤ (TASK)
+Hãy soạn một **Kế hoạch bài dạy (Giáo án)** chi tiết, hoàn chỉnh và có tính thực thi cao cho:
+• **Tên bài/Chủ đề:** ${lesson}
+${topic ? `• **Thuộc chương/phần:** ${topic}` : ''}
+• **Môn học:** ${subject}
+• **Lớp:** ${grade}
+• **Thời lượng:** ${periods} tiết (${totalMinutes} phút)
+• **Phương pháp dạy học chủ đạo:** ${method}
 
 **YÊU CẦU CẦN ĐẠT (từ SGK/Chương trình):**
 ${objectives}
 
 ${requirements ? `**YÊU CẦU BỔ SUNG CỦA GIÁO VIÊN:**\n${requirements}` : ''}
 
-=== CẤU TRÚC KẾ HOẠCH BÀI DẠY (CV 5512) ===
+# ⚠️ LỆNH PHỦ ĐỊNH NGHIÊM NGẶT (STRICT NEGATIVE PROMPT)
+**Cảnh báo hệ thống cấp cao:** Lỗi phổ biến nhất của AI là nhầm lẫn cấu trúc "Kế hoạch bài dạy" với "Sáng kiến kinh nghiệm" (SKKN) hoặc "Đề tài nghiên cứu khoa học sư phạm".
 
-**TÊN BÀI DẠY: ${lesson}**
-Môn học: ${subject}; Lớp: ${grade}
-Thời gian thực hiện: ${periods} tiết
+Để đảm bảo chất lượng, bạn **TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP** thực hiện các hành vi sau:
+
+🚫 **KHÔNG** viết phần mở đầu giới thiệu bối cảnh, tính cấp thiết, hay lý do chọn bài dạy này.
+
+🚫 **CẤM SỬ DỤNG** các tiêu đề mang tính chất nghiên cứu thuộc cấu trúc SKKN như:
+- "Lý do chọn đề tài"
+- "Cơ sở lí luận", "Cơ sở thực tiễn"
+- "Thực trạng dạy và học"
+- "Giải pháp/Biện pháp thực hiện"
+- "Thực nghiệm sư phạm"
+- "Hiệu quả của đề tài"
+- "Bảng thống kê điểm số"
+- "Kết luận và kiến nghị"
+
+🚫 **KHÔNG** viết dưới góc nhìn của một nhà nghiên cứu đang báo cáo thành tích. Mọi câu từ phải là **kịch bản hành động**, hướng dẫn thực hành trực tiếp tại lớp học.
+
+🚫 **KHÔNG** viết văn xuôi dài dòng phân tích về "tầm quan trọng", "ý nghĩa", "vai trò" của bài học.
+
+# YÊU CẦU SƯ PHẠM VÀ PHƯƠNG PHÁP LUẬN (PEDAGOGICAL GUIDELINES)
+
+**📌 Về Hệ thống Mục tiêu:**
+- Bắt buộc sử dụng các **động từ hành vi có thể đo lường** theo Thang nhận thức Bloom:
+  + ✅ Đúng: "Nêu được", "Phân tích được", "Thiết kế được", "Đánh giá được", "Vận dụng được"
+  + ❌ Sai: "Hiểu được", "Biết được", "Nắm được" (quá mơ hồ)
+- Nêu rõ **năng lực chung** và **năng lực đặc thù** một cách cụ thể, liên kết với hoạt động trong bài.
+
+**📌 Về Bản chất Hoạt động:**
+- Giáo viên chỉ đóng vai trò **người đạo diễn** (giao nhiệm vụ, quan sát, hướng dẫn, chốt kiến thức).
+- Học sinh là **người thi công** (đọc tài liệu, làm thí nghiệm, thảo luận, trình bày, báo cáo).
+- Mọi hoạt động phải tạo ra **SẢN PHẨM HỮU HÌNH** (bảng số liệu, sơ đồ, bài trình bày, đáp án...).
+
+**📌 Về Tính tuân thủ CV 5512:**
+Mọi Hoạt động (từ 1 đến 4) phải tuân thủ nghiêm ngặt tiến trình **4 bước**:
+1. **Bước 1:** Giao nhiệm vụ học tập
+2. **Bước 2:** Thực hiện nhiệm vụ
+3. **Bước 3:** Báo cáo, thảo luận
+4. **Bước 4:** Kết luận, nhận định
+
+⚠️ Tuyệt đối không được gộp bước, không được đảo trật tự, không được bỏ sót bất kỳ bước nào.
+
+# 📄 ĐỊNH DẠNG ĐẦU RA BẮT BUỘC (RIGID OUTPUT TEMPLATE)
+
+Bạn phải sinh ra kết quả tuân thủ chính xác đến từng chữ đối với các tiêu đề dưới đây.
+**TUYỆT ĐỐI KHÔNG** thêm bất kỳ văn bản chào hỏi, giải thích hay bình luận nào trước hoặc sau khung giáo án.
+
+---BẮT ĐẦU KHUNG GIÁO ÁN---
+
+# KẾ HOẠCH BÀI DẠY
+
+**Tên bài dạy:** ${lesson}
+**Môn học:** ${subject}; **Lớp:** ${grade}
+**Thời gian thực hiện:** ${periods} tiết (${totalMinutes} phút)
+
+---
 
 ## I. MỤC TIÊU
 
 ### 1. Về kiến thức
-(Dựa trên yêu cầu cần đạt, liệt kê CỤ THỂ các kiến thức học sinh cần đạt được sau bài học)
-• [Kiến thức 1]: ...
-• [Kiến thức 2]: ...
-• [Kiến thức 3]: ...
+(Liệt kê cụ thể các kiến thức học sinh cần đạt được sau bài học, sử dụng động từ Bloom)
+• [Học sinh nêu được...]
+• [Học sinh phân tích được...]
+• [Học sinh vận dụng được...]
 
 ### 2. Về năng lực
 
 **a) Năng lực chung:**
 | Năng lực | Biểu hiện cụ thể trong bài học |
 |----------|-------------------------------|
-| Tự chủ và tự học | [Mô tả cụ thể HS thể hiện như thế nào] |
-| Giao tiếp và hợp tác | [Mô tả cụ thể hoạt động nhóm, thảo luận] |
-| Giải quyết vấn đề và sáng tạo | [Mô tả cụ thể tình huống/bài toán HS giải quyết] |
+| Tự chủ và tự học | [Mô tả cụ thể: HS tự đọc SGK, tự hoàn thành phiếu học tập...] |
+| Giao tiếp và hợp tác | [Mô tả cụ thể: HS thảo luận nhóm, trình bày trước lớp...] |
+| Giải quyết vấn đề và sáng tạo | [Mô tả cụ thể: HS đề xuất giải pháp, xử lý tình huống...] |
 
 **b) Năng lực đặc thù môn ${subject}:**
 | Năng lực đặc thù | Biểu hiện cụ thể |
 |------------------|------------------|
-| [Năng lực 1 của môn] | [Biểu hiện] |
-| [Năng lực 2 của môn] | [Biểu hiện] |
-| [Năng lực 3 của môn] | [Biểu hiện] |
+| [Năng lực 1 của môn ${subject}] | [Biểu hiện cụ thể qua hoạt động nào] |
+| [Năng lực 2 của môn ${subject}] | [Biểu hiện cụ thể qua hoạt động nào] |
 
 ### 3. Về phẩm chất
 | Phẩm chất | Biểu hiện cụ thể trong bài học |
 |-----------|-------------------------------|
-| Chăm chỉ | [VD: Tích cực hoàn thành nhiệm vụ học tập, ...] |
-| Trách nhiệm | [VD: Hoàn thành đúng hạn, hợp tác nhóm, ...] |
-| Trung thực | [VD: Báo cáo kết quả thực hành đúng, ...] |
-| [Phẩm chất khác nếu có] | [...] |
+| Chăm chỉ | [VD: Tích cực hoàn thành nhiệm vụ học tập đúng hạn] |
+| Trách nhiệm | [VD: Hoàn thành vai trò trong nhóm, giữ gìn thiết bị] |
+| Trung thực | [VD: Báo cáo kết quả thực hành/thí nghiệm chính xác] |
+
+---
 
 ## II. THIẾT BỊ DẠY HỌC VÀ HỌC LIỆU
 
@@ -4033,191 +4086,220 @@ Thời gian thực hiện: ${periods} tiết
 • SGK ${subject} ${grade}, Sách giáo viên
 • Kế hoạch bài dạy, bài giảng PowerPoint
 • Phiếu học tập (in sẵn cho từng nhóm/cá nhân)
-• Thiết bị dạy học: [máy chiếu, loa, bảng phụ, ...]
-• Học liệu bổ sung: [video, hình ảnh, mô hình, ...]
+• Thiết bị: [máy chiếu, bảng phụ, mô hình, dụng cụ thí nghiệm...]
+• Học liệu số: [video, hình ảnh, phần mềm mô phỏng...]
 
 ### 2. Đối với học sinh
-• SGK ${subject} ${grade}
-• Vở ghi, dụng cụ học tập
-• Chuẩn bị trước: [đọc bài, làm bài tập, sưu tầm tư liệu, ...]
+• SGK ${subject} ${grade}, vở ghi bài
+• Chuẩn bị trước: [đọc trước bài, sưu tầm tư liệu, làm bài tập về nhà...]
+• Dụng cụ học tập: [thước kẻ, máy tính cầm tay, vật liệu thực hành...]
+
+---
 
 ## III. TIẾN TRÌNH DẠY HỌC
 
-### 📌 HOẠT ĐỘNG 1: KHỞI ĐỘNG/MỞ ĐẦU (~${timeDistribution.khoiDong} phút)
+### 🎯 HOẠT ĐỘNG 1: XÁC ĐỊNH VẤN ĐỀ/NHIỆM VỤ HỌC TẬP/MỞ ĐẦU
+**⏱️ Thời gian:** ~${timeDistribution.khoiDong} phút
 
 **a) Mục tiêu:**
-• Tạo tâm thế hứng thú, sẵn sàng học tập
-• Kết nối kiến thức đã học với bài mới
-• Huy động kiến thức, kinh nghiệm của HS về vấn đề liên quan
+• Tạo hứng thú, sự tò mò về bài học mới
+• Huy động kiến thức/kinh nghiệm nền của học sinh
+• Kết nối với bài mới thông qua tình huống/câu hỏi có vấn đề
 
 **b) Nội dung:**
-[Mô tả CỤ THỂ hoạt động khởi động: trò chơi, video, câu hỏi tình huống, bài hát, thí nghiệm vui...]
+[Mô tả CỤ THỂ hoạt động khởi động: trò chơi, video, câu hỏi tình huống thực tế, thí nghiệm biểu diễn, bài hát...]
 
-**c) Sản phẩm dự kiến:**
-• Câu trả lời/dự đoán của học sinh
-• Sự hứng thú, tò mò về bài học mới
+**c) Sản phẩm:**
+• Câu trả lời/dự đoán ban đầu của học sinh
+• Sự hứng thú, mâu thuẫn nhận thức dẫn vào bài mới
 
 **d) Tổ chức thực hiện:**
 
-| Bước | Hoạt động của GV | Hoạt động của HS | Thời gian |
-|------|------------------|------------------|-----------|
-| 1 | [GV tổ chức hoạt động: ...] | [HS tham gia: ...] | ~X phút |
-| 2 | [GV đặt câu hỏi/nêu vấn đề: ...] | [HS suy nghĩ, trả lời: ...] | ~X phút |
-| 3 | [GV chốt, dẫn dắt vào bài mới: ...] | [HS lắng nghe, ghi nhận] | ~X phút |
+| Bước | Nội dung chi tiết |
+|------|-------------------|
+| **Bước 1: Giao nhiệm vụ học tập** | GV [trình chiếu video/đặt câu hỏi/tổ chức trò chơi...], nêu rõ yêu cầu: "[Nội dung cụ thể]". Đảm bảo 100% HS nhận diện được nhiệm vụ. |
+| **Bước 2: Thực hiện nhiệm vụ** | HS [quan sát/suy nghĩ/thảo luận cặp đôi...] trong ~X phút. GV quan sát, không đánh giá đúng sai. |
+| **Bước 3: Báo cáo, thảo luận** | GV mời 2-3 HS chia sẻ câu trả lời. Các HS khác lắng nghe, bổ sung ý kiến. |
+| **Bước 4: Kết luận, nhận định** | GV không chốt đáp án, mà sử dụng các câu trả lời để đặt ra câu hỏi neo: "[Câu hỏi dẫn dắt vào bài]" → Giới thiệu bài mới. |
 
-### 📌 HOẠT ĐỘNG 2: HÌNH THÀNH KIẾN THỨC MỚI (~${timeDistribution.hinhThanh} phút)
+---
+
+### 📚 HOẠT ĐỘNG 2: HÌNH THÀNH KIẾN THỨC MỚI/GIẢI QUYẾT VẤN ĐỀ
+**⏱️ Thời gian:** ~${timeDistribution.hinhThanh} phút
 
 **a) Mục tiêu:**
-• HS nắm vững kiến thức trọng tâm của bài "${lesson}"
-• Phát triển năng lực [cụ thể theo bài]
+• HS chiếm lĩnh được các đơn vị kiến thức trọng tâm của bài "${lesson}"
+• Phát triển năng lực [cụ thể theo bài] thông qua phương pháp ${method}
 
 **b) Nội dung:**
-Áp dụng phương pháp ${method} để tổ chức các hoạt động học tập
+Tổ chức cho HS khám phá kiến thức thông qua các nhiệm vụ học tập theo phương pháp ${method}
 
-**c) Sản phẩm dự kiến:**
-• Phiếu học tập đã hoàn thành
-• Bài trình bày của nhóm
-• Ghi chép cá nhân
+**c) Sản phẩm:**
+• Phiếu học tập đã hoàn thành của các nhóm/cá nhân
+• Bài trình bày, sơ đồ, bảng số liệu, kết quả thí nghiệm...
+• Ghi chép kiến thức vào vở
 
 **d) Tổ chức thực hiện:**
 
-**🔸 Nhiệm vụ 2.1: [Tên nội dung kiến thức 1]** (~X phút)
+**📌 Nhiệm vụ 2.1: [Tên đơn vị kiến thức 1]** (~X phút)
 
-| Bước | Hoạt động của GV | Hoạt động của HS |
-|------|------------------|------------------|
-| Chuyển giao nhiệm vụ | GV chia lớp thành X nhóm, phát Phiếu học tập số 1, nêu yêu cầu: ... | HS nhận nhiệm vụ, lắng nghe hướng dẫn |
-| Thực hiện nhiệm vụ | GV quan sát, hỗ trợ các nhóm gặp khó khăn | HS thảo luận nhóm, hoàn thành phiếu học tập |
-| Báo cáo kết quả | GV mời đại diện nhóm trình bày, các nhóm khác nhận xét | Đại diện nhóm trình bày, các nhóm nhận xét bổ sung |
-| Kết luận, nhận định | GV nhận xét, chốt kiến thức: [NỘI DUNG KIẾN THỨC CỤ THỂ] | HS ghi chép, hoàn thiện sản phẩm |
+| Bước | Nội dung chi tiết |
+|------|-------------------|
+| **Bước 1: Giao nhiệm vụ học tập** | GV chia lớp thành X nhóm (mỗi nhóm 4-6 HS), phát Phiếu học tập số 1. Nêu rõ: "[Yêu cầu cụ thể]". Thời gian: X phút. |
+| **Bước 2: Thực hiện nhiệm vụ** | HS thảo luận nhóm, nghiên cứu SGK trang..., hoàn thành phiếu học tập. GV đi vòng quanh lớp, quan sát, hỗ trợ nhóm gặp khó khăn. |
+| **Bước 3: Báo cáo, thảo luận** | Đại diện nhóm 1 trình bày. Các nhóm khác nhận xét, đặt câu hỏi phản biện. GV điều phối thảo luận. |
+| **Bước 4: Kết luận, nhận định** | GV nhận xét quá trình làm việc của các nhóm. **Chốt kiến thức:** [NỘI DUNG KIẾN THỨC CỤ THỂ CẦN GHI NHỚ]. HS ghi vở. |
 
-**🔸 Nhiệm vụ 2.2: [Tên nội dung kiến thức 2]** (~X phút)
-(Thiết kế tương tự, với nội dung kiến thức tiếp theo của bài)
+**📌 Nhiệm vụ 2.2: [Tên đơn vị kiến thức 2]** (~X phút)
 
-**🔸 Nhiệm vụ 2.3: [Tên nội dung kiến thức 3]** (~X phút)
-(Tiếp tục nếu cần, đảm bảo bao phủ hết nội dung bài học)
+| Bước | Nội dung chi tiết |
+|------|-------------------|
+| **Bước 1: Giao nhiệm vụ học tập** | [Chi tiết tương tự, với nội dung kiến thức tiếp theo] |
+| **Bước 2: Thực hiện nhiệm vụ** | [Chi tiết] |
+| **Bước 3: Báo cáo, thảo luận** | [Chi tiết] |
+| **Bước 4: Kết luận, nhận định** | **Chốt kiến thức:** [NỘI DUNG KIẾN THỨC CỤ THỂ]. |
 
-### 📌 HOẠT ĐỘNG 3: LUYỆN TẬP (~${timeDistribution.luyenTap} phút)
+**📌 Nhiệm vụ 2.3: [Tên đơn vị kiến thức 3 - nếu có]** (~X phút)
+(Tiếp tục thiết kế tương tự cho các đơn vị kiến thức còn lại của bài)
+
+---
+
+### 💪 HOẠT ĐỘNG 3: LUYỆN TẬP
+**⏱️ Thời gian:** ~${timeDistribution.luyenTap} phút
 
 **a) Mục tiêu:**
-• Củng cố kiến thức vừa học
-• Rèn kỹ năng vận dụng kiến thức vào giải bài tập
+• Củng cố kiến thức vừa hình thành
+• Rèn kỹ năng vận dụng kiến thức vào giải bài tập cơ bản
 
 **b) Nội dung:**
-Hệ thống bài tập trắc nghiệm và tự luận
+Hệ thống bài tập trắc nghiệm và tự luận bao phủ các mức độ nhận thức
 
-**c) Sản phẩm dự kiến:**
-• Đáp án các bài tập
-• Bài làm của HS
+**c) Sản phẩm:**
+• Đáp án các câu hỏi trắc nghiệm
+• Lời giải các bài tập tự luận
 
 **d) Tổ chức thực hiện:**
 
-| Bước | Hoạt động của GV | Hoạt động của HS |
-|------|------------------|------------------|
-| Giao bài tập | GV chiếu/phát bài tập, yêu cầu HS làm cá nhân/nhóm đôi | HS đọc đề, suy nghĩ |
-| Thực hiện | GV quan sát, hỗ trợ khi cần | HS làm bài tập |
-| Chữa bài | GV gọi HS trình bày, nhận xét, chữa bài | HS trình bày, so sánh kết quả, sửa chữa |
+| Bước | Nội dung chi tiết |
+|------|-------------------|
+| **Bước 1: Giao nhiệm vụ học tập** | GV trình chiếu/phát hệ thống bài tập (X câu trắc nghiệm + Y bài tự luận). Yêu cầu HS làm cá nhân trong X phút. |
+| **Bước 2: Thực hiện nhiệm vụ** | HS đọc đề, suy nghĩ, làm bài vào vở/phiếu. GV quan sát, ghi nhận những lỗi sai phổ biến. |
+| **Bước 3: Báo cáo, thảo luận** | GV gọi HS lên bảng trình bày/chiếu bài làm. Các HS khác nhận xét, so sánh với bài làm của mình. |
+| **Bước 4: Kết luận, nhận định** | GV chữa bài, phân tích các lỗi sai phổ biến, chốt phương pháp giải. Cho điểm/tuyên dương HS làm tốt. |
 
-### 📌 HOẠT ĐỘNG 4: VẬN DỤNG (~${timeDistribution.vanDung} phút)
+---
+
+### 🚀 HOẠT ĐỘNG 4: VẬN DỤNG
+**⏱️ Thời gian:** ~${timeDistribution.vanDung} phút
 
 **a) Mục tiêu:**
-• Vận dụng kiến thức đã học vào thực tiễn
-• Mở rộng, liên hệ với cuộc sống
+• Vận dụng kiến thức đã học vào giải quyết vấn đề thực tiễn cuộc sống
+• Mở rộng, phát triển năng lực sáng tạo
 
 **b) Nội dung:**
-Câu hỏi/Tình huống thực tế liên quan đến bài "${lesson}"
+Câu hỏi/Tình huống/Dự án thực tế liên quan đến bài "${lesson}"
 
-**c) Sản phẩm dự kiến:**
-• Câu trả lời, giải pháp của HS
-• Bài tập về nhà (nếu có)
+**c) Sản phẩm:**
+• Phương án giải quyết vấn đề của HS
+• Sản phẩm dự án (nếu giao về nhà)
 
 **d) Tổ chức thực hiện:**
 
-| Bước | Hoạt động của GV | Hoạt động của HS |
-|------|------------------|------------------|
-| Nêu vấn đề | GV đặt câu hỏi vận dụng/tình huống thực tế: ... | HS suy nghĩ, liên hệ |
-| Thảo luận | GV tổ chức thảo luận nhanh | HS chia sẻ ý kiến |
-| Giao nhiệm vụ về nhà | GV dặn dò, giao bài tập về nhà, hướng dẫn chuẩn bị bài sau | HS ghi nhận, hỏi nếu chưa rõ |
+| Bước | Nội dung chi tiết |
+|------|-------------------|
+| **Bước 1: Giao nhiệm vụ học tập** | GV nêu tình huống thực tế: "[Tình huống cụ thể liên quan đến ${lesson} trong đời sống]". Yêu cầu HS đề xuất giải pháp. |
+| **Bước 2: Thực hiện nhiệm vụ** | HS suy nghĩ cá nhân, sau đó trao đổi cặp đôi. GV khuyến khích các ý tưởng sáng tạo. |
+| **Bước 3: Báo cáo, thảo luận** | HS chia sẻ giải pháp. Cả lớp thảo luận tính khả thi, ưu nhược điểm của từng phương án. |
+| **Bước 4: Kết luận, nhận định** | GV đánh giá các phương án, liên hệ thực tế. **Giao bài tập về nhà/Dự án:** [Nội dung cụ thể]. Hướng dẫn chuẩn bị bài sau. |
+
+---
 
 ## IV. HỒ SƠ DẠY HỌC (PHỤ LỤC)
 
-### 📋 PHIẾU HỌC TẬP SỐ 1
+### 📋 PHỤ LỤC 1: PHIẾU HỌC TẬP SỐ 1
 **Nhóm:.......... Lớp: ${grade}**
 **Bài: ${lesson}**
+**Thời gian: X phút**
 
-| Câu hỏi/Nhiệm vụ | Trả lời |
-|------------------|---------|
-| 1. [Câu hỏi định hướng nội dung 1] | |
-| 2. [Câu hỏi định hướng nội dung 2] | |
-| 3. [Câu hỏi định hướng nội dung 3] | |
+| STT | Câu hỏi/Nhiệm vụ | Trả lời của nhóm |
+|-----|------------------|------------------|
+| 1 | [Câu hỏi định hướng nội dung kiến thức 1] | |
+| 2 | [Câu hỏi định hướng nội dung kiến thức 2] | |
+| 3 | [Câu hỏi định hướng nội dung kiến thức 3] | |
 
-### 📝 CÂU HỎI TRẮC NGHIỆM (5 câu - 4 mức độ)
+### 📋 PHỤ LỤC 2: PHIẾU HỌC TẬP SỐ 2 (nếu có)
+[Thiết kế tương tự cho nhiệm vụ 2.2]
+
+### 📝 PHỤ LỤC 3: CÂU HỎI TRẮC NGHIỆM (5 câu - 4 mức độ)
 
 **Mức độ NHẬN BIẾT:**
-**Câu 1:** [Nội dung câu hỏi dễ, nhận biết kiến thức cơ bản]
-A. [Đáp án A]
-B. [Đáp án B]
-C. [Đáp án C] ✓
-D. [Đáp án D]
+**Câu 1:** [Nội dung câu hỏi cụ thể liên quan đến bài ${lesson}]
+A. [Phương án A]
+B. [Phương án B]
+C. [Phương án C] ✓
+D. [Phương án D]
 
 **Mức độ THÔNG HIỂU:**
-**Câu 2:** [Nội dung câu hỏi yêu cầu hiểu, giải thích]
-A. [Đáp án A]
-B. [Đáp án B] ✓
-C. [Đáp án C]
-D. [Đáp án D]
+**Câu 2:** [Nội dung câu hỏi yêu cầu giải thích, so sánh]
+A. [Phương án A]
+B. [Phương án B] ✓
+C. [Phương án C]
+D. [Phương án D]
 
 **Câu 3:** [Nội dung câu hỏi thông hiểu khác]
-A. [Đáp án A] ✓
-B. [Đáp án B]
-C. [Đáp án C]
-D. [Đáp án D]
+A. [Phương án A] ✓
+B. [Phương án B]
+C. [Phương án C]
+D. [Phương án D]
 
 **Mức độ VẬN DỤNG:**
-**Câu 4:** [Nội dung câu hỏi yêu cầu áp dụng kiến thức]
-A. [Đáp án A]
-B. [Đáp án B]
-C. [Đáp án C]
-D. [Đáp án D] ✓
+**Câu 4:** [Nội dung câu hỏi yêu cầu áp dụng kiến thức vào tình huống mới]
+A. [Phương án A]
+B. [Phương án B]
+C. [Phương án C]
+D. [Phương án D] ✓
 
 **Mức độ VẬN DỤNG CAO:**
-**Câu 5:** [Nội dung câu hỏi nâng cao, liên hệ thực tế]
-A. [Đáp án A]
-B. [Đáp án B] ✓
-C. [Đáp án C]
-D. [Đáp án D]
+**Câu 5:** [Nội dung câu hỏi nâng cao, tích hợp liên môn hoặc thực tiễn]
+A. [Phương án A]
+B. [Phương án B] ✓
+C. [Phương án C]
+D. [Phương án D]
 
-### 📝 BÀI TẬP TỰ LUẬN (2-3 bài)
+### 📝 PHỤ LỤC 4: BÀI TẬP TỰ LUẬN (2-3 bài)
 
-**Bài 1 (Mức độ thông hiểu):**
+**Bài 1 (Mức độ thông hiểu - X điểm):**
 [Đề bài cụ thể liên quan đến ${lesson}]
 
-**Đáp án gợi ý:**
-[Hướng dẫn chấm, đáp án chi tiết]
+**Hướng dẫn chấm:**
+• Ý 1: [Nội dung] - X điểm
+• Ý 2: [Nội dung] - X điểm
 
-**Bài 2 (Mức độ vận dụng):**
-[Đề bài yêu cầu vận dụng]
+**Bài 2 (Mức độ vận dụng - X điểm):**
+[Đề bài yêu cầu vận dụng kiến thức]
 
-**Đáp án gợi ý:**
-[Hướng dẫn chấm, đáp án chi tiết]
+**Hướng dẫn chấm:**
+• Bước 1: [Nội dung] - X điểm
+• Bước 2: [Nội dung] - X điểm
 
-**Bài 3 (Mức độ vận dụng cao - Nếu có):**
-[Đề bài nâng cao, tích hợp liên môn hoặc thực tiễn]
+### 🎯 PHỤ LỤC 5: RUBRIC ĐÁNH GIÁ NĂNG LỰC
 
-### 🎯 RUBRIC ĐÁNH GIÁ NĂNG LỰC
+| Tiêu chí | Mức 1 (Chưa đạt) | Mức 2 (Đạt) | Mức 3 (Tốt) | Mức 4 (Xuất sắc) |
+|----------|------------------|-------------|-------------|------------------|
+| Hoàn thành nhiệm vụ | Không hoàn thành | Hoàn thành >50% | Hoàn thành >80% | Hoàn thành 100%, sáng tạo |
+| Hợp tác nhóm | Không tham gia | Tham gia thụ động | Tham gia tích cực | Dẫn dắt, hỗ trợ thành viên |
+| Trình bày | Không trình bày được | Trình bày sơ sài | Trình bày rõ ràng | Trình bày mạch lạc, thuyết phục |
 
-| Tiêu chí | Mức 1 (Chưa đạt) | Mức 2 (Đạt) | Mức 3 (Tốt) |
-|----------|------------------|-------------|-------------|
-| [Tiêu chí 1] | [Mô tả] | [Mô tả] | [Mô tả] |
-| [Tiêu chí 2] | [Mô tả] | [Mô tả] | [Mô tả] |
-| [Tiêu chí 3] | [Mô tả] | [Mô tả] | [Mô tả] |
+---KẾT THÚC KHUNG GIÁO ÁN---
 
-=== YÊU CẦU ĐẦU RA ===
-✓ Nội dung CHÍNH XÁC theo yêu cầu cần đạt đã cung cấp
-✓ Chi tiết, cụ thể theo bài "${lesson}" - KHÔNG chung chung
-✓ Thời gian các hoạt động HỢP LÝ (tổng = ${totalMinutes} phút)
-✓ Phiếu học tập và câu hỏi PHÙ HỢP với nội dung bài
-✓ Đúng format CV 5512/BGDĐT-GDTrH
-✓ Có bảng phân bổ thời gian rõ ràng`;
+# ⚡ YÊU CẦU ĐẦU RA CUỐI CÙNG
+✅ Nội dung **CHÍNH XÁC** theo yêu cầu cần đạt: "${objectives}"
+✅ Chi tiết, cụ thể theo bài **"${lesson}"** - KHÔNG chung chung, KHÔNG sáo rỗng
+✅ Thời gian các hoạt động **HỢP LÝ** (tổng = ${totalMinutes} phút)
+✅ Phiếu học tập và câu hỏi **PHÙ HỢP** với nội dung bài học
+✅ Tuân thủ **100%** format Công văn 5512/BGDĐT-GDTrH
+✅ Mỗi hoạt động có **đầy đủ 4 bước**: Giao nhiệm vụ → Thực hiện → Báo cáo → Kết luận
+✅ **KHÔNG** có bất kỳ yếu tố nào của Sáng kiến kinh nghiệm`;
         }
         
         // ========== Show KHBD Prompt Modal ==========
