@@ -459,7 +459,7 @@
         }
         
         .doc-content {
-            text-align: justify;
+            text-align: left;
             text-indent: 1.27cm;
         }
         
@@ -3834,7 +3834,7 @@
             html = html.replace(/_([^_\n]+)_/g, '<em>$1</em>');
             
             // Bullet lists - với khoảng cách dòng đồng nhất
-            html = html.replace(/^[\*\-•] (.+)$/gm, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 3pt; text-align: justify; line-height: 1.5;">$1</li>');
+            html = html.replace(/^[\*\-•] (.+)$/gm, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 3pt; text-align: left; line-height: 1.5;">$1</li>');
             
             // Numbered lists  
             html = html.replace(/^\d+\.\s+(.+)$/gm, '<numli>$1</numli>');
@@ -3842,7 +3842,7 @@
             // Wrap consecutive list items - giảm margin
             html = html.replace(/(<li[^>]*>.*?<\/li>\n?)+/gs, '<ul style="font-family: \'Times New Roman\', Times, serif; margin: 6pt 0; padding-left: 25px; list-style-type: disc;">$&</ul>');
             html = html.replace(/(<numli>.*?<\/numli>\n?)+/gs, (match) => {
-                let items = match.replace(/<numli>/g, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 3pt; text-align: justify; line-height: 1.5;">').replace(/<\/numli>/g, '</li>');
+                let items = match.replace(/<numli>/g, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 3pt; text-align: left; line-height: 1.5;">').replace(/<\/numli>/g, '</li>');
                 return `<ol style="font-family: 'Times New Roman', Times, serif; margin: 6pt 0; padding-left: 30px;">${items}</ol>`;
             });
             
@@ -3855,13 +3855,13 @@
             html = html.replace(/^> (.+)$/gm, '<blockquote style="font-family: \'Times New Roman\', Times, serif; border-left: 4px solid #333; padding-left: 15px; margin: 10pt 0; color: #333; font-style: italic;">$1</blockquote>');
             
             // Handle double newlines as paragraph breaks - khoảng cách đồng nhất
-            html = html.replace(/\n\n+/g, '</p><p style="font-family: \'Times New Roman\', Times, serif; text-indent: 1.27cm; text-align: justify; margin: 6pt 0; line-height: 1.5; font-size: 13pt;">');
+            html = html.replace(/\n\n+/g, '</p><p style="font-family: \'Times New Roman\', Times, serif; text-indent: 1.27cm; text-align: left; margin: 6pt 0; line-height: 1.5; font-size: 13pt;">');
             
             // Single newlines to <br>
             html = html.replace(/\n/g, '<br>');
             
             // Wrap in paragraph - khoảng cách đồng nhất
-            html = '<p style="font-family: \'Times New Roman\', Times, serif; text-indent: 1.27cm; text-align: justify; margin: 6pt 0; line-height: 1.5; font-size: 13pt;">' + html + '</p>';
+            html = '<p style="font-family: \'Times New Roman\', Times, serif; text-indent: 1.27cm; text-align: left; margin: 6pt 0; line-height: 1.5; font-size: 13pt;">' + html + '</p>';
             
             // Clean up
             html = html.replace(/<p[^>]*>\s*<\/p>/g, '');
@@ -6654,7 +6654,7 @@ ${result}
             line-height: 1.5;
             color: #000;
             background: #fff;
-            text-align: justify;
+            text-align: left;
         }
         
         /* Force Times New Roman for all elements */
@@ -6726,7 +6726,7 @@ ${result}
         p {
             font-family: 'Times New Roman', Times, serif !important;
             text-indent: 1.27cm;
-            text-align: justify;
+            text-align: left;
             margin: 6pt 0;
             line-height: 1.5;
         }
@@ -6775,7 +6775,7 @@ ${result}
         li {
             font-family: 'Times New Roman', Times, serif !important;
             margin: 3pt 0;
-            text-align: justify;
+            text-align: left;
             line-height: 1.5;
         }
         
