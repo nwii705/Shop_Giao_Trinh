@@ -5005,14 +5005,30 @@ LƯU Ý QUAN TRỌNG:
                                     wordCount = fullText.split(/\s+/).filter(w => w.length > 0).length;
                                     updateSKKNStreamingUI(fullText, wordCount, targetWords);
                                     
-                                    // Auto-stop khi đạt 110% số từ yêu cầu (có buffer)
-                                    if (wordCount >= targetWords * 1.10 && !isFinalized) {
-                                        console.log(`📊 Đạt ${wordCount} từ (>${targetWords * 1.10}) - Auto finalizing...`);
-                                        isFinalized = true;
-                                        window.currentSKKNStreamingData.isFinalized = true;
-                                        if (streamTimeout) clearTimeout(streamTimeout);
-                                        finalizeSKKNContent(fullText, meta);
-                                        break;
+                                    // Kiểm tra đã có TÀI LIỆU THAM KHẢO chưa (nghĩa là đã hoàn thành cấu trúc)
+                                    const hasReferences = fullText.includes('TÀI LIỆU THAM KHẢO') || 
+                                                          fullText.includes('Tài liệu tham khảo') ||
+                                                          fullText.includes('DANH MỤC TÀI LIỆU');
+                                    
+                                    // Auto-stop CHỈ KHI:
+                                    // 1. Đã có TÀI LIỆU THAM KHẢO VÀ đạt ít nhất 90% số từ
+                                    // 2. HOẶC vượt quá 150% số từ (quá dài, phải dừng)
+                                    if (!isFinalized) {
+                                        if (hasReferences && wordCount >= targetWords * 0.90) {
+                                            console.log(`📊 Đã hoàn thành cấu trúc + ${wordCount} từ - Auto finalizing...`);
+                                            isFinalized = true;
+                                            window.currentSKKNStreamingData.isFinalized = true;
+                                            if (streamTimeout) clearTimeout(streamTimeout);
+                                            finalizeSKKNContent(fullText, meta);
+                                            break;
+                                        } else if (wordCount >= targetWords * 1.50) {
+                                            console.log(`⚠️ Vượt 150% (${wordCount} từ) - Force stop...`);
+                                            isFinalized = true;
+                                            window.currentSKKNStreamingData.isFinalized = true;
+                                            if (streamTimeout) clearTimeout(streamTimeout);
+                                            finalizeSKKNContent(fullText, meta);
+                                            break;
+                                        }
                                     }
                                 }
                             } catch (e) {
@@ -5174,15 +5190,44 @@ LƯU Ý QUAN TRỌNG:
             if (progressBar) {
                 const progress = Math.min((wordCount / targetWords) * 100, 100);
                 progressBar.style.width = progress + '%';
+                
+                // Đổi màu progress bar khi vượt quá
+                if (wordCount > targetWords * 1.2) {
+                    progressBar.style.background = 'linear-gradient(90deg, #ff6b6b, #ee5a24)';
+                } else if (wordCount > targetWords) {
+                    progressBar.style.background = 'linear-gradient(90deg, #ffc964, #f39c12)';
+                } else {
+                    progressBar.style.background = 'linear-gradient(90deg, #667eea, #764ba2)';
+                }
             }
             
             if (wordCounter) {
                 wordCounter.textContent = `${wordCount.toLocaleString()} / ${targetWords.toLocaleString()} từ`;
-                wordCounter.style.color = wordCount >= targetWords ? '#64ffb4' : '#ffc964';
+                if (wordCount > targetWords * 1.2) {
+                    wordCounter.style.color = '#ff6b6b';
+                } else if (wordCount > targetWords) {
+                    wordCounter.style.color = '#ffc964';
+                } else if (wordCount >= targetWords * 0.9) {
+                    wordCounter.style.color = '#64ffb4';
+                } else {
+                    wordCounter.style.color = '#ffc964';
+                }
             }
             
             if (statusDiv) {
-                statusDiv.textContent = `✍️ Đang viết... ${wordCount.toLocaleString()} từ`;
+                // Kiểm tra đã có TÀI LIỆU THAM KHẢO chưa
+                const hasReferences = text.includes('TÀI LIỆU THAM KHẢO') || 
+                                      text.includes('Tài liệu tham khảo');
+                
+                if (hasReferences && wordCount >= targetWords * 0.9) {
+                    statusDiv.innerHTML = `✅ <span style="color: #64ffb4;">Đã hoàn thành cấu trúc - Đang kết thúc...</span>`;
+                } else if (wordCount > targetWords * 1.2) {
+                    statusDiv.innerHTML = `⚠️ <span style="color: #ff6b6b;">Vượt ${Math.round((wordCount/targetWords - 1) * 100)}% số từ - Bấm "Hoàn tất ngay" nếu đã đủ nội dung</span>`;
+                } else if (wordCount > targetWords) {
+                    statusDiv.innerHTML = `⚠️ <span style="color: #ffc964;">Đã đạt số từ yêu cầu - Đang hoàn thiện cấu trúc...</span>`;
+                } else {
+                    statusDiv.textContent = `✍️ Đang viết... ${wordCount.toLocaleString()} từ`;
+                }
             }
             
             // Show manual finalize button after 200 words
