@@ -5455,10 +5455,52 @@ QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
             return tones[position] || tones['Giáo viên bộ môn'];
         }
         
-        // Build SKKN Prompt - Master Version 2.1
+        // Tạo hướng dẫn về độ dài dựa trên số từ yêu cầu
+        function getWritingStyleByWordCount(targetWords) {
+            if (targetWords <= 5000) {
+                return {
+                    style: 'NGẮN GỌN, SÚC TÍCH',
+                    pages: '10-15',
+                    detailLevel: 'Viết cô đọng, chỉ nêu ý chính. Mỗi giải pháp 1-2 ví dụ ngắn.',
+                    tableCount: '3-4 bảng',
+                    solutionDetail: 'Mỗi giải pháp ~500-700 từ, tập trung vào nội dung và cách thức thực hiện.',
+                    examples: 'Ví dụ minh họa ngắn gọn, 1-2 câu mỗi ví dụ.'
+                };
+            } else if (targetWords <= 8000) {
+                return {
+                    style: 'CHI TIẾT VỪA PHẢI',
+                    pages: '18-25',
+                    detailLevel: 'Viết đầy đủ các ý, có giải thích và ví dụ. Mỗi giải pháp 2-3 ví dụ.',
+                    tableCount: '5-7 bảng',
+                    solutionDetail: 'Mỗi giải pháp ~800-1200 từ, có mục tiêu, nội dung chi tiết, điều kiện thực hiện.',
+                    examples: 'Ví dụ minh họa cụ thể với tình huống thực tế trong lớp học.'
+                };
+            } else if (targetWords <= 12000) {
+                return {
+                    style: 'CHI TIẾT ĐẦY ĐỦ',
+                    pages: '28-35',
+                    detailLevel: 'Viết chi tiết, phân tích sâu, nhiều ví dụ minh họa. Mỗi giải pháp 3-4 ví dụ.',
+                    tableCount: '8-10 bảng',
+                    solutionDetail: 'Mỗi giải pháp ~1500-2000 từ, mô tả đầy đủ 4 bước: Mục tiêu → Nội dung → Điều kiện → Ví dụ.',
+                    examples: 'Ví dụ minh họa chi tiết với mô tả cụ thể hoạt động GV-HS, có thể kèm phiếu học tập mẫu.'
+                };
+            } else {
+                return {
+                    style: 'RẤT CHI TIẾT VÀ CHUYÊN SÂU',
+                    pages: '35-40',
+                    detailLevel: 'Viết rất chi tiết, phân tích chuyên sâu, nhiều ví dụ và tình huống. Mỗi giải pháp 4-5 ví dụ.',
+                    tableCount: '10-12 bảng',
+                    solutionDetail: 'Mỗi giải pháp ~2500-3000 từ, phân tích toàn diện với lý giải khoa học, dẫn chứng từ lý thuyết.',
+                    examples: 'Ví dụ minh họa rất chi tiết, có thể mô tả cả tiết dạy mẫu, kèm phiếu học tập, rubric đánh giá.'
+                };
+            }
+        }
+        
+        // Build SKKN Prompt - Master Version 2.2 - Adaptive to word count
         function buildSKKNPrompt(meta) {
             const { position, title, subject, level, digital, problem, solution, result, author, year, unit, targetWords = 7000, customOutline } = meta;
             const roleTone = getRoleTone(position);
+            const writingStyle = getWritingStyleByWordCount(targetWords);
             
             // Nếu có customOutline từ preview, sử dụng số từ đã được user customize
             let wordDistribution;
@@ -5546,16 +5588,23 @@ Mô tả 1-2 trường hợp áp dụng thực tế trong bài học/hoạt đ�
             }
             
             // ============================================================
-            // MASTER PROMPT V2.1 - SKKN LOẠI A THEO QĐ 658/QĐ-SGDĐT ĐẮK LẮK
+            // MASTER PROMPT V2.2 - SKKN LOẠI A THEO QĐ 658/QĐ-SGDĐT ĐẮK LẮK
+            // Adaptive to word count
             // ============================================================
             return `# PERSONA & VAI TRÒ
 Bạn là Chuyên gia Nghiên cứu Khoa học Sư phạm Ứng dụng cấp Cao và Thành viên Hội đồng Thẩm định SKKN cấp Tỉnh với 20 năm kinh nghiệm.
 
-Bạn có chuyên môn sâu về:
-- Nghiên cứu khoa học giáo dục và thực nghiệm sư phạm
-- Quy chế đánh giá SKKN theo Quyết định 658/QĐ-SGDĐT ngày 28/10/2022 của Sở GDĐT Đắk Lắk
-- Chương trình GDPT 2018 và phát triển năng lực, phẩm chất học sinh
-- Thống kê giáo dục và xử lý số liệu nghiên cứu
+# HƯỚNG DẪN ĐỘ DÀI VÀ CHI TIẾT (QUAN TRỌNG)
+
+**Yêu cầu độ dài: ${targetWords.toLocaleString()} từ (~${writingStyle.pages} trang A4)**
+
+**Phong cách viết: ${writingStyle.style}**
+- ${writingStyle.detailLevel}
+- Số bảng biểu: ${writingStyle.tableCount}
+- Chi tiết mỗi giải pháp: ${writingStyle.solutionDetail}
+- Ví dụ minh họa: ${writingStyle.examples}
+
+VIẾT ĐẦY ĐỦ từ Phần I đến Tài liệu tham khảo. KHÔNG dừng giữa chừng.
 
 # QUY TẮC ĐỊNH DẠNG OUTPUT (BẮT BUỘC TUÂN THỦ)
 
@@ -5986,24 +6035,29 @@ LƯU Ý: Viết NGẮN GỌN, KHÔNG cần đưa số liệu (theo QĐ 658)
 
 ---
 
-# YÊU CẦU QUAN TRỌNG
+# YÊU CẦU QUAN TRỌNG - ĐỌC KỸ TRƯỚC KHI VIẾT
 
-**ĐỘ DÀI YÊU CẦU: 25-35 trang A4 (khoảng ${targetWords.toLocaleString()} từ)**
+**ĐỘ DÀI: ${targetWords.toLocaleString()} từ (~${writingStyle.pages} trang A4)**
+**PHONG CÁCH: ${writingStyle.style}**
+
+- ${writingStyle.detailLevel}
+- Chi tiết giải pháp: ${writingStyle.solutionDetail}
+- Ví dụ: ${writingStyle.examples}
+- Số bảng: ${writingStyle.tableCount}
 
 VIẾT ĐẦY ĐỦ TẤT CẢ các phần từ I đến III và TÀI LIỆU THAM KHẢO.
 KHÔNG được dừng giữa chừng - phải hoàn thành TOÀN BỘ SKKN.
 
-**CHECKLIST BẮT BUỘC:**
-
-1. TUÂN THỦ 100% cấu trúc PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT Đắk Lắk
-2. Nội dung LIÊN QUAN TRỰC TIẾP đến "${title}"
-3. Văn phong học thuật, mạch lạc, logic
+**CHECKLIST:**
+1. Cấu trúc theo QĐ 658/QĐ-SGDĐT Đắk Lắk
+2. Nội dung về "${title}"
+3. Văn phong học thuật, mạch lạc
 4. Số liệu thực tế, có độ biến thiên hợp lý
-5. Bảng biểu rõ ràng với nguồn số liệu
-6. Giọng văn phù hợp với vai trò ${position}
-7. PHẢI có đủ: Phần mở đầu, Nội dung (Cơ sở lý luận, Thực trạng, Giải pháp, Kết quả), Kết luận kiến nghị, Tài liệu tham khảo
+5. Bảng biểu rõ ràng
+6. Giọng văn ${position}
+7. ĐỦ: Mở đầu → Nội dung → Kết luận → Tài liệu tham khảo
 
-BẮT ĐẦU VIẾT NGAY:`;
+BẮT ĐẦU VIẾT:`;
         }
         
         // ========== Show Prompt Modal ==========
