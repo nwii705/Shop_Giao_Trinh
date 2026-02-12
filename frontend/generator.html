@@ -5381,7 +5381,6 @@ QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
             // Nếu có customOutline từ preview, sử dụng số từ đã được user customize
             let wordDistribution;
             if (customOutline && customOutline.sections) {
-                // Lấy số từ từ customOutline
                 const sections = customOutline.sections;
                 const getItemWords = (sectionId, itemId) => {
                     const section = sections.find(s => s.id === sectionId);
@@ -5402,29 +5401,27 @@ QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
                     taiLieu: sections.find(s => s.id === 'tailieu')?.words || Math.round(targetWords * 0.02)
                 };
             } else {
-                // Calculate word distribution based on target (14-40 trang A4 ~ 5000-14000 từ)
-                // Theo PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT ngày 28/10/2022 của Sở GDĐT Đắk Lắk
+                // Phân bổ theo PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT ngày 28/10/2022 - Sở GDĐT Đắk Lắk
+                // Tối ưu cho SKKN đạt loại A (85-100 điểm)
                 wordDistribution = {
                     phanMoDau: Math.round(targetWords * 0.15),      // 15% - Phần mở đầu
-                    coSoLyLuan: Math.round(targetWords * 0.10),     // 10% - Cơ sở lý luận
+                    coSoLyLuan: Math.round(targetWords * 0.08),     // 8% - Cơ sở lý luận (NGẮN GỌN theo QĐ 658)
                     thucTrang: Math.round(targetWords * 0.15),      // 15% - Thực trạng vấn đề
-                    cacGiaiPhap: Math.round(targetWords * 0.40),    // 40% - Các giải pháp (phần chính)
-                    ketQuaKhaoNghiem: Math.round(targetWords * 0.12), // 12% - Kết quả khảo nghiệm
-                    ketLuanKienNghi: Math.round(targetWords * 0.06), // 6% - Kết luận kiến nghị
+                    cacGiaiPhap: Math.round(targetWords * 0.42),    // 42% - Các giải pháp (TRỌNG TÂM - 35 điểm)
+                    ketQuaKhaoNghiem: Math.round(targetWords * 0.14), // 14% - Kết quả khảo nghiệm
+                    ketLuanKienNghi: Math.round(targetWords * 0.04), // 4% - Kết luận kiến nghị (NGẮN GỌN)
                     taiLieu: Math.round(targetWords * 0.02)          // 2% - Tài liệu tham khảo
                 };
             }
             
-            const numSolutions = targetWords >= 7000 ? 5 : (targetWords >= 5000 ? 4 : 3);
+            const numSolutions = targetWords >= 10000 ? 5 : (targetWords >= 7000 ? 4 : 3);
             const wordsPerSolution = Math.round(wordDistribution.cacGiaiPhap / numSolutions);
             
-            // Lấy tiêu đề và giải pháp từ customOutline nếu có
-            let outlineLabels = {};
+            // Lấy tiêu đề giải pháp từ customOutline nếu có
             let solutionTitles = [];
             if (customOutline && customOutline.sections) {
                 customOutline.sections.forEach(section => {
                     section.items.forEach(item => {
-                        outlineLabels[item.id] = item.label;
                         if (item.subItems) {
                             solutionTitles = item.subItems;
                         }
@@ -5432,172 +5429,488 @@ QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
                 });
             }
             
-            // Xây dựng phần giải pháp với tiêu đề từ AI
+            // Xây dựng phần giải pháp với cấu trúc 3 lớp theo QĐ 658
             let solutionsPrompt = '';
             for (let i = 0; i < numSolutions; i++) {
-                const solutionTitle = solutionTitles[i] || `3.${i+1}. Giải pháp ${i+1}: [Tên giải pháp cụ thể]`;
+                const solutionTitle = solutionTitles[i] || `3.${i+1}. Giải pháp ${i+1}: [Tên giải pháp cụ thể - nêu bật bản chất thay đổi]`;
                 solutionsPrompt += `
 **${solutionTitle}** (~${wordsPerSolution.toLocaleString()} từ)
 
-   a) Mục tiêu của giải pháp:
-      • Giải pháp này nhằm giải quyết vấn đề gì?
-      • Kết quả mong đợi là gì?
+   **a) Mục tiêu của giải pháp:**
+      • Giải quyết khía cạnh nào của vấn đề?
+      • Kết quả mong đợi cụ thể (đo lường được)?
+      • Năng lực/phẩm chất học sinh hướng tới?
 
-   b) Nội dung giải pháp:
-      • Mô tả chi tiết nội dung
-      • Các thành phần/yếu tố cấu thành
+   **b) Nội dung và cách thức thực hiện:**
+      ► Bước 1 - Chuẩn bị: [Mô tả chi tiết - GV chuẩn bị gì? HS chuẩn bị gì?]
+      ► Bước 2 - Tổ chức: [Mô tả chi tiết - GV tổ chức ra sao? HS tham gia thế nào?]
+      ► Bước 3 - Thực hiện: [Mô tả chi tiết - Quy trình cụ thể từng hoạt động]
+      ► Bước 4 - Đánh giá: [Mô tả chi tiết - Tiêu chí đánh giá, cách thu thập dữ liệu]
 
-   c) Cách thức thực hiện:
-      • Bước 1: [Mô tả chi tiết]
-      • Bước 2: [Mô tả chi tiết]
-      • Bước 3: [Mô tả chi tiết]
+   **c) Điều kiện thực hiện giải pháp:**
+      • Yêu cầu về nhân lực (GV, HS, phụ huynh)
+      • Yêu cầu về cơ sở vật chất, thiết bị, học liệu
+      • Yêu cầu về thời gian, thời điểm áp dụng
+      • Yêu cầu về kinh phí (nếu có)
 
-   d) Điều kiện thực hiện:
-      • Về nhân lực, cơ sở vật chất, thời gian, kinh phí
-
-   e) Ví dụ minh họa cụ thể:
-      • Mô tả một trường hợp áp dụng thực tế
+   **d) Ví dụ minh họa cụ thể:**
+      [Mô tả 1-2 trường hợp áp dụng thực tế trong bài học/hoạt động cụ thể]
+      [Kèm hình ảnh, phiếu học tập nếu phù hợp]
 
 `;
             }
             
-            return `${getSystemInstruction()}
+            // ============================================================
+            // MASTER PROMPT V2.0 - SKKN LOẠI A THEO QĐ 658/QĐ-SGDĐT ĐẮK LẮK
+            // ============================================================
+            return `# 🎯 PERSONA & VAI TRÒ
+Bạn là **Chuyên gia Nghiên cứu Khoa học Sư phạm Ứng dụng cấp Cao** và **Thành viên Hội đồng Thẩm định SKKN cấp Tỉnh** với 20 năm kinh nghiệm.
 
-=== ĐIỀU CHỈNH THEO VAI TRÒ: ${position} ===
+Bạn có chuyên môn sâu về:
+- Nghiên cứu khoa học giáo dục và thực nghiệm sư phạm
+- Quy chế đánh giá SKKN theo Quyết định 658/QĐ-SGDĐT ngày 28/10/2022 của Sở GDĐT Đắk Lắk
+- Chương trình GDPT 2018 và phát triển năng lực, phẩm chất học sinh
+- Thống kê giáo dục và xử lý số liệu nghiên cứu
+
+# ⚠️ NEGATIVE PROMPTING - TUYỆT ĐỐI KHÔNG ĐƯỢC:
+❌ Viết chung chung, sáo rỗng, thiếu ví dụ cụ thể
+❌ Copy nguyên văn từ internet hoặc SKKN khác
+❌ Số liệu quá hoàn hảo (100% tốt) - thiếu độ tin cậy
+❌ Thiếu bảng biểu, số liệu định lượng
+❌ Cơ sở lý luận quá dài (>10% tổng số từ)
+❌ Kết luận dài dòng, lặp lại nội dung
+❌ Viết dưới dạng KHBD/giáo án (sai loại văn bản)
+❌ Sử dụng ngôn ngữ không học thuật
+
+# 📊 THANG ĐIỂM XẾP LOẠI A (85-100 điểm) - QĐ 658:
+| Tiêu chuẩn | Điểm tối đa | Trọng tâm |
+|------------|-------------|-----------|
+| Tính mới và Sáng tạo | 20 | Giải pháp KHÔNG trùng lặp, có tính đột phá |
+| Tính Khoa học | 25 | Lập luận logic, cơ sở lý luận vững, văn phong chuẩn |
+| Hiệu quả và Lợi ích | 35 | **QUAN TRỌNG NHẤT** - Số liệu định lượng + định tính |
+| Khả năng áp dụng | 20 | Nhân rộng được trong đơn vị/toàn ngành |
+
+# 📝 ĐIỀU CHỈNH THEO VAI TRÒ: ${position}
 • Góc nhìn: ${roleTone.focus}
 • Ví dụ phù hợp: ${roleTone.examples}
 • Giọng văn: ${roleTone.voice}
 
-=== THÔNG TIN ĐỀ TÀI SKKN ===
-• Tên đề tài: "${title}"
-• Lĩnh vực/Môn: ${subject}
-• Cấp học: ${level}
-• Vị trí tác giả: ${position}
-${author ? `• Tác giả: ${author}` : ''}
-${unit ? `• Đơn vị công tác: ${unit}` : ''}
-${year ? `• Năm học: ${year}` : ''}
-${digital ? `• Lĩnh vực chuyển đổi số: ${digital}` : ''}
+# 📋 THÔNG TIN ĐỀ TÀI SKKN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• **Tên đề tài:** "${title}"
+• **Lĩnh vực/Môn:** ${subject}
+• **Cấp học:** ${level}
+• **Vị trí tác giả:** ${position}
+${author ? `• **Tác giả:** ${author}` : ''}
+${unit ? `• **Đơn vị công tác:** ${unit}` : ''}
+${year ? `• **Năm học:** ${year}` : ''}
+${digital ? `• **Lĩnh vực chuyển đổi số:** ${digital}` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-=== THỰC TRẠNG DO TÁC GIẢ CUNG CẤP ===
+# 🔍 THỰC TRẠNG DO TÁC GIẢ CUNG CẤP:
 ${problem}
 
-=== GIẢI PHÁP DO TÁC GIẢ ĐỀ XUẤT ===
+# 💡 GIẢI PHÁP DO TÁC GIẢ ĐỀ XUẤT:
 ${solution}
 
-${result ? `=== KẾT QUẢ MONG ĐỢI ===\n${result}` : ''}
+${result ? `# 🎯 KẾT QUẢ MONG ĐỢI:\n${result}` : ''}
 
-=== YÊU CẦU THEO PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT ===
-• Số trang: 14-40 trang giấy A4, size 14
-• Số từ yêu cầu: ${targetWords.toLocaleString()} từ (~${Math.round(targetWords/350)} trang A4)
+# 📐 YÊU CẦU ĐỊNH DẠNG THEO QĐ 658:
+• **Số trang:** 14-40 trang giấy A4
+• **Cỡ chữ:** 14 (đặc thù Đắk Lắk)
+• **Số từ yêu cầu:** ${targetWords.toLocaleString()} từ (~${Math.round(targetWords/350)} trang A4)
 
-=== PHÂN BỔ NỘI DUNG ===
-• Phần I - Mở đầu: ~${wordDistribution.phanMoDau.toLocaleString()} từ (15%)
-• Phần II.1 - Cơ sở lý luận: ~${wordDistribution.coSoLyLuan.toLocaleString()} từ (10%)
-• Phần II.2 - Thực trạng: ~${wordDistribution.thucTrang.toLocaleString()} từ (15%)
-• Phần II.3 - Các giải pháp (${numSolutions} GP x ${wordsPerSolution.toLocaleString()} từ): ~${wordDistribution.cacGiaiPhap.toLocaleString()} từ (40%)
-• Phần II.4 - Kết quả khảo nghiệm: ~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} từ (12%)
-• Phần III - Kết luận, kiến nghị: ~${wordDistribution.ketLuanKienNghi.toLocaleString()} từ (6%)
-• Tài liệu tham khảo: ~${wordDistribution.taiLieu.toLocaleString()} từ (2%)
+# 📊 PHÂN BỔ NỘI DUNG TỐI ƯU:
+| Phần | Số từ | Tỷ lệ | Ghi chú |
+|------|-------|-------|---------|
+| I. Mở đầu | ~${wordDistribution.phanMoDau.toLocaleString()} | 15% | 5 mục nhỏ |
+| II.1. Cơ sở lý luận | ~${wordDistribution.coSoLyLuan.toLocaleString()} | 8% | **NGẮN GỌN** |
+| II.2. Thực trạng | ~${wordDistribution.thucTrang.toLocaleString()} | 15% | Có bảng khảo sát |
+| II.3. Các giải pháp | ~${wordDistribution.cacGiaiPhap.toLocaleString()} | 42% | **TRỌNG TÂM** - ${numSolutions} GP |
+| II.4. Kết quả khảo nghiệm | ~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} | 14% | Bảng so sánh trước/sau |
+| III. Kết luận, kiến nghị | ~${wordDistribution.ketLuanKienNghi.toLocaleString()} | 4% | **NGẮN GỌN**, không số liệu |
+| Tài liệu tham khảo | ~${wordDistribution.taiLieu.toLocaleString()} | 2% | 8-12 tài liệu |
 
-============================================================
-CẤU TRÚC CỦA SÁNG KIẾN (Theo PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT)
-============================================================
+════════════════════════════════════════════════════════════
+📖 CẤU TRÚC SÁNG KIẾN KINH NGHIỆM (PHỤ LỤC 1 - QĐ 658)
+════════════════════════════════════════════════════════════
 
-**I. PHẦN MỞ ĐẦU** (~${wordDistribution.phanMoDau.toLocaleString()} từ)
+# **I. PHẦN MỞ ĐẦU** (~${wordDistribution.phanMoDau.toLocaleString()} từ)
 
-**1. Lý do chọn đề tài**
-   a) Cơ sở pháp lý:
-      • Trích dẫn Nghị quyết 29-NQ/TW (2013) về đổi mới căn bản, toàn diện GD-ĐT
-      • Chương trình GDPT 2018 - phát triển năng lực, phẩm chất người học
-      • Thông tư 32/2018/TT-BGDĐT ban hành CT GDPT
-      • Các văn bản khác liên quan trực tiếp đến "${title}"
-   
-   b) Cơ sở thực tiễn:
-      • Mô tả thực trạng tại ${unit || 'đơn vị công tác'}
-      • Những hạn chế, khó khăn cần khắc phục
-      • Yêu cầu cấp thiết từ thực tế giảng dạy/quản lý
-   
-   c) Lý do cá nhân: Động lực của tác giả khi chọn đề tài này
+## **1. Lý do chọn đề tài** (Quan trọng - xác định tính cấp thiết)
 
-**2. Mục tiêu, nhiệm vụ của đề tài**
-   a) Mục tiêu: (3-5 mục tiêu cụ thể, đo lường được)
-   b) Nhiệm vụ: (Các nhiệm vụ cần thực hiện để đạt mục tiêu)
+### a) Cơ sở pháp lý:
+• Nghị quyết số 29-NQ/TW ngày 04/11/2013 của Ban Chấp hành Trung ương Đảng về đổi mới căn bản, toàn diện giáo dục và đào tạo
+• Nghị quyết số 88/2014/QH13 về đổi mới chương trình, sách giáo khoa giáo dục phổ thông
+• Thông tư số 32/2018/TT-BGDĐT ngày 26/12/2018 ban hành Chương trình giáo dục phổ thông
+• [Các văn bản đặc thù liên quan trực tiếp đến "${title}"]
 
-**3. Đối tượng, phạm vi nghiên cứu**
-   • Đối tượng nghiên cứu: Xác định cụ thể (ai/cái gì được nghiên cứu)
-   • Phạm vi nghiên cứu: 
-     - Không gian: (ở đâu - trường, lớp cụ thể)
-     - Thời gian: (khi nào - năm học, học kỳ)
-     - Nội dung: (giới hạn phạm vi nội dung)
+### b) Cơ sở thực tiễn:
+• Bối cảnh đổi mới GDPT 2018: yêu cầu phát triển năng lực, phẩm chất
+• Thực trạng tại ${unit || 'đơn vị công tác'}: mô tả cụ thể khó khăn, bất cập
+• Mâu thuẫn giữa thực trạng với yêu cầu mới
+• Yêu cầu cấp thiết cần giải quyết
 
-**4. Giới hạn của đề tài**
-   • Những vấn đề đề tài tập trung giải quyết
-   • Những vấn đề không thuộc phạm vi nghiên cứu
+### c) Lý do cá nhân:
+• Động lực chủ quan của tác giả
+• Trải nghiệm thực tế trong giảng dạy/quản lý
+• Kỳ vọng đóng góp cho đồng nghiệp và học sinh
 
-**5. Phương pháp nghiên cứu**
-   • Phương pháp nghiên cứu lý luận: Phân tích, tổng hợp tài liệu
-   • Phương pháp nghiên cứu thực tiễn: 
-     - Phương pháp quan sát
-     - Phương pháp điều tra, khảo sát
-     - Phương pháp thực nghiệm sư phạm
-     - Phương pháp thống kê toán học
+## **2. Mục tiêu, nhiệm vụ của đề tài**
 
-**II. PHẦN NỘI DUNG** (~${(wordDistribution.coSoLyLuan + wordDistribution.thucTrang + wordDistribution.cacGiaiPhap + wordDistribution.ketQuaKhaoNghiem).toLocaleString()} từ)
+### a) Mục tiêu tổng quát:
+[Một câu khái quát mục đích chính của đề tài]
 
-**1. Cơ sở lý luận** (~${wordDistribution.coSoLyLuan.toLocaleString()} từ)
-(Ngắn gọn, nêu những nội dung liên quan đến đề tài mà tác giả nghiên cứu)
-   • Định nghĩa các khái niệm cốt lõi liên quan đến "${title}"
-   • Cơ sở tâm lý học, giáo dục học
-   • Cơ sở khoa học (nếu có)
-   • Lý thuyết nền tảng cho các giải pháp
+### b) Mục tiêu cụ thể: (3-5 mục tiêu ĐO LƯỜNG ĐƯỢC)
+• Mục tiêu 1: [Sử dụng động từ Bloom: Xác định, Phân tích, Thiết kế, Đánh giá...]
+• Mục tiêu 2: [...]
+• Mục tiêu 3: [...]
 
-**2. Thực trạng vấn đề nghiên cứu** (~${wordDistribution.thucTrang.toLocaleString()} từ)
-(Phân tích, đánh giá các nội dung, vấn đề về thực trạng mà đề tài đã đặt ra, đã áp dụng, áp dụng thử; số liệu minh họa cụ thể, chính xác)
+### c) Nhiệm vụ nghiên cứu:
+• Nhiệm vụ 1: Nghiên cứu cơ sở lý luận về [...]
+• Nhiệm vụ 2: Khảo sát thực trạng [...]
+• Nhiệm vụ 3: Đề xuất các giải pháp [...]
+• Nhiệm vụ 4: Thực nghiệm và đánh giá hiệu quả [...]
 
-   a) Thực trạng vấn đề (từ input tác giả):
-      ${problem}
-   
-   b) Kết quả khảo sát đầu vào:
-      
-      📊 **BẢNG 1: Khảo sát thực trạng ban đầu**
-      | Tiêu chí đánh giá | Tốt | Khá | Trung bình | Yếu | Tổng |
-      |-------------------|-----|-----|------------|-----|------|
-      | [Tiêu chí 1] | X% | Y% | Z% | W% | 100% |
-      | [Tiêu chí 2] | ... | ... | ... | ... | 100% |
-      | [Tiêu chí 3] | ... | ... | ... | ... | 100% |
-      
-      (Số liệu thực tế: Tốt+Khá thường ≤40% trước khi áp dụng giải pháp)
-   
-   c) Phân tích nguyên nhân:
-      • Nguyên nhân khách quan: (điều kiện, môi trường, chính sách...)
-      • Nguyên nhân chủ quan: (nhận thức, năng lực, thái độ...)
+## **3. Đối tượng, phạm vi nghiên cứu**
 
-**3. Các giải pháp** (~${wordDistribution.cacGiaiPhap.toLocaleString()} từ)
-(Giải pháp được đề xuất để cải tiến, nâng cao chất lượng công tác liên quan đến đề tài nghiên cứu)
+### a) Đối tượng nghiên cứu:
+[Xác định rõ: Là BIỆN PHÁP/PHƯƠNG PHÁP/QUY TRÌNH gì?]
 
-⚠️ MỖI GIẢI PHÁP ĐƯỢC TRÌNH BÀY THÀNH MỤC RIÊNG, BAO GỒM:
-   - Tên giải pháp (ĐÃ ĐƯỢC USER PHÊ DUYỆT - VIẾT ĐÚNG THEO TÊN DƯỚI ĐÂY)
-   - Mục tiêu của giải pháp
-   - Nội dung chi tiết
-   - Cách thức và điều kiện thực hiện giải pháp
+### b) Phạm vi nghiên cứu:
+• **Về không gian:** [Trường/Lớp cụ thể]
+• **Về thời gian:** [Năm học/Học kỳ]
+• **Về nội dung:** [Giới hạn nội dung nghiên cứu]
+
+## **4. Giới hạn của đề tài**
+• Đề tài tập trung giải quyết: [...]
+• Đề tài KHÔNG đề cập đến: [...]
+
+## **5. Phương pháp nghiên cứu**
+
+### a) Nhóm phương pháp nghiên cứu lý luận:
+• Phương pháp phân tích và tổng hợp tài liệu
+• Phương pháp khái quát hóa, hệ thống hóa
+
+### b) Nhóm phương pháp nghiên cứu thực tiễn:
+• **Phương pháp quan sát sư phạm:** Quan sát hoạt động dạy-học trên lớp
+• **Phương pháp điều tra, khảo sát:** Phiếu hỏi dành cho GV/HS/PHHS
+• **Phương pháp thực nghiệm sư phạm:** Áp dụng giải pháp trên nhóm thực nghiệm
+• **Phương pháp phỏng vấn:** Thu thập ý kiến đánh giá
+• **Phương pháp nghiên cứu sản phẩm:** Phân tích bài kiểm tra, sản phẩm học tập
+
+### c) Phương pháp thống kê toán học:
+• Xử lý số liệu bằng công thức thống kê
+• Tính điểm trung bình: X̄ = (Σxi)/n
+• Tính tỷ lệ phần trăm, so sánh đối chứng
+
+---
+
+# **II. PHẦN NỘI DUNG** (~${(wordDistribution.coSoLyLuan + wordDistribution.thucTrang + wordDistribution.cacGiaiPhap + wordDistribution.ketQuaKhaoNghiem).toLocaleString()} từ)
+
+## **1. Cơ sở lý luận** (~${wordDistribution.coSoLyLuan.toLocaleString()} từ)
+⚠️ **LƯU Ý: Viết NGẮN GỌN, chỉ nêu nội dung TRỰC TIẾP liên quan đến đề tài**
+
+### 1.1. Các khái niệm cốt lõi
+• Định nghĩa [khái niệm 1 liên quan đến "${title}"]
+• Định nghĩa [khái niệm 2]
+• Định nghĩa [khái niệm 3]
+
+### 1.2. Cơ sở tâm lý học, giáo dục học
+• Đặc điểm tâm lý lứa tuổi học sinh ${level}
+• Quan điểm dạy học phát triển năng lực theo GDPT 2018
+
+### 1.3. Lý thuyết nền tảng
+• [Lý thuyết/Học thuyết hỗ trợ cho các giải pháp]
+
+---
+
+## **2. Thực trạng vấn đề nghiên cứu** (~${wordDistribution.thucTrang.toLocaleString()} từ)
+⚠️ **YÊU CẦU: Có số liệu minh họa CỤ THỂ, CHÍNH XÁC (theo QĐ 658)**
+
+### 2.1. Khái quát về địa bàn nghiên cứu
+• Giới thiệu ${unit || 'đơn vị công tác'}
+• Đặc điểm học sinh, giáo viên, cơ sở vật chất
+
+### 2.2. Thực trạng vấn đề (từ input tác giả):
+${problem}
+
+### 2.3. Kết quả khảo sát thực trạng ban đầu
+
+**📊 BẢNG 1: Khảo sát thực trạng [tiêu chí liên quan đề tài] (Trước khi áp dụng giải pháp)**
+
+| STT | Tiêu chí đánh giá | Tốt | Khá | TB | Yếu | Tổng HS |
+|-----|-------------------|-----|-----|-----|-----|---------|
+| 1 | [Tiêu chí 1] | X% | Y% | Z% | W% | N |
+| 2 | [Tiêu chí 2] | ... | ... | ... | ... | N |
+| 3 | [Tiêu chí 3] | ... | ... | ... | ... | N |
+
+*(Nguồn: Khảo sát của tác giả, tháng X/20XX)*
+*(Lưu ý: Tỷ lệ Tốt + Khá thường ≤ 40% trước khi áp dụng giải pháp)*
+
+**📊 BẢNG 2: Đánh giá nhận thức của giáo viên về [vấn đề]**
+
+| STT | Nội dung đánh giá | Rất cần thiết | Cần thiết | Không cần thiết |
+|-----|-------------------|---------------|-----------|-----------------|
+| 1 | [Nội dung 1] | X% | Y% | Z% |
+| 2 | [Nội dung 2] | ... | ... | ... |
+
+*(Nguồn: Phiếu khảo sát X giáo viên, tháng X/20XX)*
+
+### 2.4. Phân tích nguyên nhân thực trạng
+
+**a) Nguyên nhân khách quan:**
+• Về điều kiện cơ sở vật chất: [...]
+• Về chương trình, tài liệu: [...]
+• Về chính sách, quy định: [...]
+
+**b) Nguyên nhân chủ quan:**
+• Về phía giáo viên: [...]
+• Về phía học sinh: [...]
+• Về phía gia đình, xã hội: [...]
+
+### 2.5. Thuận lợi và khó khăn
+• **Thuận lợi:** [...]
+• **Khó khăn:** [...]
+
+---
+
+## **3. Các giải pháp** (~${wordDistribution.cacGiaiPhap.toLocaleString()} từ)
+⚠️ **ĐÂY LÀ PHẦN QUAN TRỌNG NHẤT - QUYẾT ĐỊNH TÍNH MỚI VÀ SÁNG TẠO (20 điểm) + HIỆU QUẢ (35 điểm)**
+
+**Mỗi giải pháp PHẢI có đầy đủ:**
+✓ Tên giải pháp (ngắn gọn, nêu bật bản chất)
+✓ Mục tiêu của giải pháp
+✓ Nội dung và cách thức thực hiện (chi tiết từng bước)
+✓ Điều kiện thực hiện giải pháp
+✓ Ví dụ minh họa cụ thể
 
 ${solutionsPrompt}
 
-**Mối quan hệ giữa các giải pháp** (nếu có):
-   • Giải pháp nào là tiền đề cho giải pháp khác
-   • Giải pháp nào có thể thực hiện song song
-   • Sự hỗ trợ, bổ sung lẫn nhau giữa các giải pháp
+### **3.${numSolutions + 1}. Mối quan hệ giữa các giải pháp**
+• Giải pháp nào là tiền đề, nền tảng cho các giải pháp khác
+• Giải pháp nào có thể thực hiện đồng thời
+• Sự bổ trợ, tương hỗ giữa các giải pháp để tạo hiệu quả tổng hợp
 
-**4. Kết quả khảo nghiệm, giá trị khoa học của vấn đề nghiên cứu, phạm vi và hiệu quả ứng dụng** (~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} từ)
-(Cần xác định rõ thước đo hiệu quả của ứng dụng, có số liệu định tính, định lượng minh họa)
+---
 
-   a) Kết quả định lượng:
+## **4. Kết quả khảo nghiệm, giá trị khoa học của vấn đề nghiên cứu, phạm vi và hiệu quả ứng dụng** (~${wordDistribution.ketQuaKhaoNghiem.toLocaleString()} từ)
+⚠️ **YÊU CẦU: Xác định rõ THƯỚC ĐO HIỆU QUẢ, có số liệu ĐỊNH TÍNH + ĐỊNH LƯỢNG**
 
-   📊 **BẢNG 2: So sánh TRƯỚC và SAU khi áp dụng giải pháp**
-   | Tiêu chí đánh giá | TRƯỚC áp dụng | SAU áp dụng | Tăng/Giảm |
-   |-------------------|---------------|-------------|-----------|
-   | [Tiêu chí 1] | X% Tốt+Khá | Y% Tốt+Khá | +Z% |
-   | [Tiêu chí 2] | ... | ... | ... |
+### 4.1. Kết quả định lượng
+
+**📊 BẢNG 3: So sánh kết quả TRƯỚC và SAU khi áp dụng các giải pháp**
+
+| STT | Tiêu chí đánh giá | TRƯỚC áp dụng | SAU áp dụng | Mức tăng |
+|-----|-------------------|---------------|-------------|----------|
+| 1 | Tỷ lệ HS đạt Tốt | X% | X'% | +Y% |
+| 2 | Tỷ lệ HS đạt Khá | X% | X'% | +Y% |
+| 3 | Tỷ lệ HS đạt TB | X% | X'% | -Y% |
+| 4 | Tỷ lệ HS Yếu | X% | X'% | -Y% |
+| 5 | Điểm trung bình | X̄ | X̄' | +... |
+
+*(Nguồn: Kết quả thực nghiệm của tác giả, năm học 20XX-20XX)*
+*(Lưu ý: Tỷ lệ Tốt + Khá SAU áp dụng thường đạt 75-90%, KHÔNG nên đưa 100%)*
+
+**📊 BẢNG 4: Đánh giá hiệu quả từng giải pháp**
+
+| STT | Giải pháp | Rất hiệu quả | Hiệu quả | Ít hiệu quả | Không hiệu quả |
+|-----|-----------|--------------|----------|-------------|----------------|
+| 1 | GP 3.1 | X% | Y% | Z% | W% |
+| 2 | GP 3.2 | ... | ... | ... | ... |
+| ... | ... | ... | ... | ... | ... |
+
+*(Nguồn: Phiếu đánh giá của X giáo viên, X học sinh)*
+
+**📊 BẢNG 5: So sánh nhóm thực nghiệm và nhóm đối chứng (nếu có)**
+
+| Tiêu chí | Nhóm TN (N=...) | Nhóm ĐC (N=...) | Chênh lệch |
+|----------|-----------------|-----------------|------------|
+| Điểm TB | X̄TN | X̄ĐC | +... |
+| Tỷ lệ Tốt+Khá | X% | Y% | +Z% |
+
+### 4.2. Kết quả định tính
+
+**a) Nhận xét của đồng nghiệp:**
+• [Trích dẫn ý kiến cụ thể]
+
+**b) Phản hồi từ học sinh:**
+• [Trích dẫn ý kiến cụ thể]
+
+**c) Đánh giá từ Ban Giám hiệu:**
+• [Trích dẫn ý kiến cụ thể]
+
+**d) Ý kiến phụ huynh (nếu có):**
+• [Trích dẫn ý kiến cụ thể]
+
+### 4.3. Giá trị khoa học của vấn đề nghiên cứu
+
+**a) Về mặt lý luận:**
+• Hệ thống hóa cơ sở lý luận về [...]
+• Đóng góp mới về [...]
+
+**b) Về mặt thực tiễn:**
+• Cung cấp giải pháp cụ thể cho [...]
+• Minh chứng hiệu quả bằng số liệu khoa học
+
+### 4.4. Phạm vi và hiệu quả ứng dụng
+
+**a) Phạm vi có thể áp dụng:**
+• Cấp trường: [Điều kiện...]
+• Cấp huyện/thị: [Điều kiện...]
+• Cấp tỉnh/toàn ngành: [Điều kiện...]
+
+**b) Điều kiện để nhân rộng:**
+• [Yêu cầu về nguồn lực]
+• [Yêu cầu về tập huấn, bồi dưỡng]
+
+**c) Khả năng thích ứng:**
+• [Có thể điều chỉnh cho bối cảnh khác như thế nào]
+
+---
+
+# **III. PHẦN KẾT LUẬN, KIẾN NGHỊ** (~${wordDistribution.ketLuanKienNghi.toLocaleString()} từ)
+⚠️ **LƯU Ý: Viết NGẮN GỌN, KHÔNG cần đưa số liệu (theo QĐ 658)**
+
+## **1. Kết luận**
+
+### a) Nêu khái quát các nội dung đã nghiên cứu:
+• Đề tài đã thực hiện các công việc: [liệt kê ngắn gọn]
+• Các giải pháp đã đề xuất: [liệt kê ${numSolutions} giải pháp]
+
+### b) Kết quả nội dung nghiên cứu:
+• Mức độ đạt được mục tiêu: [Đánh giá ngắn gọn]
+• Khẳng định tính hiệu quả, khả thi của các giải pháp
+
+## **2. Kiến nghị**
+(Xuất phát từ nội dung nghiên cứu của đề tài)
+
+### a) Đối với Sở Giáo dục và Đào tạo:
+• [Kiến nghị cụ thể, khả thi]
+
+### b) Đối với Phòng Giáo dục và Đào tạo:
+• [Kiến nghị cụ thể, khả thi]
+
+### c) Đối với nhà trường:
+• [Kiến nghị cụ thể, khả thi]
+
+### d) Đối với giáo viên/đồng nghiệp:
+• [Kiến nghị cụ thể, khả thi]
+
+---
+
+# **TÀI LIỆU THAM KHẢO** (~${wordDistribution.taiLieu.toLocaleString()} từ)
+(8-12 tài liệu, trình bày theo chuẩn trích dẫn khoa học)
+
+1. Ban Chấp hành Trung ương (2013), *Nghị quyết số 29-NQ/TW ngày 04/11/2013 về đổi mới căn bản, toàn diện giáo dục và đào tạo*, Hà Nội.
+
+2. Bộ Giáo dục và Đào tạo (2018), *Thông tư số 32/2018/TT-BGDĐT ngày 26/12/2018 ban hành Chương trình giáo dục phổ thông*, Hà Nội.
+
+3. Bộ Giáo dục và Đào tạo (2020), *Thông tư số 26/2020/TT-BGDĐT về đánh giá học sinh*, Hà Nội.
+
+4. [Sách, giáo trình chuyên ngành liên quan đến ${subject}]
+
+5. [Bài báo, nghiên cứu khoa học về chủ đề liên quan]
+
+6. [Tài liệu tập huấn, bồi dưỡng của Bộ/Sở GD&ĐT]
+
+... (tiếp tục đủ 8-12 tài liệu)
+
+---
+
+# ✅ YÊU CẦU ĐẦU RA CUỐI CÙNG:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Viết **ĐẦY ĐỦ ${targetWords.toLocaleString()} từ** theo phân bổ trên (14-40 trang A4)
+✓ **TUÂN THỦ 100%** cấu trúc PHỤ LỤC 1 - QĐ 658/QĐ-SGDĐT Đắk Lắk
+✓ Nội dung **LIÊN QUAN TRỰC TIẾP** đến "${title}"
+✓ **Văn phong học thuật**, mạch lạc, logic, chuyên nghiệp
+✓ **Số liệu thực tế**, có độ biến thiên hợp lý (KHÔNG 100% hoàn hảo)
+✓ **Bảng biểu rõ ràng** với nguồn số liệu cụ thể
+✓ Trích dẫn văn bản pháp quy **CHÍNH XÁC**
+✓ **KHÔNG tóm tắt, KHÔNG rút gọn**, viết chi tiết đầy đủ
+✓ Giọng văn phù hợp với vai trò **${position}**
+✓ Mỗi giải pháp có: **Tên → Mục tiêu → Nội dung/Cách thức → Điều kiện thực hiện → Ví dụ**
+✓ Hướng đến điểm **LOẠI A (85-100 điểm)**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+        }
+        
+        // ========== Show Prompt Modal ==========
+        function showPromptModal(prompt, meta) {
+            const modalHtml = `
+                <div id="promptModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                    <div style="background: #1a1a2e; border-radius: 12px; max-width: 900px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+                        <div style="padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; color: #fff;">📋 Prompt SKKN - Copy để dùng với ChatGPT/Gemini</h3>
+                            <button onclick="closePromptModal()" style="background: none; border: none; color: #fff; font-size: 24px; cursor: pointer;">&times;</button>
+                        </div>
+                        <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                            <div style="background: #0d0d1a; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                <p style="color: #888; margin: 0 0 10px 0; font-size: 13px;">
+                                    ⚠️ <b>API chưa kết nối.</b> Copy prompt bên dưới và paste vào ChatGPT hoặc Gemini để tạo SKKN chi tiết.
+                                </p>
+                            </div>
+                            <textarea id="promptText" readonly style="width: 100%; height: 400px; background: #0d0d1a; color: #e0e0e0; border: 1px solid #333; border-radius: 8px; padding: 15px; font-family: monospace; font-size: 12px; resize: none;">${prompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                        </div>
+                        <div style="padding: 20px; border-top: 1px solid #333; display: flex; gap: 10px; justify-content: flex-end;">
+                            <button onclick="copyPrompt()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                📋 Copy Prompt
+                            </button>
+                            <button onclick="openChatGPT()" style="background: #10a37f; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                🤖 Mở ChatGPT
+                            </button>
+                            <button onclick="openGemini()" style="background: #4285f4; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                ✨ Mở Gemini
+                            </button>
+                            <button onclick="closePromptModal()" style="background: #333; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Also show demo in canvas with warning
+            const demoData = generateDemoSKKN(meta);
+            renderSKKN(demoData, meta, true); // true = isDemo
+        }
+        
+        function closePromptModal() {
+            const modal = document.getElementById('promptModal');
+            if (modal) modal.remove();
+        }
+        
+        function copyPrompt() {
+            const textarea = document.getElementById('promptText');
+            textarea.select();
+            document.execCommand('copy');
+            showToast('Đã copy prompt! Paste vào ChatGPT hoặc Gemini để tạo SKKN.');
+        }
+        
+        function openChatGPT() {
+            window.open('https://chat.openai.com/', '_blank');
+        }
+        
+        function openGemini() {
+            window.open('https://gemini.google.com/', '_blank');
+        }
+        
+        // ========== Render KHBD ==========
+        function renderKHBD(data, meta, isDemo = true) {
+            const content = data.content || data;
+            
+            // Demo warning banner
+            const demoBanner = isDemo ? `
+                <div style="background: linear-gradient(135deg, #ff6b6b, #ffa500); padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                    <h3 style="margin: 0 0 10px; color: white;">⚠️ ĐÂY LÀ BẢN DEMO - KHUNG MẪU</h3>
+                    <p style="margin: 0 0 15px; color: white; font-size: 14px;">
+                        Nội dung bên dưới chỉ là <b>giáo án mẫu</b>, cần được tùy chỉnh theo bài dạy thực tế.<br>
+                        Để có KHBD chi tiết, hãy <b>copy prompt</b> và paste vào ChatGPT hoặc Gemini.
+                    </p>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="document.getElementById('promptText')?.select(); document.execCommand('copy'); alert('Đã copy!');" 
+                                style="background: white; color: #ff6b6b; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
    | [Tiêu chí 3] | ... | ... | ... |
 
    (Số liệu SAU hợp lý: Tốt+Khá thường đạt 75-90%, không nên 100%)

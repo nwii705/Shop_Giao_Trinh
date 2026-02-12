@@ -79,6 +79,15 @@ Cach dung:
 6. Doi AI soan (3-10 phut tuy do dai)
 7. Xuat Word khi hoan thanh
 
+Tinh nang nang cap (V2.0):
+- Tuan thu 100% Phu luc 1 - QD 658/QD-SGDDT Dak Lak
+- Persona: Chuyen gia Nghien cuu KHSP Ung dung cap Cao
+- Negative Prompting: Loai bo noi dung chung chung, dao van
+- Thang diem Loai A (85-100 diem): Tinh moi (20d), Khoa hoc (25d), Hieu qua (35d), Ap dung (20d)
+- Cau truc giai phap 3 lop: Muc tieu -> Noi dung/Cach thuc -> Dieu kien -> Vi du
+- Bang bieu dinh luong: Truoc/Sau ap dung, So sanh doi chung
+- Phan bo tu: Giai phap 42%, Thuc trang 15%, Ket qua 14%
+
 Cau truc SKKN: Theo QD 658/QD-SGDDT
 - Phan I: Mo dau (ly do, muc dich, doi tuong, phuong phap)
 - Phan II: Noi dung (co so ly luan, thuc trang, giai phap)
