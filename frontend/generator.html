@@ -3818,14 +3818,19 @@
             // Headers with page breaks for major sections
             const majorSections = ['PHẦN I', 'PHẦN II', 'PHẦN III', 'CHƯƠNG', 'MỤC LỤC', 'PHỤ LỤC', 'TÀI LIỆU THAM KHẢO'];
             
-            html = html.replace(/^# (.+)$/gm, (match, title) => {
+            // Loại bỏ các ký tự đặc biệt không cần thiết trước
+            html = html.replace(/□/g, ''); // Loại bỏ checkbox □
+            html = html.replace(/■/g, ''); // Loại bỏ ■
+            html = html.replace(/®/g, ''); // Loại bỏ ®
+            
+            html = html.replace(/^\s*# (.+)$/gm, (match, title) => {
                 const shouldBreak = addPageBreaks && majorSections.some(s => title.toUpperCase().includes(s));
-                return `${shouldBreak ? '<div style="page-break-before: always;"></div>' : ''}<h2 style="font-family: 'Times New Roman', Times, serif; margin-top: 18pt; margin-bottom: 10pt; color: #000; font-size: 14pt; text-align: left; font-weight: bold; text-transform: uppercase;">${title}</h2>`;
+                return `${shouldBreak ? '<div style="page-break-before: always;"></div>' : ''}<h2 style="font-family: 'Times New Roman', Times, serif; margin-top: 18pt; margin-bottom: 10pt; color: #000; font-size: 14pt; text-align: left; font-weight: bold; text-transform: uppercase;">${title.replace(/\*\*/g, '')}</h2>`;
             });
             
-            html = html.replace(/^## (.+)$/gm, '<h3 style="font-family: \'Times New Roman\', Times, serif; margin-top: 16pt; margin-bottom: 8pt; color: #000; font-size: 14pt; font-weight: bold;">$1</h3>');
-            html = html.replace(/^### (.+)$/gm, '<h4 style="font-family: \'Times New Roman\', Times, serif; margin-top: 14pt; margin-bottom: 6pt; color: #000; font-size: 13pt; font-weight: bold;">$1</h4>');
-            html = html.replace(/^#### (.+)$/gm, '<h5 style="font-family: \'Times New Roman\', Times, serif; margin-top: 12pt; margin-bottom: 6pt; color: #000; font-size: 13pt; font-weight: bold; font-style: italic;">$1</h5>');
+            html = html.replace(/^\s*## (.+)$/gm, '<h3 style="font-family: \'Times New Roman\', Times, serif; margin-top: 16pt; margin-bottom: 8pt; color: #000; font-size: 14pt; font-weight: bold;">$1</h3>');
+            html = html.replace(/^\s*### (.+)$/gm, '<h4 style="font-family: \'Times New Roman\', Times, serif; margin-top: 14pt; margin-bottom: 6pt; color: #000; font-size: 13pt; font-weight: bold;">$1</h4>');
+            html = html.replace(/^\s*#### (.+)$/gm, '<h5 style="font-family: \'Times New Roman\', Times, serif; margin-top: 12pt; margin-bottom: 6pt; color: #000; font-size: 13pt; font-weight: bold;">$1</h5>');
             
             // Bold and italic
             html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
@@ -3833,14 +3838,14 @@
             html = html.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
             html = html.replace(/_([^_\n]+)_/g, '<em>$1</em>');
             
-            // Bullet lists - với khoảng cách dòng đồng nhất
-            html = html.replace(/^[\*\-•] (.+)$/gm, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 3pt; text-align: left; line-height: 1.5;">$1</li>');
+            // Bullet lists - với khoảng cách dòng gọn hơn
+            html = html.replace(/^\s*[\*\-•●○▪►] (.+)$/gm, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 2pt; text-align: left; line-height: 1.4;">$1</li>');
             
             // Numbered lists  
-            html = html.replace(/^\d+\.\s+(.+)$/gm, '<numli>$1</numli>');
+            html = html.replace(/^\s*\d+\.\s+(.+)$/gm, '<numli>$1</numli>');
             
-            // Wrap consecutive list items - giảm margin
-            html = html.replace(/(<li[^>]*>.*?<\/li>\n?)+/gs, '<ul style="font-family: \'Times New Roman\', Times, serif; margin: 6pt 0; padding-left: 25px; list-style-type: disc;">$&</ul>');
+            // Wrap consecutive list items - giảm margin và padding
+            html = html.replace(/(<li[^>]*>.*?<\/li>\n?)+/gs, '<ul style="font-family: \'Times New Roman\', Times, serif; margin: 4pt 0; padding-left: 20px; list-style-type: disc;">$&</ul>');
             html = html.replace(/(<numli>.*?<\/numli>\n?)+/gs, (match) => {
                 let items = match.replace(/<numli>/g, '<li style="font-family: \'Times New Roman\', Times, serif; margin-bottom: 3pt; text-align: left; line-height: 1.5;">').replace(/<\/numli>/g, '</li>');
                 return `<ol style="font-family: 'Times New Roman', Times, serif; margin: 6pt 0; padding-left: 30px;">${items}</ol>`;
@@ -3863,7 +3868,9 @@
             // Wrap in paragraph - khoảng cách đồng nhất
             html = '<p style="font-family: \'Times New Roman\', Times, serif; text-indent: 1.27cm; text-align: left; margin: 6pt 0; line-height: 1.5; font-size: 13pt;">' + html + '</p>';
             
-            // Clean up
+            // Clean up - loại bỏ các ký tự markdown còn sót
+            html = html.replace(/#{1,6}\s*/g, ''); // Loại bỏ # còn sót trong text
+            html = html.replace(/\*\*/g, ''); // Loại bỏ ** còn sót
             html = html.replace(/<p[^>]*>\s*<\/p>/g, '');
             html = html.replace(/<p[^>]*>(\s*<br>\s*)*<\/p>/g, '');
             html = html.replace(/<p[^>]*>\s*(<h[2-5])/g, '$1');
@@ -3874,6 +3881,8 @@
             html = html.replace(/(<\/ul>|<\/ol>)\s*<\/p>/g, '$1');
             html = html.replace(/<p[^>]*>\s*(<div)/g, '$1');
             html = html.replace(/(<\/div>)\s*<\/p>/g, '$1');
+            // Loại bỏ br thừa
+            html = html.replace(/(<br>\s*){3,}/g, '<br><br>');
             
             return html;
         }
