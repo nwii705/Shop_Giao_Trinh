@@ -5455,48 +5455,48 @@ QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
             return tones[position] || tones['Giáo viên bộ môn'];
         }
         
-        // Tạo hướng dẫn về độ dài dựa trên số từ yêu cầu
+        // Tạo hướng dẫn về độ dài theo TRANG A4 - QĐ 658 (cỡ chữ 14, ~350 từ/trang)
         function getWritingStyleByWordCount(targetWords) {
-            if (targetWords <= 5000) {
-                return {
-                    style: 'NGẮN GỌN, SÚC TÍCH',
-                    pages: '10-15',
-                    detailLevel: 'Viết cô đọng, chỉ nêu ý chính. Mỗi giải pháp 1-2 ví dụ ngắn.',
-                    tableCount: '3-4 bảng',
-                    solutionDetail: 'Mỗi giải pháp ~500-700 từ, tập trung vào nội dung và cách thức thực hiện.',
-                    examples: 'Ví dụ minh họa ngắn gọn, 1-2 câu mỗi ví dụ.'
-                };
-            } else if (targetWords <= 8000) {
-                return {
-                    style: 'CHI TIẾT VỪA PHẢI',
-                    pages: '18-25',
-                    detailLevel: 'Viết đầy đủ các ý, có giải thích và ví dụ. Mỗi giải pháp 2-3 ví dụ.',
-                    tableCount: '5-7 bảng',
-                    solutionDetail: 'Mỗi giải pháp ~800-1200 từ, có mục tiêu, nội dung chi tiết, điều kiện thực hiện.',
-                    examples: 'Ví dụ minh họa cụ thể với tình huống thực tế trong lớp học.'
-                };
-            } else if (targetWords <= 12000) {
-                return {
-                    style: 'CHI TIẾT ĐẦY ĐỦ',
-                    pages: '28-35',
-                    detailLevel: 'Viết chi tiết, phân tích sâu, nhiều ví dụ minh họa. Mỗi giải pháp 3-4 ví dụ.',
-                    tableCount: '8-10 bảng',
-                    solutionDetail: 'Mỗi giải pháp ~1500-2000 từ, mô tả đầy đủ 4 bước: Mục tiêu → Nội dung → Điều kiện → Ví dụ.',
-                    examples: 'Ví dụ minh họa chi tiết với mô tả cụ thể hoạt động GV-HS, có thể kèm phiếu học tập mẫu.'
-                };
-            } else {
-                return {
-                    style: 'RẤT CHI TIẾT VÀ CHUYÊN SÂU',
-                    pages: '35-40',
-                    detailLevel: 'Viết rất chi tiết, phân tích chuyên sâu, nhiều ví dụ và tình huống. Mỗi giải pháp 4-5 ví dụ.',
-                    tableCount: '10-12 bảng',
-                    solutionDetail: 'Mỗi giải pháp ~2500-3000 từ, phân tích toàn diện với lý giải khoa học, dẫn chứng từ lý thuyết.',
-                    examples: 'Ví dụ minh họa rất chi tiết, có thể mô tả cả tiết dạy mẫu, kèm phiếu học tập, rubric đánh giá.'
-                };
-            }
+            // Tính số trang ước tính (350 từ/trang với cỡ chữ 14)
+            const estimatedPages = Math.round(targetWords / 350);
+            
+            // Phân bổ trang theo QĐ 658:
+            // - Mở đầu: 2-3 trang (8%)
+            // - Cơ sở lý luận: 2-3 trang (7%) - YÊU CẦU NGẮN GỌN
+            // - Thực trạng: 3-4 trang (12%)
+            // - Giải pháp: 15-20 trang (50%) - TRỌNG TÂM
+            // - Kết quả: 3-4 trang (12%)
+            // - Kết luận: 1-2 trang (5%)
+            // - Tài liệu tham khảo: 1 trang (3%)
+            
+            const pageDistribution = {
+                moDau: Math.max(2, Math.round(estimatedPages * 0.08)),
+                coSoLyLuan: Math.min(3, Math.round(estimatedPages * 0.07)), // Tối đa 3 trang
+                thucTrang: Math.round(estimatedPages * 0.12),
+                giaiPhap: Math.round(estimatedPages * 0.50),
+                ketQua: Math.round(estimatedPages * 0.12),
+                ketLuan: Math.max(1, Math.round(estimatedPages * 0.05)),
+                taiLieu: 1
+            };
+            
+            // Số giải pháp và số từ/giải pháp
+            const numSolutions = estimatedPages >= 30 ? 4 : 3;
+            const pagesPerSolution = Math.round(pageDistribution.giaiPhap / numSolutions);
+            const wordsPerSolution = pagesPerSolution * 350;
+            
+            return {
+                estimatedPages,
+                pageDistribution,
+                numSolutions,
+                pagesPerSolution,
+                wordsPerSolution,
+                style: estimatedPages <= 20 ? 'NGẮN GỌN, SÚC TÍCH' : 
+                       estimatedPages <= 30 ? 'CHI TIẾT VỪA PHẢI' : 'CHI TIẾT ĐẦY ĐỦ',
+                tableCount: estimatedPages <= 20 ? '4-5' : estimatedPages <= 30 ? '6-8' : '8-10'
+            };
         }
         
-        // Build SKKN Prompt - Master Version 2.2 - Adaptive to word count
+        // Build SKKN Prompt - Master Version 3.0 - Kiểm soát theo TRANG A4
         function buildSKKNPrompt(meta) {
             const { position, title, subject, level, digital, problem, solution, result, author, year, unit, targetWords = 7000, customOutline } = meta;
             const roleTone = getRoleTone(position);
@@ -5538,8 +5538,9 @@ QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
                 };
             }
             
-            const numSolutions = targetWords >= 10000 ? 5 : (targetWords >= 7000 ? 4 : 3);
-            const wordsPerSolution = Math.round(wordDistribution.cacGiaiPhap / numSolutions);
+            // Sử dụng số giải pháp từ writingStyle (đã tính toán theo trang)
+            const numSolutions = writingStyle.numSolutions;
+            const wordsPerSolution = writingStyle.wordsPerSolution;
             
             // Lấy tiêu đề giải pháp từ customOutline nếu có
             let solutionTitles = [];
@@ -5553,31 +5554,28 @@ QUY TẮC ĐỊNH DẠNG BẮT BUỘC:
                 });
             }
             
-            // Xây dựng phần giải pháp với cấu trúc 3 lớp theo QĐ 658
+            // Xây dựng phần giải pháp - GIỚI HẠN SỐ TỪ MỖI GIẢI PHÁP
             let solutionsPrompt = '';
             for (let i = 0; i < numSolutions; i++) {
-                const solutionTitle = solutionTitles[i] || `Giải pháp ${i+1}: Tên giải pháp cụ thể - nêu bật bản chất thay đổi`;
+                const solutionTitle = solutionTitles[i] || `Giải pháp ${i+1}: [Tên cụ thể]`;
                 solutionsPrompt += `
-#### **3.${i+1}. ${solutionTitle}** (~${wordsPerSolution.toLocaleString()} từ)
+#### **3.${i+1}. ${solutionTitle}** 
+**[GIỚI HẠN: ${writingStyle.pagesPerSolution} trang = ${wordsPerSolution} từ TỐI ĐA]**
 
-**a) Mục tiêu của giải pháp:**
+**a) Mục tiêu:** (3-5 dòng)
+- Mục tiêu cụ thể, đo lường được
 
-- Giải quyết khía cạnh nào của vấn đề?
-- Kết quả mong đợi cụ thể (đo lường được)?
-- Năng lực/phẩm chất học sinh hướng tới?
+**b) Nội dung và cách thức thực hiện:** (Phần chính - 60% số từ)
+- Bước 1: [Mô tả ngắn gọn]
+- Bước 2: [Mô tả ngắn gọn]
+- Bước 3: [Mô tả ngắn gọn]
+- Bước 4: [Mô tả ngắn gọn]
+(Nếu có giáo án chi tiết → ghi "Chi tiết xem Phụ lục X")
 
-**b) Nội dung và cách thức thực hiện:**
+**c) Điều kiện thực hiện:** (5-7 dòng)
+- Nhân lực, CSVC, thời gian
 
-- **Bước 1 - Chuẩn bị:** Mô tả chi tiết - GV chuẩn bị gì? HS chuẩn bị gì?
-- **Bước 2 - Tổ chức:** Mô tả chi tiết - GV tổ chức ra sao? HS tham gia thế nào?
-- **Bước 3 - Thực hiện:** Mô tả chi tiết - Quy trình cụ thể từng hoạt động
-- **Bước 4 - Đánh giá:** Mô tả chi tiết - Tiêu chí đánh giá, cách thu thập dữ liệu
-
-**c) Điều kiện thực hiện giải pháp:**
-
-- Yêu cầu về nhân lực (GV, HS, phụ huynh)
-- Yêu cầu về cơ sở vật chất, thiết bị, học liệu
-- Yêu cầu về thời gian, thời điểm áp dụng
+**d) Ví dụ minh họa:** (1 ví dụ ngắn hoặc bảng)
 - Yêu cầu về kinh phí (nếu có)
 
 **d) Ví dụ minh họa cụ thể:**
@@ -5588,55 +5586,48 @@ Mô tả 1-2 trường hợp áp dụng thực tế trong bài học/hoạt đ�
             }
             
             // ============================================================
-            // MASTER PROMPT V2.2 - SKKN LOẠI A THEO QĐ 658/QĐ-SGDĐT ĐẮK LẮK
-            // Adaptive to word count
+            // MASTER PROMPT V3.0 - SKKN LOẠI A THEO QĐ 658/QĐ-SGDĐT ĐẮK LẮK
+            // Kiểm soát theo TRANG A4 (cỡ chữ 14, ~350 từ/trang)
             // ============================================================
+            
+            const pd = writingStyle.pageDistribution; // Phân bổ trang
+            
             return `# PERSONA & VAI TRÒ
-Bạn là Chuyên gia Nghiên cứu Khoa học Sư phạm Ứng dụng cấp Cao và Thành viên Hội đồng Thẩm định SKKN cấp Tỉnh với 20 năm kinh nghiệm.
+Bạn là Chuyên gia thẩm định SKKN cấp Tỉnh Đắk Lắk với 20 năm kinh nghiệm.
 
-# HƯỚNG DẪN ĐỘ DÀI VÀ CHI TIẾT (QUAN TRỌNG)
+# KIỂM SOÁT ĐỘ DÀI THEO TRANG A4 (QUAN TRỌNG - ĐỌC KỸ)
 
-**Yêu cầu độ dài: ${targetWords.toLocaleString()} từ (~${writingStyle.pages} trang A4)**
+**TỔNG SỐ TRANG: ${writingStyle.estimatedPages} trang A4** (cỡ chữ 14, ~350 từ/trang)
+**Giới hạn QĐ 658: 14-40 trang chính văn (không tính bìa, mục lục, phụ lục)**
 
-**Phong cách viết: ${writingStyle.style}**
-- ${writingStyle.detailLevel}
-- Số bảng biểu: ${writingStyle.tableCount}
-- Chi tiết mỗi giải pháp: ${writingStyle.solutionDetail}
-- Ví dụ minh họa: ${writingStyle.examples}
+## PHÂN BỔ TRANG BẮT BUỘC:
 
-VIẾT ĐẦY ĐỦ từ Phần I đến Tài liệu tham khảo. KHÔNG dừng giữa chừng.
+| Phần | Số trang | Số từ tối đa | Ghi chú |
+|------|----------|--------------|---------|
+| I. Mở đầu | ${pd.moDau} trang | ~${pd.moDau * 350} từ | 5 mục nhỏ |
+| II.1. Cơ sở lý luận | ${pd.coSoLyLuan} trang | ~${pd.coSoLyLuan * 350} từ | NGẮN GỌN - Chỉ khái niệm cốt lõi |
+| II.2. Thực trạng | ${pd.thucTrang} trang | ~${pd.thucTrang * 350} từ | Có bảng khảo sát |
+| II.3. Giải pháp | ${pd.giaiPhap} trang | ~${pd.giaiPhap * 350} từ | ${writingStyle.numSolutions} giải pháp x ${writingStyle.pagesPerSolution} trang |
+| II.4. Kết quả | ${pd.ketQua} trang | ~${pd.ketQua * 350} từ | Bảng so sánh trước/sau |
+| III. Kết luận | ${pd.ketLuan} trang | ~${pd.ketLuan * 350} từ | NGẮN GỌN |
+| Tài liệu tham khảo | ${pd.taiLieu} trang | - | 8-12 tài liệu |
 
-# QUY TẮC ĐỊNH DẠNG OUTPUT (BẮT BUỘC TUÂN THỦ)
+## NGUYÊN TẮC KIỂM SOÁT ĐỘ DÀI:
 
-1. TIÊU ĐỀ CẤP 1: Dùng ## (2 dấu #), in đậm, viết HOA
-   Ví dụ: ## **I. PHẦN MỞ ĐẦU**
+1. **Mỗi giải pháp TỐI ĐA ${writingStyle.wordsPerSolution} từ** (~${writingStyle.pagesPerSolution} trang)
+2. **Cơ sở lý luận NGẮN GỌN** - chỉ nêu khái niệm trực tiếp liên quan, KHÔNG trích dẫn dài
+3. **Dùng BẢNG thay văn xuôi** - Nén thông tin vào ${writingStyle.tableCount} bảng
+4. **Kết luận KHÔNG lặp lại số liệu** - Chỉ tóm tắt và kiến nghị
+5. **Chi tiết dài → ghi "Xem Phụ lục"** - Giáo án mẫu, phiếu học tập đẩy xuống phụ lục
 
-2. TIÊU ĐỀ CẤP 2: Dùng ### (3 dấu #), in đậm
-   Ví dụ: ### **1. Lý do chọn đề tài**
+# QUY TẮC ĐỊNH DẠNG
 
-3. TIÊU ĐỀ CẤP 3: Dùng #### (4 dấu #), in đậm
-   Ví dụ: #### **a) Cơ sở pháp lý:**
-
-4. DANH SÁCH: Dùng dấu gạch đầu dòng (-), KHÔNG dùng •, ►, ✓
-   Ví dụ:
-   - Nội dung thứ nhất
-   - Nội dung thứ hai
-
-5. DANH SÁCH CON: Thụt lề 3 space + dấu +
-   Ví dụ:
-   - Mục chính
-      + Mục con 1
-      + Mục con 2
-
-6. BẢNG: Dùng markdown table chuẩn, căn trái
-   Ví dụ:
-   | Cột 1 | Cột 2 | Cột 3 |
-   |-------|-------|-------|
-   | Dữ liệu | Dữ liệu | Dữ liệu |
-
-7. ĐOẠN VĂN: Viết liền mạch, KHÔNG xuống dòng giữa chừng. Mỗi đoạn cách nhau 1 dòng trống.
-
-8. KHÔNG SỬ DỤNG: emoji, ký tự đặc biệt (━, ═, ✓, ►, •), dấu gạch dài
+1. Tiêu đề cấp 1: ## **I. PHẦN MỞ ĐẦU**
+2. Tiêu đề cấp 2: ### **1. Lý do chọn đề tài**  
+3. Tiêu đề cấp 3: #### **a) Cơ sở pháp lý:**
+4. Danh sách: Dùng dấu - (gạch ngang)
+5. Bảng: Markdown table chuẩn
+6. KHÔNG dùng emoji, ký tự đặc biệt, đường kẻ (---, ===)
 
 9. KHOẢNG CÁCH: Sau mỗi phần lớn (I, II, III) có 1 dòng trống. Sau mỗi tiểu mục có 1 dòng trống.
 
@@ -6037,27 +6028,26 @@ LƯU Ý: Viết NGẮN GỌN, KHÔNG cần đưa số liệu (theo QĐ 658)
 
 # YÊU CẦU QUAN TRỌNG - ĐỌC KỸ TRƯỚC KHI VIẾT
 
-**ĐỘ DÀI: ${targetWords.toLocaleString()} từ (~${writingStyle.pages} trang A4)**
-**PHONG CÁCH: ${writingStyle.style}**
+**TỔNG: ${writingStyle.estimatedPages} trang A4 (${targetWords.toLocaleString()} từ)**
 
-- ${writingStyle.detailLevel}
-- Chi tiết giải pháp: ${writingStyle.solutionDetail}
-- Ví dụ: ${writingStyle.examples}
-- Số bảng: ${writingStyle.tableCount}
+VIẾT ĐẦY ĐỦ từ Phần I đến TÀI LIỆU THAM KHẢO. KHÔNG dừng giữa chừng.
 
-VIẾT ĐẦY ĐỦ TẤT CẢ các phần từ I đến III và TÀI LIỆU THAM KHẢO.
-KHÔNG được dừng giữa chừng - phải hoàn thành TOÀN BỘ SKKN.
+**KIỂM SOÁT ĐỘ DÀI:**
+- Mở đầu: ${writingStyle.pageDistribution.moDau} trang
+- Cơ sở lý luận: ${writingStyle.pageDistribution.coSoLyLuan} trang (NGẮN GỌN)
+- Thực trạng: ${writingStyle.pageDistribution.thucTrang} trang
+- Giải pháp: ${writingStyle.pageDistribution.giaiPhap} trang (${writingStyle.numSolutions} GP x ${writingStyle.pagesPerSolution} trang)
+- Kết quả: ${writingStyle.pageDistribution.ketQua} trang
+- Kết luận: ${writingStyle.pageDistribution.ketLuan} trang
 
 **CHECKLIST:**
-1. Cấu trúc theo QĐ 658/QĐ-SGDĐT Đắk Lắk
-2. Nội dung về "${title}"
-3. Văn phong học thuật, mạch lạc
-4. Số liệu thực tế, có độ biến thiên hợp lý
-5. Bảng biểu rõ ràng
-6. Giọng văn ${position}
-7. ĐỦ: Mở đầu → Nội dung → Kết luận → Tài liệu tham khảo
+1. Đủ cấu trúc QĐ 658
+2. Về "${title}"
+3. ${writingStyle.tableCount} bảng biểu
+4. Mỗi giải pháp ≤ ${writingStyle.wordsPerSolution} từ
+5. ĐỦ: I → II → III → Tài liệu tham khảo
 
-BẮT ĐẦU VIẾT:`;
+BẮT ĐẦU VIẾT NGAY TỪ PHẦN I:`;
         }
         
         // ========== Show Prompt Modal ==========
